@@ -1,0 +1,28 @@
+{
+  "name": "smartcontracts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Crypto-Snake/smartcontracts.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Crypto-Snake/smartcontracts/issues"
+  },
+  "homepage": "https://github.com/Crypto-Snake/smartcontracts#readme",
+  "dependencies": {
+    "@truffle/hdwallet-provider": "^1.4.1",
+    "ethers": "^5.1.4",
+    "truffle": "^5.4.13",
+    "web3": "^1.6.0"
+  },
+  "devDependencies": {
+    "@openzeppelin/test-helpers": "^0.5.15"
+  }
+}
