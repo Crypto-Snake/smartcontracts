@@ -8,13 +8,12 @@ import "./NFTManagerBase.sol";
 contract NFTManager is NFTManagerBase {
 
     event HatchEgg(uint indexed tokenId);
-    event DestroySnake(uint indexed tokenId);
 
     function initialize(address _target) external onlyOwner {
         _setTarget(this.hatchEgg.selector, _target);
         _setTarget(this.feedSnake.selector, _target);
+        
         _setTarget(this.destroySnake.selector, _target);
-
         _setTarget(this.updateAllowedTokens.selector, _target);
         _setTarget(this.updateAllowedArtifacts.selector, _target);
         _setTarget(this.updateSnakeEggsShop.selector, _target);
@@ -86,14 +85,5 @@ contract NFTManager is NFTManagerBase {
         }
 
         stakingPool.stakeFor(snakeEquivalentAmount, snakeId, snakes[snakeId].APR, false);
-    }
-
-    function destroySnake(uint256 tokenId) external onlySnakeOwner(tokenId) {
-        address receiver = snakesNFT.ownerOf(tokenId);
-        SnakeStats memory stats = snakes[tokenId];
-        require(block.timestamp > stats.DestroyLock, "NFTManager: Cannot destroy snake on lock");
-        stakingPool.withdraw(tokenId, receiver);
-        snakesNFT.safeBurn(tokenId);
-        emit DestroySnake(tokenId);
     }
 }

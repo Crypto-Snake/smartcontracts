@@ -15,6 +15,7 @@ contract NFTManagerBase is NFTManagerStorage {
     event UpdateGameBalance(uint indexed snakeId, uint oldGameBalance, uint newGameBalance, address indexed updater);
     event UpdateStakeRate(uint indexed snakeId, uint oldStakeRate, uint newStakeRate, address indexed updater);
     event UpdateStakeIsDead(uint indexed snakeId);
+    event DestroySnake(uint indexed tokenId);
 
     modifier onlySnakeEggsShop() {
         require(msg.sender == snakeEggsShop, "NFTManager: Caller is not a snake eggs shop contract");
@@ -98,6 +99,15 @@ contract NFTManagerBase is NFTManagerStorage {
         return snakeStatsLocal;
     }
 
+    function destroySnake(uint256 tokenId) public onlySnakeOwner(tokenId) {
+        address receiver = snakesNFT.ownerOf(tokenId);
+        SnakeStats memory stats = snakes[tokenId];
+        require(block.timestamp > stats.DestroyLock, "NFTManager: Cannot destroy snake on lock");
+        stakingPool.withdraw(tokenId, receiver);
+        snakesNFT.safeBurn(tokenId);
+        emit DestroySnake(tokenId);
+    }
+
     function updateSnakeProperties(uint id, Snake memory properties) external onlyAllowedAddresses() {
         snakesProperties[id] = properties;
         emit UpdateSnakeProperties(id, snakesProperties[id], properties);
@@ -136,8 +146,7 @@ contract NFTManagerBase is NFTManagerStorage {
             snakes[snakeId].StakeAmount -= amount;
 
             if(snakes[snakeId].StakeAmount < properties.DeathPoint) {
-                address receiver = snakesNFT.ownerOf(snakeId);
-                stakingPool.withdrawAndGetReward(snakeId, receiver);
+                destroySnake(snakeId);
                 snakes[snakeId].IsDead = true;
                 emit UpdateStakeIsDead(snakeId);
                 return;

@@ -145,7 +145,7 @@ contract SnakesNFTBase is Ownable, IBEP721, IBEP721Metadata, BaseTokenStorage {
 
     function safeBurn(
         uint256 tokenId
-    ) external onlyTokenOwner(tokenId) {
+    ) external onlyNFTManager {
         _burn(tokenId);
     }
 
