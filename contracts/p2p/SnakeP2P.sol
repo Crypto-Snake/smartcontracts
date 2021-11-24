@@ -97,12 +97,14 @@ contract SnakeP2P is SnakeP2PStorage, IBEP721Receiver {
         require(Address.isContract(proposedAsset), "SnakeP2P: Not contracts");
         require(proposedAmount > 0, "SnakeP2P: Zero amount not allowed");
         _requireAllowed721Or1155(askedAsset);
+        _requireAllowed721Or1155(proposedAsset);
         IBEP1155(proposedAsset).safeTransferFrom(msg.sender, address(this), proposedTokenId, proposedAmount, "");
         tradeId = _createTradeSingle(proposedAsset, proposedAmount, proposedTokenId, askedAsset, 0, tokenId, deadline, AssetType.BEP1155, AssetType.BEP721);   
     }
 
     function createTrade721to1155(address proposedAsset, uint proposedTokenId, address askedAsset, uint askedAmount, uint askedTokenId, uint deadline) external returns (uint tradeId) {
         require(Address.isContract(proposedAsset), "SnakeP2P: Not contracts");
+        _requireAllowed721Or1155(askedAsset);
         _requireAllowed721Or1155(proposedAsset);
         IBEP721(proposedAsset).safeTransferFrom(msg.sender, address(this), proposedTokenId);
         tradeId = _createTradeSingle(proposedAsset, 0, proposedTokenId, askedAsset, askedAmount, askedTokenId, deadline, AssetType.BEP721, AssetType.BEP1155);   
@@ -181,10 +183,12 @@ contract SnakeP2P is SnakeP2PStorage, IBEP721Receiver {
     ) external returns (uint tradeId) {
         for (uint i; i < askedAssets.length; i++) {
           require(Address.isContract(askedAssets[i]), "SnakeP2P: Not contracts");
+          _requireAllowed721Or1155(askedAssets[i]);
         }
 
         for (uint i; i < proposedAssets.length; i++) {
           require(Address.isContract(proposedAssets[i]), "SnakeP2P: Not contracts");
+          _requireAllowed721Or1155(proposedAssets[i]);
           IBEP721(proposedAssets[i]).safeTransferFrom(msg.sender, address(this), proposedTokenIds[i]);
         }        
         tradeId = _createTradeMulti(proposedAssets, 0, proposedTokenIds, askedAssets, 0, askedTokenIds, deadline, AssetType.BEP721, AssetType.BEP721);   
