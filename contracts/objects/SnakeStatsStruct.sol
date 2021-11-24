@@ -16,5 +16,6 @@ abstract contract SnakeStatsStruct {
         uint LastFeededTime;
         uint TimesRateUpdated;
         bool IsDead;
+        uint DestroyLock;
     }
 }

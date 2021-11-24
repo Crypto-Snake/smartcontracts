@@ -14,6 +14,7 @@ import "./objects/StakeObjects.sol";
 contract LockStakingRewardsPool is ILockStakingRewardsPool, ReentrancyGuard, RescueManager, Objects, StakeObjects {
 
     IBEP20 public immutable stakingToken;
+    IBEP20 public stableCoin;
     INFTManager public nftManager;
 
     uint256 public constant rewardDuration = 365 days;
@@ -30,19 +31,22 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, ReentrancyGuard, Res
 
     event Staked(uint256 indexed tokenId, uint256 amount);
     event Withdrawn(uint256 indexed tokenId, uint256 amount, address indexed to);
-    event RewardPaid(uint256 indexed tokenId, uint256 reward, address indexed to);
+    event RewardPaid(uint256 indexed tokenId, uint256 reward, address indexed rewardToken, address indexed to);
     event UpdatePythonBonusRate(uint indexed rate);
     event UpdateNFTManager(address indexed nftManager);
+    event UpdateStableCoin(address indexed stableCoin);
 
     modifier onlyNFTManager {
         require(msg.sender == address(nftManager), "LockStakingReward: caller is not an NFT manager contract");
         _;
     }
 
-    constructor(address _stakingToken) {
+    constructor(address _stakingToken, address _stableCoin) {
         require(Address.isContract(_stakingToken), "_stakingToken is not a contract");
-
+        require(Address.isContract(_stableCoin), "_stableCoin is not a contract");
+        
         stakingToken = IBEP20(_stakingToken);
+        stableCoin = IBEP20(_stableCoin);
     }
 
     function totalSupply() external override view returns (uint256) {
@@ -87,21 +91,21 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, ReentrancyGuard, Res
         _stake(amount, tokenId, rate, isLocked);
     }
 
-    function withdraw(uint256 tokenId) public override nonReentrant onlyNFTManager {
+    function withdraw(uint256 tokenId, address receiver) public override nonReentrant onlyNFTManager {
         require(stakeInfo[tokenId][0].stakeAmount > 0, "LockStakingRewardsPool: This stake nonce was withdrawn");
         require(!stakeInfo[tokenId][0].isLocked, "LockStakingRewardsPool: Unable to withdraw locked staking");
 
         SnakeStats memory stats = nftManager.getSnakeStats(tokenId);
 
-        address msgSenderLocal = msg.sender;
-        uint256 amount = tokenStakeInfo[tokenId].balance + stats.GameBalance;
+        uint stakeBalance = tokenStakeInfo[tokenId].balance;
+        uint256 amount = stakeBalance + stats.GameBalance;
 
-        _totalSupply -= amount;
-        tokenStakeInfo[tokenId].balance -= amount;
+        _totalSupply -= stakeBalance;
+        tokenStakeInfo[tokenId].balance = 0;
         stats.GameBalance = 0;
 
         require(stakingToken.balanceOf(address(this)) > amount, "StakingRewardsPool: Not enough staking token on staking contract");
-        TransferHelper.safeTransfer(address(stakingToken), msgSenderLocal, amount);
+        TransferHelper.safeTransfer(address(stakingToken), receiver, amount);
 
         uint currentNonce = stakeNonces[tokenId];
 
@@ -111,55 +115,77 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, ReentrancyGuard, Res
 
         tokenStakeInfo[tokenId].isWithdrawn = true;
     
-        emit Withdrawn(tokenId, amount, msgSenderLocal);
+        emit Withdrawn(tokenId, amount, receiver);
     }
 
-    function withdrawAndGetReward(uint256 tokenId) external override onlyNFTManager {
-        getReward(tokenId);
-        withdraw(tokenId);
+    function withdrawAndGetReward(uint256 tokenId, address receiver) external override onlyNFTManager {
+        getReward(tokenId, receiver);
+        withdraw(tokenId, receiver);
     }
 
-    function getReward(uint256 tokenId) public override nonReentrant onlyNFTManager {
+    function getRewardFor(uint256 tokenId, address receiver, bool stable) public nonReentrant onlyNFTManager {
         require(!stakeInfo[tokenId][0].isLocked, "LockStakingRewardsPool: Unable to withdraw locked staking");
         
-        address msgSenderLocal = msg.sender;
+        uint256 reward = earned(tokenId);
+
+        if (reward > 0) {
+            if(stable) {
+                tokenStakeInfo[tokenId].weightedStakeDate = block.timestamp;
+                require(stableCoin.balanceOf(address(this)) > reward, "StakingRewardsPool: Not enough stable coin on staking contract");
+                TransferHelper.safeTransfer(address(stableCoin), receiver, reward);
+
+                emit RewardPaid(tokenId, reward, address(stableCoin), receiver);
+            } else {
+                tokenStakeInfo[tokenId].weightedStakeDate = block.timestamp;
+                require(stakingToken.balanceOf(address(this)) > reward, "StakingRewardsPool: Not enough reward token on staking contract");
+                TransferHelper.safeTransfer(address(stakingToken), receiver, reward);
+
+                emit RewardPaid(tokenId, reward, address(stakingToken), receiver);
+            }
+        }
+    }
+
+    function getReward(uint256 tokenId, address receiver) public override nonReentrant onlyNFTManager {
+        require(!stakeInfo[tokenId][0].isLocked, "LockStakingRewardsPool: Unable to withdraw locked staking");
+        
         uint256 reward = earned(tokenId);
 
         if (reward > 0) {
             tokenStakeInfo[tokenId].weightedStakeDate = block.timestamp;
             require(stakingToken.balanceOf(address(this)) > reward, "StakingRewardsPool: Not enough reward token on staking contract");
-            TransferHelper.safeTransfer(address(stakingToken), msgSenderLocal, reward);
+            TransferHelper.safeTransfer(address(stakingToken), receiver, reward);
 
-            emit RewardPaid(tokenId, reward, msgSenderLocal);
+            emit RewardPaid(tokenId, reward, address(stakingToken), receiver);
         }
     }
 
-    function updateAmountForStake(uint tokenId, int amount) external override onlyNFTManager {
+    function updateAmountForStake(uint tokenId, uint amount, bool increase) external override onlyNFTManager {
         uint nonce = stakeNonces[tokenId];
-        uint uintAmount;
         
-        if(amount < 0) {
-            uintAmount = uint(amount * -1);
-            uint left = uintAmount;
+        if(increase) {
+            stakeInfo[tokenId][nonce].stakeAmount += amount;
+            tokenStakeInfo[tokenId].balance += amount;
+        } else {
+            uint left = amount;
 
             for (uint256 n = nonce; n >= 0; n--) {
                 uint nonceStakeAmount = stakeInfo[tokenId][n].stakeAmount;
+
                 if(nonceStakeAmount < left) {
-                    left -= nonceStakeAmount;
+                    unchecked {
+                        left -= nonceStakeAmount;
+                    }
                     stakeInfo[tokenId][n].stakeAmount = 0;
                 } else {
-                    stakeInfo[tokenId][n].stakeAmount -= uintAmount;
+                    unchecked {
+                        stakeInfo[tokenId][n].stakeAmount -= left;
+                    }
                     break;
                 }
             }
 
-            tokenStakeInfo[tokenId].balance -= uintAmount;
-        } else {
-            uintAmount = uint(amount);
-            stakeInfo[tokenId][nonce].stakeAmount += uintAmount;
-            tokenStakeInfo[tokenId].balance += uintAmount;
+            tokenStakeInfo[tokenId].balance -= amount;
         }
-
     }    
 
     function updateStakeIsLocked(uint256 tokenId, bool isLocked) external override onlyNFTManager {
@@ -174,6 +200,12 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, ReentrancyGuard, Res
         require(Address.isContract(_nftManager), "SnakeEggsShop: _nftManager is not a contract");
         nftManager = INFTManager(_nftManager);
         emit UpdateNFTManager(_nftManager);
+    }
+
+    function updateStableCoin(address _stableCoin) external onlyOwner {
+        require(Address.isContract(_stableCoin), "SnakeEggsShop: _stableCoin is not a contract");
+        stableCoin = IBEP20(_stableCoin);
+        emit UpdateStableCoin(_stableCoin);
     }
 
     function _stake(uint256 amount, uint256 tokenId, uint rate, bool isLocked) private {

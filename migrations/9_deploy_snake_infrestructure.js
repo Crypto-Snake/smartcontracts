@@ -1,6 +1,5 @@
 //truffle migrate --f 9 --to 9 --network bsctestnet
 const fs = require('fs');
-const Web3 = require('web3');
 const { EGGS, SNAKES, CUSTODIAN } = require('../constants.js');
 
 let addresses = getAddresses();
@@ -15,6 +14,7 @@ let snakeEggsNFT;
 let snakeEggsNFTProxy;
 let snakeEggsShop;
 let nftManager;
+let nftStatsManager;
 let nftManagerProxy;
 let lockStakingRewardsPool;
 let snakeP2P;
@@ -26,6 +26,7 @@ let SnakeEggsNFT = artifacts.require("SnakeEggsNFT");
 let SnakeEggsNFTProxy = artifacts.require("SnakeEggsNFTProxy");
 let SnakeEggsShop = artifacts.require("SnakeEggsShop"); 
 let NFTManager = artifacts.require("NFTManager");
+let NFTStatsManager = artifacts.require("NFTStatsManager");
 let NFTManagerProxy = artifacts.require("NFTManagerProxy");
 let LockStakingRewardsPool = artifacts.require("LockStakingRewardsPool");
 let SnakeP2P = artifacts.require("SnakeP2P");
@@ -37,10 +38,10 @@ module.exports = function(deployer) {
         deploySnakeEggsNFT: false,
         deploySnakesNFT: false,
         deployLockStakingRewardsPool: false,
-        deployNFTManager: false,
-        deployShop: false,
+        deployNFTManager: true,
+        deployShop: true,
         deployP2P: false,
-        setupAccessModifiers: false
+        setupAccessModifiers: true
     }
 
     deployer.then(async() => {
@@ -93,11 +94,11 @@ module.exports = function(deployer) {
         //#endregion
 
         //#region DEPLOY STAKINGREWARDSPOOL 3/7
-        //stakingPool -> address _stakingToken + set staking manager for access modifiers + update nftManager
+        //stakingPool -> address _stakingToken address _stableCoin + set staking manager for access modifiers + update nftManager
         if (deployParams.deployLockStakingRewardsPool) {
             console.log("===== Start deploying LockStakingRewardsPool (3/7) =====");
 
-            await deployer.deploy(LockStakingRewardsPool, addresses.snk);
+            await deployer.deploy(LockStakingRewardsPool, addresses.snk, addresses.busd);
             lockStakingRewardsPool = await LockStakingRewardsPool.deployed();
             console.log(`staking rewards pool address: ${lockStakingRewardsPool.address}`)
             addresses.lockStakingRewardsPool = lockStakingRewardsPool.address;
@@ -113,27 +114,40 @@ module.exports = function(deployer) {
         if (deployParams.deployNFTManager) {
             console.log("===== Start deploying NFTManager (4/7) =====");
 
-            await deployer.deploy(NFTManager);
-            nftManager = await NFTManager.deployed();
-            console.log(`NFT manager address: ${nftManager.address}`)
-            addresses.nftManager = nftManager.address;
+            // await deployer.deploy(NFTManager);
+            // nftManager = await NFTManager.deployed();
+            // console.log(`NFT manager address: ${nftManager.address}`)
+            // addresses.nftManager = nftManager.address;
 
-            await deployer.deploy(NFTManagerProxy, addresses.nftManager);
-            nftManagerProxy = await NFTManagerProxy.deployed();
-            console.log(`NFT manager proxy address: ${nftManagerProxy.address}`)
-            addresses.nftManagerProxy = nftManagerProxy.address;
+            // await deployer.deploy(NFTStatsManager);
+            // nftStatsManager = await NFTStatsManager.deployed();
+            // console.log(`NFT stats manager address: ${nftStatsManager.address}`)
+            // addresses.nftStatsManager = nftStatsManager.address;
+
+            // await deployer.deploy(NFTManagerProxy);
+            // nftManagerProxy = await NFTManagerProxy.deployed();
+            // console.log(`NFT manager proxy address: ${nftManagerProxy.address}`)
+            // addresses.nftManagerProxy = nftManagerProxy.address;
+            
+            nftManagerProxy = await NFTManagerProxy.at(addresses.nftManagerProxy);
+            await nftManagerProxy.addImplementationContract(addresses.nftManager);
+            await nftManagerProxy.addImplementationContract(addresses.nftStatsManager);
+
+            fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
 
             nftManager = await NFTManager.at(addresses.nftManagerProxy);
+            await nftManager.updateStakingPool(addresses.lockStakingRewardsPool);
+            await nftManager.updateRouter(addresses.router);
+            await nftManager.updateSnakeToken(addresses.snk);
 
-            await nftManager.initialize(addresses.lockStakingRewardsPool, addresses.router, addresses.snk);
             await nftManager.toggleUseWeightedRates();
             await nftManager.updateAllowedTokens(addresses.busd, true);
+            await nftManager.updateAllowedTokens(addresses.snk, true);
             await nftManager.updateTokenWeightedExchangeRate(addresses.busd, "10000000000000000");
+            // await snakeEggsShop.updateTokenWeightedExchangeRate(addresses.snk, "1000000000000000000");
             await nftManager.updateSnakeEggsNFT(addresses.snakeEggsNFTProxy);
             await nftManager.updateSnakesNFT(addresses.snakesNFTProxy);
             await nftManager.updateCustodian(CUSTODIAN);
-
-            fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
         } else {
             nftManager = { address: addresses.nftManager };
         }
@@ -151,7 +165,10 @@ module.exports = function(deployer) {
 
             await snakeEggsShop.toggleUseWeightedRates();
             await snakeEggsShop.updateAllowedTokens(addresses.busd, true);
+            await snakeEggsShop.updateAllowedTokens(addresses.snk, true);
+
             await snakeEggsShop.updateTokenWeightedExchangeRate(addresses.busd, "10000000000000000");
+            // await snakeEggsShop.updateTokenWeightedExchangeRate(addresses.snk, "1000000000000000000");
 
             fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
         } else {
@@ -182,10 +199,11 @@ module.exports = function(deployer) {
 
         //#region SETUP ACCESS MODIFIERS 7/7
         if (deployParams.setupAccessModifiers) {
-            console.log("===== Start setuping acess modifiers (6/6) =====");
+            console.log("===== Start setuping access modifiers (7/7) =====");
 
             snakeEggsShop = await SnakeEggsShop.at(addresses.snakeEggsShop);
             await snakeEggsShop.updateNFTManager(addresses.nftManagerProxy);
+            await snakeEggsShop.updateAllowedTokens(addresses.snk, true);
 
             snakeEggsNFT = await SnakeEggsNFT.at(addresses.snakeEggsNFTProxy);
             await snakeEggsNFT.updateNFTManager(addresses.nftManagerProxy);
@@ -201,12 +219,12 @@ module.exports = function(deployer) {
             await nftManager.updateSnakeEggsShop(addresses.snakeEggsShop);
 
             for (let i = 0; i < EGGS.length; i++) {
-                await nftManager.updateEggProperties(i+1, [EGGS[i].name, EGGS[i].description, EGGS[i].uri, EGGS[i].snakeType, EGGS[i].price, EGGS[i].hatchingPeriod]);
-                await nftManager.updateSnakeProperties(i+1, [SNAKES[i].name, SNAKES[i].description, SNAKES[i].uri, SNAKES[i].type, SNAKES[i].deathPoint]);
+
+                nftStatsManager = await NFTManager.at(addresses.nftManagerProxy);
+                await nftStatsManager.updateEggProperties(i+1, [EGGS[i].name, EGGS[i].description, EGGS[i].uri, EGGS[i].snakeType, EGGS[i].price, EGGS[i].hatchingPeriod]);
+                await nftStatsManager.updateSnakeProperties(i+1, [SNAKES[i].name, SNAKES[i].description, SNAKES[i].uri, SNAKES[i].type, SNAKES[i].deathPoint]);
             }
         }
         //#endregion
-
-        
     })
 }

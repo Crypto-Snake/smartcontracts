@@ -8,6 +8,7 @@ import "./EggStruct.sol";
 import "./ArtifactStatsStruct.sol";
 import "./SnakeStatsStruct.sol";
 import "./EggStatsStruct.sol";
+import "./SnakeAppliedArtifactsStruct.sol";
 
 
 abstract contract Objects is
@@ -16,5 +17,6 @@ abstract contract Objects is
     SnakeStruct,
     SnakeStatsStruct,
     EggStruct,
-    EggStatsStruct
+    EggStatsStruct,
+    SnakeAppliedArtifactsStruct
 {}

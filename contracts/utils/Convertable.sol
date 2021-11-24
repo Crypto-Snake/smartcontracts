@@ -3,10 +3,10 @@
 pragma solidity ^0.8.0;
 
 import "./Address.sol";
-import "./Ownable.sol";
+import "./Allowable.sol";
 import "../interfaces/IRouter.sol";
 
-abstract contract Convertable is Ownable {
+abstract contract Convertable is Allowable {
     
     IRouter public router;
     address public snakeToken;
@@ -22,24 +22,32 @@ abstract contract Convertable is Ownable {
     event UpdateSnakeToken(address indexed token);
 
     function getSnakeEquivalentAmount(address purchaseToken, uint purchaseTokenAmount) public view returns (uint snakeEquivalentAmount) {
-        if (!useWeightedRates) {
-            address[] memory path = new address[](2);
-            path[0] = purchaseToken;
-            path[1] = snakeToken;
-            snakeEquivalentAmount = router.getAmountsOut(purchaseTokenAmount, path)[1];
+        if(purchaseToken == snakeToken) {
+            snakeEquivalentAmount = purchaseTokenAmount;
         } else {
-            snakeEquivalentAmount = purchaseTokenAmount * percentPrecision / weightedTokenSnakeExchangeRates[purchaseToken];
+            if (!useWeightedRates) {
+                address[] memory path = new address[](2);
+                path[0] = purchaseToken;
+                path[1] = snakeToken;
+                snakeEquivalentAmount = router.getAmountsOut(purchaseTokenAmount, path)[1];
+            } else {
+                snakeEquivalentAmount = purchaseTokenAmount * percentPrecision / weightedTokenSnakeExchangeRates[purchaseToken];
+            }
         }
     }
 
     function getTokenEquivalentAmount(address token, uint snakeTokenAmount) public view returns (uint tokenEquivalentAmount) {
-        if (!useWeightedRates) {
-            address[] memory path = new address[](2);
-            path[0] = snakeToken;
-            path[1] = token;
-            tokenEquivalentAmount = router.getAmountsOut(snakeTokenAmount, path)[1];
+        if(token == snakeToken) {
+            tokenEquivalentAmount = snakeTokenAmount;
         } else {
-            tokenEquivalentAmount = snakeTokenAmount * weightedTokenSnakeExchangeRates[token] / percentPrecision;
+            if (!useWeightedRates) {
+                address[] memory path = new address[](2);
+                path[0] = snakeToken;
+                path[1] = token;
+                tokenEquivalentAmount = router.getAmountsOut(snakeTokenAmount, path)[1];
+            } else {
+                tokenEquivalentAmount = snakeTokenAmount * weightedTokenSnakeExchangeRates[token] / percentPrecision;
+            }
         }
     }
 

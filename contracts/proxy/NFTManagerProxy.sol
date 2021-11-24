@@ -2,32 +2,67 @@
 
 pragma solidity ^0.8.0;
 
-import "../utils/Proxy.sol";
 import "../utils/Ownable.sol";
 import "../storages/NFTManagerStorage.sol";
 
-contract NFTManagerProxy is Proxy, NFTManagerStorage {
+contract NFTManagerProxy is NFTManagerStorage {
 
-    event ReplaceImplementation(address oldTarget, address newTarget);
-
-    constructor(address target) {
-        _implementationAddress = target;
-        emit ReplaceImplementation(address(0), target);
+    constructor() {
+        uint chainId;
+        assembly {
+            chainId := chainid()
+        }
+        
+        APPLY_GAME_RESULTS_TYPEHASH = keccak256("ApplyGameResultsBySign(uint snakeId,uint stakeAmount,uint gameBalance,uint256 nonce,uint256 deadline)");
+        UPDATE_STAKE_AMOUNT_TYPEHASH = keccak256("UpdateStakeAmountBySign(uint snakeId,uint stakeAmount,uint256 nonce,uint256 deadline)");
+        UPDATE_GAME_BALANCE_TYPEHASH = keccak256("UpdateGameBalanceBySign(uint snakeId,uint gameBalance,uint256 nonce,uint256 deadline)");
+        
+        DOMAIN_SEPARATOR = keccak256(
+            abi.encode(
+                keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
+                keccak256(bytes("NFTManager")),
+                keccak256(bytes("1")),
+                chainId,
+                address(this)
+            )
+        );
     }
 
-    function implementation() public view returns (address) { 
-        return _implementationAddress; 
+    fallback() external payable {
+        if (gasleft() <= 2300) {
+            return;
+        }
+
+        address target = logicTargets[msg.sig];
+        require(target != address(0), "target not active");
+
+        bytes memory data = msg.data;
+        assembly {
+            let result := delegatecall(gas(), target, add(data, 0x20), mload(data), 0, 0)
+            let size := returndatasize()
+            let ptr := mload(0x40)
+            returndatacopy(ptr, 0, size)
+            switch result
+            case 0 { revert(ptr, size) }
+            default { return(ptr, size) }
+        }
     }
 
-    function _implementation() internal view override returns (address) { 
-        return _implementationAddress; 
+
+    function addImplementationContract(address target) external onlyOwner {
+        (bool success,) = target.delegatecall(abi.encodeWithSignature("initialize(address)", target));
+        require(success, "setup failed");
     }
 
-    function replaceImplementation(address newTarget) external onlyOwner {
-        require(newTarget != address(0), "SnakeEggsNFTProxy: target's address is equal to zero address");
-        version += 1;
-        address oldTarget = _implementationAddress;
-        _implementationAddress = newTarget;
-        emit ReplaceImplementation(oldTarget, newTarget);
+    function setTargets(string[] calldata sigsArr, address[] calldata targetsArr) external onlyOwner {
+        require(sigsArr.length == targetsArr.length, "count mismatch");
+
+        for (uint256 i = 0; i < sigsArr.length; i++) {
+            _setTarget(bytes4(keccak256(abi.encodePacked(sigsArr[i]))), targetsArr[i]);
+        }
+    }
+
+    function getTarget(string calldata sig) external view returns (address) {
+        return logicTargets[bytes4(keccak256(abi.encodePacked(sig)))];
     }
 }

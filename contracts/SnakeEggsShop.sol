@@ -13,7 +13,7 @@ contract SnakeEggsShop is NFTShop {
 
     Counters.Counter public counter;
 
-    event BuyEgg(address indexed buyer, uint indexed eggId, address indexed token, uint totalEquivalentPrice);
+    event BuyEgg(address indexed buyer, uint eggId, uint typeId, address indexed token, uint indexed purchaseAmount, uint purchaseTime);
 
     constructor(address _router, address _snakeEggsNFT, address _nftManager, address _snakeToken, address _custodian) { 
         require(Address.isContract(_snakeEggsNFT), "_snakeEggsNFT is not a contract");
@@ -28,13 +28,13 @@ contract SnakeEggsShop is NFTShop {
         custodian = _custodian;
     }
 
-    function buyEgg(uint typeId, address purchaseToken, uint purchaseTokenamount) external {
+    function buyEgg(uint typeId, address purchaseToken, uint purchaseTokenAmount) external {
         require(allowedTokens[purchaseToken], "SnakeEggsShop: Token not allowed");
         uint price = nftManager.getEggProperties(typeId).Price; 
         require(price != 0, "SnakeEggsShop: Egg type not found");
-        uint snakeEquivalentAmount = getSnakeEquivalentAmount(purchaseToken, purchaseTokenamount);
+        uint snakeEquivalentAmount = getSnakeEquivalentAmount(purchaseToken, purchaseTokenAmount);
         require(snakeEquivalentAmount >= price, "SnakeEggsShop: Token amount can't be lower than minimal price");
-        TransferHelper.safeTransferFrom(purchaseToken, msg.sender, custodian, purchaseTokenamount);
+        TransferHelper.safeTransferFrom(purchaseToken, msg.sender, custodian, purchaseTokenAmount);
 
         Counters.increment(counter);
         uint tokenId = Counters.current(counter);
@@ -42,7 +42,7 @@ contract SnakeEggsShop is NFTShop {
         nftManager.updateEggStats(tokenId, EggStats(tokenId, snakeEquivalentAmount, block.timestamp, typeId));
         snakeEggsNFT.safeMint(msg.sender, tokenId);
 
-        emit BuyEgg(msg.sender, typeId, purchaseToken, purchaseTokenamount);
+        emit BuyEgg(msg.sender, tokenId ,typeId, purchaseToken, purchaseTokenAmount, block.timestamp); 
     }
 
     function updateSnakeEggsNFT(address _snakeEggsNFT) external onlyOwner {
