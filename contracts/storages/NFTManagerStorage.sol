@@ -69,6 +69,7 @@ contract NFTManagerStorage is Convertable, Objects {
     event UpdateSnakeEggsShop(address indexed _snakeEggsShop);
     event UpdateSnakesNFT(address indexed _snakesNFT);
     event UpdateSnakeEggsNFT(address indexed _snakeEggsNFT);
+    event UpdateArtifactsNFT(address indexed _artifactsNFT);
     event UpdateAllowedAddresses(address indexed value, bool indexed allowance);
     event UpdateAllowedTokens(address indexed token, bool indexed allowance);
     event UpdateAllowedArtifacts(uint indexed artifactId, bool indexed allowance);
@@ -112,6 +113,12 @@ contract NFTManagerStorage is Convertable, Objects {
         require(Address.isContract(_snakesNFT), "NFTManager: _snakesNFT is not a contract");
         snakesNFT = IBEP721Enumerable(_snakesNFT);
         emit UpdateSnakesNFT(_snakesNFT);
+    }
+
+    function updateArtifactsNFT(address _artifactsNFT) external onlyOwner {
+        require(Address.isContract(_artifactsNFT), "NFTManager: _artifactsNFT is not a contract");
+        artifactsNFT = IBEP1155(_artifactsNFT);
+        emit UpdateArtifactsNFT(_artifactsNFT);
     }
 
     function updateTreshold(uint _treshold) external onlyOwner {
