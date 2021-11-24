@@ -513,7 +513,7 @@ contract SnakeP2P is SnakeP2PStorage, IBEP721Receiver {
         if (trade.proposedAssetType == AssetType.BEP721) {
             IBEP721(trade.proposedAsset).transferFrom(address(this), msg.sender, trade.proposedTokenId);
         } else if (trade.proposedAssetType == AssetType.BEP1155) {
-            IBEP1155(trade.proposedAsset).safeTransferFrom(msg.sender, address(this), trade.proposedTokenId, trade.proposedAmount, "");
+            IBEP1155(trade.proposedAsset).safeTransferFrom(address(this), msg.sender, trade.proposedTokenId, trade.proposedAmount, "");
         } else if (trade.proposedAsset != address(WBNB)) {
             TransferHelper.safeTransfer(trade.proposedAsset, msg.sender, trade.proposedAmount);
         } else {
@@ -534,7 +534,7 @@ contract SnakeP2P is SnakeP2PStorage, IBEP721Receiver {
                 IBEP721(tradeMulti.proposedAssets[i]).transferFrom(address(this), msg.sender, tradeMulti.proposedTokenIds[i]);
             }
         } else if (tradeMulti.proposedAssetType == AssetType.BEP1155) { 
-            IBEP1155(tradeMulti.proposedAssets[0]).safeTransferFrom(msg.sender, address(this), tradeMulti.proposedTokenIds[0], tradeMulti.proposedAmount, "");
+            IBEP1155(tradeMulti.proposedAssets[0]).safeTransferFrom(address(this), msg.sender, tradeMulti.proposedTokenIds[0], tradeMulti.proposedAmount, "");
         } else if (tradeMulti.proposedAssets[0] != address(WBNB)) {
             TransferHelper.safeTransfer(tradeMulti.proposedAssets[0], msg.sender, tradeMulti.proposedAmount);
         } else {
