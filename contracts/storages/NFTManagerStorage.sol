@@ -50,20 +50,20 @@ contract NFTManagerStorage is Convertable, Objects {
     address public snakeEggsShop;
 
     uint public treshold;
-    uint public baseRate = 60 * percentPrecision;
-    uint public bonusFeedRate = 5 * percentPrecision;
-    uint public maxRate = 115 * percentPrecision;
+    uint public baseRate = 6e17; // 60%
+    uint public bonusFeedRate = 5e16; // 5%
+    uint public maxRate = 115e16; // 115%
 
     address public custodian;
 
-    uint public diamondAPRBonus = 60e18 * percentPrecision;
-    uint public mouseTVLBonus = 1e17;
+    uint public diamondAPRBonus = 5e17; // 50%
+    uint public mouseTVLBonus = 1e17; // 10%
     uint public shadowSnakeRequiredTVL = 100e18;
     uint public shadowSnakeDestroyLockPeriod = 30 days;
     uint public shadowSnakeTVLMultiplier = 2;
     uint public diamondMaxAppliances = 4;
 
-    uint public promocodeAPRBonus = 10 * percentPrecision;
+    uint public promocodeAPRBonus = 1e17; // 10%
 
     mapping(uint => mapping(uint => bool)) public artifactsApplied;
     
