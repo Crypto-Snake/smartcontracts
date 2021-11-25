@@ -13,7 +13,7 @@ contract NFTStatsManager is NFTManagerBase {
         _setTarget(this.updateStakeAmount.selector, _target);
         _setTarget(this.updateGameBalanceBySign.selector, _target);
         _setTarget(this.updateGameBalance.selector, _target);
-        _setTarget(this.updateStakeRate.selector, _target);
+        _setTarget(this.updateBonusStakeRate.selector, _target);
         _setTarget(this.updateEggStats.selector, _target);
         
         _setTarget(this.isFeeded.selector, _target);
@@ -90,8 +90,8 @@ contract NFTStatsManager is NFTManagerBase {
         _updateGameBalance(snakeId, gameBalance, artifactId);
     }
 
-    function updateStakeRate(uint snakeId, uint rate) external onlyAllowedAddresses() {
-        _updateStakeRate(snakeId, rate, true);
+    function updateBonusStakeRate(uint snakeId, uint rate) external onlyAllowedAddresses() {
+        _updateBonusStakeRate(snakeId, rate, true);
     }
 
     function updateEggStats(uint tokenId, EggStats memory stats) external onlySnakeEggsShop() {

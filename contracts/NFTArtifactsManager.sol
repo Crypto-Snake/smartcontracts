@@ -86,7 +86,7 @@ contract NFTArtifactsManager is NFTManagerBase {
     }
     
     function _applyDiamondArtifact(uint snakeId) internal {
-        _updateStakeRate(snakeId, diamondAPRBonus, true);
+        _updateBonusStakeRate(snakeId, diamondAPRBonus, true);
         snakeAppliedArtifacts[snakeId].TimesDiamondApplied += 1;
         emit ApplyDiamondArtifact(snakeId, block.timestamp, msg.sender);
     }

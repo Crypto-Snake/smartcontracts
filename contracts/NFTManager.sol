@@ -23,7 +23,7 @@ contract NFTManager is NFTManagerBase {
         _setTarget(this.updateArtifactsNFT.selector, _target);
         _setTarget(this.updateTreshold.selector, _target);
         _setTarget(this.updateBaseRate.selector, _target);
-        _setTarget(this.updateBonusRate.selector, _target);
+        _setTarget(this.updateBonusFeedRate.selector, _target);
         _setTarget(this.updateMaxRate.selector, _target);
         _setTarget(this.updateCustodian.selector, _target);
         _setTarget(this.updateDiamondAPRBonus.selector, _target);
@@ -51,7 +51,7 @@ contract NFTManager is NFTManagerBase {
         bool isLocked = stats.SnakeType == 2 ? true : false;
         
         stakingPool.stakeFor(stats.PurchasingAmount, tokenId, baseRate, isLocked);
-        snakes[tokenId] = SnakeStats(tokenId, stats.SnakeType, block.timestamp, baseRate, stats.PurchasingAmount, 0, 0, 0, 0, 0, 1, false, 0);
+        snakes[tokenId] = SnakeStats(tokenId, stats.SnakeType, block.timestamp, baseRate, 0, stats.PurchasingAmount, 0, 0, 0, 0, 0, 1, false, 0);
         snakeAppliedArtifacts[tokenId] = SnakeAppliedArtifacts(0, 0, 0, 0, 0, 0, false, false, false, 0);
         emit HatchEgg(tokenId);
     }
@@ -81,9 +81,11 @@ contract NFTManager is NFTManagerBase {
 
         if(stats.StakeAmount > properties.Price * stats.TimesRateUpdated * 10 && stats.APR < maxRate) {
             snakes[snakeId].TimesRateUpdated += 1;
-            snakes[snakeId].APR += bonusRate;
+            snakes[snakeId].APR += bonusFeedRate;
         }
 
-        stakingPool.stakeFor(snakeEquivalentAmount, snakeId, snakes[snakeId].APR, false);
+        uint totalAPR = snakes[snakeId].APR + snakes[snakeId].BonusAPR;
+
+        stakingPool.stakeFor(snakeEquivalentAmount, snakeId, totalAPR, false);
     }
 }

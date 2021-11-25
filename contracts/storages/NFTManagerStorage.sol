@@ -51,8 +51,8 @@ contract NFTManagerStorage is Convertable, Objects {
 
     uint public treshold;
     uint public baseRate = 60 * percentPrecision;
-    uint public bonusRate = 5 * percentPrecision;
-    uint public maxRate = 110 * percentPrecision;
+    uint public bonusFeedRate = 5 * percentPrecision;
+    uint public maxRate = 115 * percentPrecision;
 
     address public custodian;
 
@@ -84,7 +84,7 @@ contract NFTManagerStorage is Convertable, Objects {
     event UpdateDiamondMaxAppliances(uint maxAppilances);
     event UpdateTreshold(uint treshold);
     event UpdateBaseRate(uint baseRate);
-    event UpdateBonusRate(uint bonusRate);
+    event UpdateBonusFeedRate(uint bonusRate);
     event UpdateMaxRate(uint maxRate);
 
     function updateAllowedTokens(address token, bool allowance) external onlyOwner {
@@ -139,10 +139,10 @@ contract NFTManagerStorage is Convertable, Objects {
         emit UpdateBaseRate(_baseRate);
     }
 
-    function updateBonusRate(uint _bonusRate) external onlyOwner {
-        require(_bonusRate > 0, "NFTManager: bonus rate must be grater than 0");
-        bonusRate = _bonusRate;
-        emit UpdateBonusRate(_bonusRate);
+    function updateBonusFeedRate(uint _bonusFeedRate) external onlyOwner {
+        require(_bonusFeedRate > 0, "NFTManager: bonus rate must be grater than 0");
+        bonusFeedRate = _bonusFeedRate;
+        emit UpdateBonusFeedRate(_bonusFeedRate);
     }
 
     function updateMaxRate(uint _maxRate) external onlyOwner {

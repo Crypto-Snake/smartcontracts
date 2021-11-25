@@ -8,6 +8,7 @@ abstract contract SnakeStatsStruct {
         uint Type;
         uint HatchingTime;
         uint APR;
+        uint BonusAPR;
         uint StakeAmount;
         uint GameBalance;
         uint TimesFeeded;

@@ -13,7 +13,7 @@ contract NFTManagerBase is NFTManagerStorage {
     event UpdateEggStats(uint indexed id, EggStats indexed oldStats, EggStats indexed newStats);
     event UpdateStakeAmount(uint indexed snakeId, uint oldStakeAmount, uint newStakeAmount, address indexed updater, uint indexed artifactId);
     event UpdateGameBalance(uint indexed snakeId, uint oldGameBalance, uint newGameBalance, address indexed updater, uint indexed artifactId);
-    event UpdateStakeRate(uint indexed snakeId, uint oldStakeRate, uint newStakeRate, address indexed updater);
+    event UpdateBonusStakeRate(uint indexed snakeId, uint oldStakeRate, uint newStakeRate, address indexed updater);
     event UpdateStakeIsDead(uint indexed snakeId, uint artifactId);
     event DestroySnake(uint indexed tokenId);
 
@@ -50,7 +50,7 @@ contract NFTManagerBase is NFTManagerStorage {
     function canApplyArtifact(uint snakeId, uint artifactId) external view returns (bool canApply) {
         if(artifactId == 2) {
             return snakeAppliedArtifacts[snakeId].TimesDiamondApplied <= 4 ? true : false;
-        } else if(artifactId == 9) {
+        } else if(artifactId == 7) {
             return !snakeAppliedArtifacts[snakeId].IsRainbowUnicornApplied ? true : false;
         } else if(artifactId == 8) {
             return !snakeAppliedArtifacts[snakeId].IsSnakeHunterApplied ? true : false;
@@ -152,15 +152,15 @@ contract NFTManagerBase is NFTManagerStorage {
         emit UpdateStakeAmount(snakeId, stats.StakeAmount, snakes[snakeId].StakeAmount, msg.sender, artifactId);
     }
 
-    function _updateStakeRate(uint snakeId, uint rate, bool increase) internal {
+    function _updateBonusStakeRate(uint snakeId, uint rate, bool increase) internal {
         uint previousStakeRate = snakes[snakeId].APR;
         if(increase) {
-            snakes[snakeId].APR += rate;
+            snakes[snakeId].BonusAPR += rate;
         } else {
             require(previousStakeRate > rate, "NFTManager: Snake`s stake rate lower then update rate");
-            snakes[snakeId].APR -= rate;
+            snakes[snakeId].BonusAPR -= rate;
         }
 
-        emit UpdateStakeRate(snakeId, previousStakeRate, snakes[snakeId].APR, msg.sender);
+        emit UpdateBonusStakeRate(snakeId, previousStakeRate, snakes[snakeId].BonusAPR, msg.sender);
     }
 }
