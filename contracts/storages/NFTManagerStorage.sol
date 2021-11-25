@@ -82,6 +82,10 @@ contract NFTManagerStorage is Convertable, Objects {
     event UpdateShadowSnakeDestroyLockPeriod(uint lockPeriod);
     event UpdateShadowSnakeTVLMultiplier(uint tvlMultiplier);
     event UpdateDiamondMaxAppliances(uint maxAppilances);
+    event UpdateTreshold(uint treshold);
+    event UpdateBaseRate(uint baseRate);
+    event UpdateBonusRate(uint bonusRate);
+    event UpdateMaxRate(uint maxRate);
 
     function updateAllowedTokens(address token, bool allowance) external onlyOwner {
         allowedTokens[token] = allowance;
@@ -126,21 +130,25 @@ contract NFTManagerStorage is Convertable, Objects {
     function updateTreshold(uint _treshold) external onlyOwner {
         require(_treshold > 0, "NFTManager: treshold must be grater than 0");
         treshold = _treshold;
+        emit UpdateTreshold(_treshold);
     }
 
     function updateBaseRate(uint _baseRate) external onlyOwner {
         require(_baseRate > 0, "NFTManager: base rate must be grater than 0");
         baseRate = _baseRate;
+        emit UpdateBaseRate(_baseRate);
     }
 
     function updateBonusRate(uint _bonusRate) external onlyOwner {
         require(_bonusRate > 0, "NFTManager: bonus rate must be grater than 0");
         bonusRate = _bonusRate;
+        emit UpdateBonusRate(_bonusRate);
     }
 
     function updateMaxRate(uint _maxRate) external onlyOwner {
         require(_maxRate > 0, "NFTManager: max rate must be grater than 0");
         maxRate = _maxRate;
+        emit UpdateMaxRate(_maxRate);
     }
 
     function updateCustodian(address newCustodian) external onlyOwner {
