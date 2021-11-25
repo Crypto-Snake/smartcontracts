@@ -19,12 +19,13 @@ contract NFTArtifactsManager is NFTManagerBase {
     }
 
     function applyArtifactBySign(uint snakeId, uint artifactId, uint updateAmount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
+        require(deadline > block.timestamp, "NFTManager: Expired");
         uint nonce = applyArtifactNonces[msg.sender]++;
         bytes32 digest = keccak256(
             abi.encodePacked(
                 '\x19\x01',
                 DOMAIN_SEPARATOR,
-                keccak256(abi.encode(APPLY_ARTIFACT_TYPEHASH, snakeId, artifactId, updateAmount, nonce, deadline))
+                keccak256(abi.encode(APPLY_ARTIFACT_TYPEHASH, snakeId, artifactId, updateAmount, msg.sender, nonce, deadline))
             )
         );
 

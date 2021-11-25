@@ -29,12 +29,13 @@ contract NFTStatsManager is NFTManagerBase {
     }
 
     function applyGameResultsBySign(uint snakeId, uint stakeAmount, uint gameBalance, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
+        require(deadline > block.timestamp, "NFTManager: Expired");
         uint nonce = applyGameResultsNonces[msg.sender]++;
         bytes32 digest = keccak256(
             abi.encodePacked(
                 '\x19\x01',
                 DOMAIN_SEPARATOR,
-                keccak256(abi.encode(APPLY_GAME_RESULTS_TYPEHASH, snakeId, stakeAmount, gameBalance, nonce, deadline))
+                keccak256(abi.encode(APPLY_GAME_RESULTS_TYPEHASH, snakeId, stakeAmount, gameBalance, msg.sender, nonce, deadline))
             )
         );
 
@@ -51,12 +52,13 @@ contract NFTStatsManager is NFTManagerBase {
     }
 
     function updateStakeAmountBySign(uint snakeId, uint stakeAmount, bool increase, uint artifactId, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
+        require(deadline > block.timestamp, "NFTManager: Expired");
         uint nonce = updateStakeAmountNonces[msg.sender]++;
         bytes32 digest = keccak256(
             abi.encodePacked(
                 '\x19\x01',
                 DOMAIN_SEPARATOR,
-                keccak256(abi.encode(UPDATE_STAKE_AMOUNT_TYPEHASH, snakeId, stakeAmount, increase, artifactId, nonce, deadline))
+                keccak256(abi.encode(UPDATE_STAKE_AMOUNT_TYPEHASH, snakeId, stakeAmount, increase, artifactId, msg.sender, nonce, deadline))
             )
         );
 
@@ -71,12 +73,13 @@ contract NFTStatsManager is NFTManagerBase {
     }
 
     function updateGameBalanceBySign(uint snakeId, uint gameBalance, uint artifactId, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
+        require(deadline > block.timestamp, "NFTManager: Expired");
         uint nonce = updateGameBalanceNonces[msg.sender]++;
         bytes32 digest = keccak256(
             abi.encodePacked(
                 '\x19\x01',
                 DOMAIN_SEPARATOR,
-                keccak256(abi.encode(UPDATE_GAME_BALANCE_TYPEHASH, snakeId, gameBalance, artifactId, nonce, deadline))
+                keccak256(abi.encode(UPDATE_GAME_BALANCE_TYPEHASH, snakeId, gameBalance, artifactId, msg.sender, nonce, deadline))
             )
         );
 
