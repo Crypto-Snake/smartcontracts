@@ -16,7 +16,6 @@ contract NFTManagerProxy is NFTManagerStorage {
         APPLY_GAME_RESULTS_TYPEHASH = keccak256("ApplyGameResultsBySign(uint snakeId,uint stakeAmount,uint gameBalance,address sender,uint256 nonce,uint256 deadline)");
         UPDATE_STAKE_AMOUNT_TYPEHASH = keccak256("UpdateStakeAmountBySign(uint snakeId,uint stakeAmount,bool increase,uint artifactId,address sender,uint256 nonce,uint256 deadline)");
         UPDATE_GAME_BALANCE_TYPEHASH = keccak256("UpdateGameBalanceBySign(uint snakeId,uint gameBalance,bool increase,uint artifactId,address sender,uint256 nonce,uint256 deadline)");
-        APPLY_ARTIFACT_TYPEHASH = keccak256("ApplyArtifactBySign(uint snakeId,uint artifactId,uint updateAmount,address sender,uint256 nonce,uint256 deadline)");
         
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
