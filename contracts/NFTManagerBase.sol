@@ -99,7 +99,7 @@ contract NFTManagerBase is NFTManagerStorage {
         address receiver = snakesNFT.ownerOf(tokenId);
         SnakeStats memory stats = snakes[tokenId];
         require(block.timestamp > stats.DestroyLock, "NFTManager: Cannot destroy snake on lock");
-        stakingPool.withdraw(tokenId, receiver);
+        stakingPool.withdrawAndGetReward(tokenId, receiver);
         snakesNFT.safeBurn(tokenId);
         emit DestroySnake(tokenId);
     }
