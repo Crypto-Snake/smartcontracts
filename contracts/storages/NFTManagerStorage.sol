@@ -57,7 +57,7 @@ contract NFTManagerStorage is Convertable, Objects {
     address public custodian;
 
     uint public diamondAPRBonus = 60e18 * percentPrecision;
-    uint public mouseTVLBonus = 10 * percentPrecision;
+    uint public mouseTVLBonus = 1e17;
     uint public shadowSnakeRequiredTVL = 100e18;
     uint public shadowSnakeDestroyLockPeriod = 30 days;
     uint public shadowSnakeTVLMultiplier = 2;
