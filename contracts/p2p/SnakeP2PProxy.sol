@@ -15,7 +15,7 @@ contract SnakeP2PProxy is SnakeP2PStorage {
         _setTarget(_newTarget);
     }
 
-    fallback() external payable {
+    fallback() external {
         if (gasleft() <= 2300) {
             return;
         }

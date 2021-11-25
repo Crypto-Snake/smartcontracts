@@ -29,7 +29,7 @@ contract NFTManagerProxy is NFTManagerStorage {
         );
     }
 
-    fallback() external payable {
+    fallback() external {
         if (gasleft() <= 2300) {
             return;
         }
