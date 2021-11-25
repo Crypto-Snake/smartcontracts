@@ -6,8 +6,6 @@ import "./NFTManagerBase.sol";
 
 contract NFTStatsManager is NFTManagerBase {
 
-    event ApplyArtifact(uint indexed snakeId, uint indexed artifactId, address indexed user, uint applyingTime);
-
     function initialize(address _target) external onlyOwner {
         _setTarget(this.applyGameResultsBySign.selector, _target);
         _setTarget(this.applyGameResults.selector, _target);
@@ -17,12 +15,10 @@ contract NFTStatsManager is NFTManagerBase {
         _setTarget(this.updateGameBalance.selector, _target);
         _setTarget(this.updateStakeRate.selector, _target);
         _setTarget(this.updateEggStats.selector, _target);
-        _setTarget(this.applyArtifact.selector, _target);
         
         _setTarget(this.isFeeded.selector, _target);
         _setTarget(this.canApplyArtifact.selector, _target);
         _setTarget(this.isEggReadyForHatch.selector, _target);
-        _setTarget(this.getArtifactProperties.selector, _target);
         _setTarget(this.getEggProperties.selector, _target);
         _setTarget(this.getSnakeProperties.selector, _target);
         _setTarget(this.getEggStats.selector, _target);
@@ -45,53 +41,53 @@ contract NFTStatsManager is NFTManagerBase {
         address recoveredAddress = ecrecover(digest, v, r, s);
         require(recoveredAddress != address(0) && recoveredAddress == owner(), 'NFTManager: INVALID_SIGNATURE');
 
-        _updateStakeAmount(snakeId, stakeAmount, false);
-        _updateGameBalance(snakeId, gameBalance);
+        _updateStakeAmount(snakeId, stakeAmount, false, 0);
+        _updateGameBalance(snakeId, gameBalance, 0);
     }
 
     function applyGameResults(uint snakeId, uint stakeAmount, uint gameBalance) external onlyOwner {
-        _updateStakeAmount(snakeId, stakeAmount, false);
-        _updateGameBalance(snakeId, gameBalance);
+        _updateStakeAmount(snakeId, stakeAmount, false, 0);
+        _updateGameBalance(snakeId, gameBalance, 0);
     }
 
-    function updateStakeAmountBySign(uint snakeId, uint stakeAmount, bool increase, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
+    function updateStakeAmountBySign(uint snakeId, uint stakeAmount, bool increase, uint artifactId, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
         uint nonce = updateStakeAmountNonces[msg.sender]++;
         bytes32 digest = keccak256(
             abi.encodePacked(
                 '\x19\x01',
                 DOMAIN_SEPARATOR,
-                keccak256(abi.encode(UPDATE_STAKE_AMOUNT_TYPEHASH, snakeId, stakeAmount, increase, nonce, deadline))
+                keccak256(abi.encode(UPDATE_STAKE_AMOUNT_TYPEHASH, snakeId, stakeAmount, increase, artifactId, nonce, deadline))
             )
         );
 
         address recoveredAddress = ecrecover(digest, v, r, s);
         require(recoveredAddress != address(0) && recoveredAddress == owner(), 'NFTManager: INVALID_SIGNATURE');
 
-        _updateStakeAmount(snakeId, stakeAmount, increase);
+        _updateStakeAmount(snakeId, stakeAmount, increase, artifactId);
     }
 
-    function updateStakeAmount(uint snakeId, uint stakeAmount, bool increase) external onlyOwner {
-        _updateStakeAmount(snakeId, stakeAmount, increase);
+    function updateStakeAmount(uint snakeId, uint stakeAmount, bool increase, uint artifactId) external onlyOwner {
+        _updateStakeAmount(snakeId, stakeAmount, increase, artifactId);
     }
 
-    function updateGameBalanceBySign(uint snakeId, uint gameBalance, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
+    function updateGameBalanceBySign(uint snakeId, uint gameBalance, uint artifactId, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
         uint nonce = updateGameBalanceNonces[msg.sender]++;
         bytes32 digest = keccak256(
             abi.encodePacked(
                 '\x19\x01',
                 DOMAIN_SEPARATOR,
-                keccak256(abi.encode(UPDATE_GAME_BALANCE_TYPEHASH, snakeId, gameBalance, nonce, deadline))
+                keccak256(abi.encode(UPDATE_GAME_BALANCE_TYPEHASH, snakeId, gameBalance, artifactId, nonce, deadline))
             )
         );
 
         address recoveredAddress = ecrecover(digest, v, r, s);
         require(recoveredAddress != address(0) && recoveredAddress == owner(), 'NFTManager: INVALID_SIGNATURE');
 
-        _updateGameBalance(snakeId, gameBalance);
+        _updateGameBalance(snakeId, gameBalance, artifactId);
     }
 
-    function updateGameBalance(uint snakeId, uint gameBalance) external onlyOwner {
-        _updateGameBalance(snakeId, gameBalance);
+    function updateGameBalance(uint snakeId, uint gameBalance, uint artifactId) external onlyOwner {
+        _updateGameBalance(snakeId, gameBalance, artifactId);
     }
 
     function updateStakeRate(uint snakeId, uint rate) external onlyAllowedAddresses() {
@@ -102,48 +98,5 @@ contract NFTStatsManager is NFTManagerBase {
         require(eggs[tokenId].PurchasingTime == 0, "NFTManager: Egg with provided id already exists");
         eggs[tokenId] = stats;
         emit UpdateEggStats(tokenId, eggs[tokenId], stats);
-    }
-
-    function applyArtifact(uint snakeId, uint artifactId) external onlySnakeOwner(snakeId) onlyArtifactOwner(artifactId) {
-        require(allowedArtifacts[artifactId], "NFTManager: Not allowed to apply");
-
-        if(artifactId == 2) {
-            require(snakeAppliedArtifacts[snakeId].TimesDiamondApplied <= 4, "Cannot apply diamond more times for one snake");
-            _applyDiamondArtifact(snakeId);
-        } else if(artifactId == 4) {
-            _applyMouseArtifact(snakeId);
-        } else if(artifactId == 6) {
-            _applyShadowSnakeArtifact(snakeId);
-        } else if(artifactId == 8) {
-            require(!snakeAppliedArtifacts[snakeId].IsSnakeHunterApplied, "Cannot apply more than one snake hunter for one snake");
-            snakeAppliedArtifacts[snakeId].IsSnakeHunterApplied = true;
-        } else if(artifactId == 9) {
-            require(!snakeAppliedArtifacts[snakeId].IsSnakeCharmerApplied, "Cannot apply more than one snake charmer for one snake");
-            snakeAppliedArtifacts[snakeId].IsSnakeCharmerApplied = true;
-        } else if(artifactId == 10) {
-            stakingPool.getRewardFor(snakeId, msg.sender, false);
-        }
-
-        artifactsNFT.burn(msg.sender, artifactId, 1);
-        
-        emit ApplyArtifact(snakeId, artifactId, msg.sender, block.timestamp);
-    }
-    
-    function _applyDiamondArtifact(uint snakeId) internal {
-        _updateStakeRate(snakeId, diamondAPRBonus, true);
-    }
-
-    function _applyMouseArtifact(uint snakeId) internal {
-        uint updateAmount = (snakes[snakeId].StakeAmount * mouseTVLBonus) / percentPrecision;
-        _updateStakeAmount(snakeId, updateAmount, true);
-    }
-
-    function _applyShadowSnakeArtifact(uint snakeId) internal {
-        SnakeStats memory stats = snakes[snakeId];
-        require(stats.Type == 1, "NFTManager: Can apply this artifact only to dasypeltis");
-        require(stats.StakeAmount >= shadowSnakeRequiredTVL, "NFTManager: Snake`s TVL less than required");
-
-        snakes[snakeId].DestroyLock = block.timestamp + shadowSnakeDestroyLockPeriod;
-        snakes[snakeId].StakeAmount = shadowSnakeTVLMultiplier * stats.StakeAmount;
     }
 }

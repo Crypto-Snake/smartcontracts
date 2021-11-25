@@ -22,10 +22,12 @@ contract NFTManagerStorage is Convertable, Objects {
     bytes32 public APPLY_GAME_RESULTS_TYPEHASH;
     bytes32 public UPDATE_GAME_BALANCE_TYPEHASH;
     bytes32 public UPDATE_STAKE_AMOUNT_TYPEHASH;
+    bytes32 public APPLY_ARTIFACT_TYPEHASH;
     
     mapping(address => uint256) public applyGameResultsNonces;
     mapping(address => uint256) public updateGameBalanceNonces;
     mapping(address => uint256) public updateStakeAmountNonces;
+    mapping(address => uint256) public applyArtifactNonces;
 
     mapping(uint => Snake) public snakesProperties;
     mapping(uint => Egg) public eggsProperties;

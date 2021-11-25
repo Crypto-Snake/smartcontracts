@@ -11,10 +11,10 @@ contract NFTManagerBase is NFTManagerStorage {
     event UpdateArtifactProperties(uint id, Artifact oldProperties, Artifact newProperties);
     event UpdateSnakeStats(uint indexed id, SnakeStats indexed oldStats, SnakeStats indexed newStats);
     event UpdateEggStats(uint indexed id, EggStats indexed oldStats, EggStats indexed newStats);
-    event UpdateStakeAmount(uint indexed snakeId, uint oldStakeAmount, uint newStakeAmount, address indexed updater);
-    event UpdateGameBalance(uint indexed snakeId, uint oldGameBalance, uint newGameBalance, address indexed updater);
+    event UpdateStakeAmount(uint indexed snakeId, uint oldStakeAmount, uint newStakeAmount, address indexed updater, uint indexed artifactId);
+    event UpdateGameBalance(uint indexed snakeId, uint oldGameBalance, uint newGameBalance, address indexed updater, uint indexed artifactId);
     event UpdateStakeRate(uint indexed snakeId, uint oldStakeRate, uint newStakeRate, address indexed updater);
-    event UpdateStakeIsDead(uint indexed snakeId);
+    event UpdateStakeIsDead(uint indexed snakeId, uint artifactId);
     event DestroySnake(uint indexed tokenId);
 
     modifier onlySnakeEggsShop() {
@@ -50,6 +50,8 @@ contract NFTManagerBase is NFTManagerStorage {
     function canApplyArtifact(uint snakeId, uint artifactId) external view returns (bool canApply) {
         if(artifactId == 2) {
             return snakeAppliedArtifacts[snakeId].TimesDiamondApplied <= 4 ? true : false;
+        } else if(artifactId == 9) {
+            return !snakeAppliedArtifacts[snakeId].IsRainbowUnicornApplied ? true : false;
         } else if(artifactId == 8) {
             return !snakeAppliedArtifacts[snakeId].IsSnakeHunterApplied ? true : false;
         } else if(artifactId == 9) {
@@ -68,13 +70,7 @@ contract NFTManagerBase is NFTManagerStorage {
 
         return false;
     }
-    
-    function getArtifactProperties(uint id) external view returns (Artifact memory) {
-        Artifact memory artifactPropertiesLocal = artifactsProperties[id];
-        require(artifactPropertiesLocal.Price != 0, "NFTManager: Artifact with provided id does not exists");
-        return artifactPropertiesLocal;
-    }
-    
+        
     function getEggProperties(uint id) public view returns (Egg memory) {
         Egg memory eggPropertiesLocal = eggsProperties[id];
         require(eggPropertiesLocal.Price != 0, "NFTManager: Egg with provided id does not exists");
@@ -123,19 +119,18 @@ contract NFTManagerBase is NFTManagerStorage {
         emit UpdateArtifactProperties(id, artifactsProperties[id], properties);
     }
 
-    function _updateGameBalance(uint snakeId, uint amount) internal {
+    function _updateGameBalance(uint snakeId, uint amount, uint artifactId) internal {
         SnakeStats memory stats = snakes[snakeId];
-        
-        if(stats.Type == 4 && isFeeded(snakeId) && amount > 0) {
+
+        if(stats.Type == 4 && isFeeded(snakeId) && amount > 0 && artifactId == 0) {
             amount *= 5;
         }
         
         snakes[snakeId].GameBalance += amount;
-        
-        emit UpdateGameBalance(snakeId, stats.GameBalance, snakes[snakeId].GameBalance, msg.sender);
+        emit UpdateGameBalance(snakeId, stats.GameBalance, snakes[snakeId].GameBalance, msg.sender, artifactId);
     }
 
-    function _updateStakeAmount(uint snakeId, uint amount, bool increase) internal {
+    function _updateStakeAmount(uint snakeId, uint amount, bool increase, uint artifactId) internal {
         SnakeStats memory stats = snakes[snakeId];
         Snake memory properties = snakesProperties[stats.Type];
 
@@ -148,14 +143,13 @@ contract NFTManagerBase is NFTManagerStorage {
             if(snakes[snakeId].StakeAmount < properties.DeathPoint) {
                 destroySnake(snakeId);
                 snakes[snakeId].IsDead = true;
-                emit UpdateStakeIsDead(snakeId);
+                emit UpdateStakeIsDead(snakeId, 0);
                 return;
             }
         }
 
         stakingPool.updateAmountForStake(snakeId, amount, increase);
-
-        emit UpdateStakeAmount(snakeId, stats.StakeAmount, snakes[snakeId].StakeAmount, msg.sender);
+        emit UpdateStakeAmount(snakeId, stats.StakeAmount, snakes[snakeId].StakeAmount, msg.sender, artifactId);
     }
 
     function _updateStakeRate(uint snakeId, uint rate, bool increase) internal {

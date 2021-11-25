@@ -15,6 +15,7 @@ let snakeEggsNFTProxy;
 let snakeEggsShop;
 let nftManager;
 let nftStatsManager;
+let nftArtifactsManager;
 let nftManagerProxy;
 let lockStakingRewardsPool;
 let snakeP2P;
@@ -31,6 +32,7 @@ let SnakeEggsNFTProxy = artifacts.require("SnakeEggsNFTProxy");
 let SnakeEggsShop = artifacts.require("SnakeEggsShop"); 
 let NFTManager = artifacts.require("NFTManager");
 let NFTStatsManager = artifacts.require("NFTStatsManager");
+let NFTArtifactsManager = artifacts.require("NFTArtifactsManager");
 let NFTManagerProxy = artifacts.require("NFTManagerProxy");
 let LockStakingRewardsPool = artifacts.require("LockStakingRewardsPool");
 let SnakeP2P = artifacts.require("SnakeP2P");
@@ -128,6 +130,11 @@ module.exports = async function(deployer) {
             console.log(`NFT stats manager address: ${nftStatsManager.address}`)
             addresses.nftStatsManager = nftStatsManager.address;
 
+            await deployer.deploy(NFTArtifactsManager);
+            nftArtifactsManager = await NFTArtifactsManager.deployed();
+            console.log(`NFT artifacts manager address: ${nftArtifactsManager.address}`)
+            addresses.nftArtifactsManager = nftArtifactsManager.address;
+
             await deployer.deploy(NFTManagerProxy);
             nftManagerProxy = await NFTManagerProxy.deployed();
             console.log(`NFT manager proxy address: ${nftManagerProxy.address}`)
@@ -135,6 +142,7 @@ module.exports = async function(deployer) {
             
             await nftManagerProxy.addImplementationContract(addresses.nftManager);
             await nftManagerProxy.addImplementationContract(addresses.nftStatsManager);
+            await nftManagerProxy.addImplementationContract(addresses.nftArtifactsManager);
 
             fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
 

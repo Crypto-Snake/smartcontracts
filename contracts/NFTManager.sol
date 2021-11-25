@@ -52,7 +52,7 @@ contract NFTManager is NFTManagerBase {
         
         stakingPool.stakeFor(stats.PurchasingAmount, tokenId, baseRate, isLocked);
         snakes[tokenId] = SnakeStats(tokenId, stats.SnakeType, block.timestamp, baseRate, stats.PurchasingAmount, 0, 0, 0, 0, 0, 1, false, 0);
-        snakeAppliedArtifacts[tokenId] = SnakeAppliedArtifacts(0, false, false);
+        snakeAppliedArtifacts[tokenId] = SnakeAppliedArtifacts(0, 0, 0, 0, 0, 0, false, false, false, 0);
         emit HatchEgg(tokenId);
     }
 
