@@ -58,12 +58,12 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, ReentrancyGuard, Res
     }
 
     function getRate(uint256 tokenId) public view returns(uint totalRate) {
-        uint totalAmountStaked = balanceOf(tokenId);
+        uint totalAmountStaked = tokenStakeInfo[tokenId].accumulatedBalance;
 
-        for(uint i = 0; i < stakeNonces[tokenId]; i++) {
+        for (uint i = 0; i < stakeNonces[tokenId]; i++) {
             StakeInfo memory stakeInfoLocal = stakeInfo[tokenId][i];
 
-            if(stakeInfoLocal.stakeAmount != 0) {
+            if (stakeInfoLocal.stakeAmount > 0) {
                 totalRate += (stakeInfoLocal.rewardRate) * stakeInfoLocal.stakeAmount / totalAmountStaked;
             }
         }
@@ -75,16 +75,16 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, ReentrancyGuard, Res
 
         uint rate = 0;
 
-        if(snakeStatsLocal.Type == 3) {
+        if (snakeStatsLocal.Type == 3) {
             uint daysAfterHatching = (block.timestamp - snakeStatsLocal.HatchingTime) / 1 days;
             uint bonusRate = daysAfterHatching * pythonBonusRate;
 
-            rate = (bonusRate + getRate(tokenId)) / percentPrecision;
+            rate = bonusRate + getRate(tokenId);
         } else {
-            rate = (getRate(tokenId)) / percentPrecision;
+            rate = getRate(tokenId);
         }
         
-        return (tokenStakeInfo[tokenId].balance * (block.timestamp - tokenStakeInfo[tokenId].weightedStakeDate) * rate) / (100 * rewardDuration);
+        return (tokenStakeInfo[tokenId].balance * (block.timestamp - tokenStakeInfo[tokenId].weightedStakeDate) * rate) / (percentPrecision * rewardDuration);
     }
 
     function stakeFor(uint256 amount, uint256 tokenId, uint rate, bool isLocked) external override nonReentrant onlyNFTManager {
@@ -102,6 +102,7 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, ReentrancyGuard, Res
 
         _totalSupply -= stakeBalance;
         tokenStakeInfo[tokenId].balance = 0;
+        tokenStakeInfo[tokenId].accumulatedBalance = 0;
         stats.GameBalance = 0;
 
         require(stakingToken.balanceOf(address(this)) > amount, "StakingRewardsPool: Not enough staking token on staking contract");
@@ -129,7 +130,7 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, ReentrancyGuard, Res
         uint256 reward = earned(tokenId);
 
         if (reward > 0) {
-            if(stable) {
+            if (stable) {
                 tokenStakeInfo[tokenId].weightedStakeDate = block.timestamp;
                 require(stableCoin.balanceOf(address(this)) > reward, "StakingRewardsPool: Not enough stable coin on staking contract");
                 TransferHelper.safeTransfer(address(stableCoin), receiver, reward);
@@ -162,29 +163,29 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, ReentrancyGuard, Res
     function updateAmountForStake(uint tokenId, uint amount, bool increase) external override onlyNFTManager {
         uint nonce = stakeNonces[tokenId];
         
-        if(increase) {
-            stakeInfo[tokenId][nonce].stakeAmount += amount;
+        uint newAmount;
+        if (increase) {
+            newAmount = stakeInfo[tokenId][nonce].stakeAmount + amount;
+            stakeInfo[tokenId][nonce].stakeAmount += newAmount;
             tokenStakeInfo[tokenId].balance += amount;
+            tokenStakeInfo[tokenId].accumulatedBalance += amount;
+            if (nonce > 0)  
+                tokenStakeInfo[tokenId].weightedStakeDate = 
+                    tokenStakeInfo[tokenId].weightedStakeDate * stakeInfo[tokenId][nonce - 1].stakeAmount / newAmount 
+                    + block.timestamp * amount / newAmount;
         } else {
-            uint left = amount;
-
-            for (uint256 n = nonce; n >= 0; n--) {
-                uint nonceStakeAmount = stakeInfo[tokenId][n].stakeAmount;
-
-                if(nonceStakeAmount < left) {
-                    unchecked {
-                        left -= nonceStakeAmount;
-                    }
-                    stakeInfo[tokenId][n].stakeAmount = 0;
-                } else {
-                    unchecked {
-                        stakeInfo[tokenId][n].stakeAmount -= left;
-                    }
-                    break;
-                }
+            uint balance = stakeInfo[tokenId][nonce].stakeAmount;
+            require (balance >= amount, "StakingRewardsPool: Balance is lower than decrease amount");
+            unchecked {
+                newAmount = balance - amount;
+                stakeInfo[tokenId][nonce].stakeAmount = newAmount;
+                tokenStakeInfo[tokenId].balance -= amount;
+                tokenStakeInfo[tokenId].accumulatedBalance -= amount;
             }
-
-            tokenStakeInfo[tokenId].balance -= amount;
+            if (nonce > 0)  
+                tokenStakeInfo[tokenId].weightedStakeDate = 
+                    tokenStakeInfo[tokenId].weightedStakeDate * stakeInfo[tokenId][nonce - 1].stakeAmount / newAmount 
+                    - block.timestamp * amount / newAmount;
         }
     }    
 
@@ -218,7 +219,8 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, ReentrancyGuard, Res
         uint newAmount = previousAmount + amount;
         tokenStakeInfo[tokenId].weightedStakeDate = tokenStakeInfoLocal.weightedStakeDate * previousAmount / newAmount + block.timestamp * amount / newAmount;
         tokenStakeInfo[tokenId].balance = newAmount;
-        stakeInfo[tokenId][stakeNonce].stakeAmount = amount;
+        tokenStakeInfo[tokenId].accumulatedBalance += amount;
+        stakeInfo[tokenId][stakeNonce].stakeAmount = newAmount;
 
         stakeInfo[tokenId][stakeNonce].tokenId = tokenId;
         stakeInfo[tokenId][stakeNonce].rewardRate = rate;
