@@ -166,7 +166,7 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, ReentrancyGuard, Res
         uint newAmount;
         if (increase) {
             newAmount = stakeInfo[tokenId][nonce].stakeAmount + amount;
-            stakeInfo[tokenId][nonce].stakeAmount += newAmount;
+            stakeInfo[tokenId][nonce].stakeAmount = newAmount;
             tokenStakeInfo[tokenId].balance += amount;
             tokenStakeInfo[tokenId].accumulatedBalance += amount;
             if (nonce > 0)  
