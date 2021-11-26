@@ -1,10 +1,11 @@
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 const constants = require('./constants.js');
+require('dotenv').config()
 
 module.exports = {
     networks: {
         bscmainnet: {
-            provider: () => new HDWalletProvider(constants.SNK_OWNER_PRIVATE_KEY, constants.PROVIDERS.BSC_MAINNET),
+            provider: () => new HDWalletProvider(process.env.OWNER_PRIVATE_KEY, constants.PROVIDERS.BSC_MAINNET),
             network_id: 56,
             confirmations: 3,
             timeoutBlocks: 200,
@@ -13,7 +14,7 @@ module.exports = {
             gasPrice: 10000000000
         },
         bsctestnet: {
-            provider: () => new HDWalletProvider(constants.SNK_OWNER_PRIVATE_KEY, constants.PROVIDERS.BSC_TESTNET),
+            provider: () => new HDWalletProvider(process.env.OWNER_PRIVATE_KEY, constants.PROVIDERS.BSC_TESTNET),
             network_id: 97,
             timeoutBlocks: 200,
             skipDryRun: true,

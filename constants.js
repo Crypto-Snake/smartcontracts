@@ -1,14 +1,5 @@
 const openZeppelinHelper = require('@openzeppelin/test-helpers');
 
-const SNK_OWNER = "";
-const SNK_OWNER_PRIVATE_KEY = "";
-
-const ARTIFACT_OWNER = "";
-const ARTIFACT_OWNER_PRIVATE_KEY = "";
-
-const CUSTODIAN = "";
-
-
 const PROVIDERS = {
     BSC_MAINNET: `https://bsc-dataseed.binance.org/`,
     BSC_TESTNET: `https://data-seed-prebsc-1-s3.binance.org:8545/`
@@ -199,11 +190,6 @@ const VESTING_AMOUNTS = [
 module.exports = {
     USERS,
     VESTING_AMOUNTS,
-    SNK_OWNER,
-    SNK_OWNER_PRIVATE_KEY,
-    ARTIFACT_OWNER,
-    ARTIFACT_OWNER_PRIVATE_KEY,
-    CUSTODIAN,
     ARTIFACTS,
     EGGS,
     SNAKES,

@@ -1,6 +1,6 @@
 //truffle migrate --f 9 --to 9 --network bsctestnet
 const fs = require('fs');
-const { EGGS, SNAKES, CUSTODIAN } = require('../constants.js');
+const { EGGS, SNAKES } = require('../constants.js');
 
 let addresses = getAddresses();
 
