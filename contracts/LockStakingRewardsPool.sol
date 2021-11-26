@@ -5,20 +5,20 @@ pragma solidity ^0.8.0;
 import "./utils/Address.sol";
 import "./utils/RescueManager.sol";
 import "./utils/ReentrancyGuard.sol";
+import "./utils/Convertable.sol";
 import "./interfaces/IBEP20.sol";
 import "./interfaces/ILockStakingRewardsPool.sol";
 import "./interfaces/INFTManager.sol";
 import "./objects/Objects.sol";
 import "./objects/StakeObjects.sol";
 
-contract LockStakingRewardsPool is ILockStakingRewardsPool, ReentrancyGuard, RescueManager, Objects, StakeObjects {
+contract LockStakingRewardsPool is ILockStakingRewardsPool, ReentrancyGuard, RescueManager, Objects, StakeObjects, Convertable {
 
     IBEP20 public immutable stakingToken;
     IBEP20 public stableCoin;
     INFTManager public nftManager;
 
     uint256 public constant rewardDuration = 365 days;
-    uint public constant percentPrecision = 1e18;
 
     uint public pythonBonusRate = 1e16;
   
@@ -129,21 +129,20 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, ReentrancyGuard, Res
         
         uint256 reward = earned(tokenId);
 
-        if (reward > 0) {
-            if (stable) {
-                tokenStakeInfo[tokenId].weightedStakeDate = block.timestamp;
-                require(stableCoin.balanceOf(address(this)) > reward, "StakingRewardsPool: Not enough stable coin on staking contract");
-                TransferHelper.safeTransfer(address(stableCoin), receiver, reward);
+        require(reward > 0, "LockStakingRewardsPool: Reward is equal to zero");
 
-                emit RewardPaid(tokenId, reward, address(stableCoin), receiver);
-            } else {
-                tokenStakeInfo[tokenId].weightedStakeDate = block.timestamp;
-                require(stakingToken.balanceOf(address(this)) > reward, "StakingRewardsPool: Not enough reward token on staking contract");
-                TransferHelper.safeTransfer(address(stakingToken), receiver, reward);
-
-                emit RewardPaid(tokenId, reward, address(stakingToken), receiver);
-            }
+        if (stable) {
+            uint stableCoinEquivalentReward = getTokenEquivalentAmount(address(stableCoin), reward);
+            require(stableCoin.balanceOf(address(this)) > stableCoinEquivalentReward, "StakingRewardsPool: Not enough stable coin on staking contract");
+            TransferHelper.safeTransfer(address(stableCoin), receiver, stableCoinEquivalentReward);
+            emit RewardPaid(tokenId, stableCoinEquivalentReward, address(stableCoin), receiver);
+        } else {
+            require(stakingToken.balanceOf(address(this)) > reward, "StakingRewardsPool: Not enough reward token on staking contract");
+            TransferHelper.safeTransfer(address(stakingToken), receiver, reward);
+            emit RewardPaid(tokenId, reward, address(stakingToken), receiver);
         }
+
+        tokenStakeInfo[tokenId].weightedStakeDate = block.timestamp;
     }
 
     function getReward(uint256 tokenId, address receiver) public override nonReentrant onlyNFTManager {

@@ -46,6 +46,7 @@ contract NFTArtifactsManager is NFTManagerBase {
             snakeAppliedArtifacts[snakeId].IsSnakeHunterApplied = true;
             emit ApplySnakeHunterArtifact(snakeId, block.timestamp, msg.sender);
         } else if(artifactId == 9) {
+            require(!snakeAppliedArtifacts[snakeId].IsSnakeHunterApplied, "Cannot apply snake charmer and snake hunter for one snake");
             require(!snakeAppliedArtifacts[snakeId].IsSnakeCharmerApplied, "Cannot apply more than one snake charmer for one snake");
             snakeAppliedArtifacts[snakeId].IsSnakeCharmerApplied = true;
             emit ApplySnakeCharmerArtifact(snakeId, block.timestamp, msg.sender);
@@ -92,5 +93,17 @@ contract NFTArtifactsManager is NFTManagerBase {
     function _applyTrophyArtifact(uint snakeId) internal {
         snakeAppliedArtifacts[snakeId].TimesTrophyApplied += 1;
         emit ApplyTrophyArtifact(snakeId, block.timestamp, msg.sender);
+    }
+
+    function claimReward(uint snakeId, uint artifactId) external onlySnakeOwner(snakeId) {
+
+        if(artifactId == 7) {
+            require(snakeAppliedArtifacts[snakeId].IsSnakeHunterApplied, "NFTManager: Snake hunter is not applied");
+            require(!snakeAppliedArtifacts[snakeId].IsSnakeCharmerApplied, "NFTManager: Snake charmer is already applied");
+            stakingPool.getRewardFor(snakeId, msg.sender, false);
+        } else if (artifactId == 8) {
+            require(snakeAppliedArtifacts[snakeId].IsSnakeCharmerApplied, "NFTManager: Snake charmer is not applied");
+            stakingPool.getRewardFor(snakeId, msg.sender, true);
+        }
     }
 }
