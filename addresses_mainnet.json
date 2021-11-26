@@ -1,0 +1,9 @@
+{
+    "busd": "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+    "snk": "0x53a38D12b84a7413eDa4B1206A7A28B59Aed9850",
+    "snakeVesting": "0xD091c84d43FaF449Cb41f88fe85c2Ae15Dab4400",
+    "router": "0x05fF2B0DB69458A0750badebc4f9e13aDd608C7F",
+    "snakeArtifactsNFT": "0x12cfefFc6EbDaE7d1bbe6647EE131194478553FA",
+    "snakeArtifactsNFTProxy": "0x4021A841F33b037Bd25c8eDF84D668d44c7aFB2a",
+    "artifactsShop": "0xa64054fBa4DF4229e3A0DA33bda3399202648296"
+}

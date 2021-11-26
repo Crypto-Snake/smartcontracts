@@ -2,6 +2,7 @@ node_modules
 bin
 build
 abis
+addresses_testnet.json
 
 # Logs
 logs
