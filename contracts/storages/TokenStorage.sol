@@ -3,9 +3,10 @@
 pragma solidity ^0.8.0;
 
 import "../objects/Objects.sol";
+import "../utils/Ownable.sol";
 import "../interfaces/INFTManager.sol";
 
-abstract contract TokenStorage is Objects {
+abstract contract TokenStorage is Ownable, Objects {
     address internal _implementationAddress;
 
     INFTManager public nftManager;
