@@ -2,46 +2,23 @@
 
 pragma solidity ^0.8.0;
 
-import "./utils/Address.sol";
-import "./utils/RescueManager.sol";
-import "./utils/ReentrancyGuard.sol";
-import "./utils/Convertable.sol";
 import "./interfaces/IBEP20.sol";
 import "./interfaces/ILockStakingRewardsPool.sol";
-import "./interfaces/INFTManager.sol";
 import "./objects/Objects.sol";
-import "./objects/StakeObjects.sol";
+import "./storages/StakingPoolStorage.sol";
 
-contract LockStakingRewardsPool is ILockStakingRewardsPool, ReentrancyGuard, RescueManager, Objects, StakeObjects, Convertable {
-
-    IBEP20 public immutable stakingToken;
-    IBEP20 public stableCoin;
-    INFTManager public nftManager;
-
-    uint256 public constant rewardDuration = 365 days;
-
-    uint public pythonBonusRate = 1e16;
-  
-    mapping(uint256 => uint256) public stakeNonces;
-
-    mapping(uint256 => mapping(uint256 => StakeInfo)) public stakeInfo;
-    mapping(uint256 => TokenStakeInfo) public tokenStakeInfo;
-
-    uint256 private _totalSupply;
+contract LockStakingRewardsPool is ILockStakingRewardsPool, StakingPoolStorage {
 
     event Staked(uint256 indexed tokenId, uint256 amount);
     event Withdrawn(uint256 indexed tokenId, uint256 amount, address indexed to);
     event RewardPaid(uint256 indexed tokenId, uint256 reward, address indexed rewardToken, address indexed to);
-    event UpdatePythonBonusRate(uint indexed rate);
-    event UpdateNFTManager(address indexed nftManager);
-    event UpdateStableCoin(address indexed stableCoin);
 
     modifier onlyNFTManager {
         require(msg.sender == address(nftManager), "LockStakingReward: caller is not an NFT manager contract");
         _;
     }
 
-    constructor(address _stakingToken, address _stableCoin) {
+    function initialize(address _stakingToken, address _stableCoin) external initializer {
         require(Address.isContract(_stakingToken), "_stakingToken is not a contract");
         require(Address.isContract(_stableCoin), "_stableCoin is not a contract");
         
@@ -190,22 +167,6 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, ReentrancyGuard, Res
 
     function updateStakeIsLocked(uint256 tokenId, bool isLocked) external override onlyNFTManager {
         stakeInfo[tokenId][0].isLocked = isLocked;
-    }
-
-    function updatePythonBonusRate(uint rate) external onlyOwner {
-        pythonBonusRate = rate;
-    }
-
-    function updateNFTManager(address _nftManager) external onlyOwner {
-        require(Address.isContract(_nftManager), "SnakeEggsShop: _nftManager is not a contract");
-        nftManager = INFTManager(_nftManager);
-        emit UpdateNFTManager(_nftManager);
-    }
-
-    function updateStableCoin(address _stableCoin) external onlyOwner {
-        require(Address.isContract(_stableCoin), "SnakeEggsShop: _stableCoin is not a contract");
-        stableCoin = IBEP20(_stableCoin);
-        emit UpdateStableCoin(_stableCoin);
     }
 
     function _stake(uint256 amount, uint256 tokenId, uint rate, bool isLocked) private {

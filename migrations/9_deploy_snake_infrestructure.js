@@ -18,6 +18,7 @@ let nftStatsManager;
 let nftArtifactsManager;
 let nftManagerProxy;
 let lockStakingRewardsPool;
+let lockStakingRewardsPoolProxy;
 let snakeP2P;
 let snakeP2PProxy;
 let artifactsNFT;
@@ -35,6 +36,7 @@ let NFTStatsManager = artifacts.require("NFTStatsManager");
 let NFTArtifactsManager = artifacts.require("NFTArtifactsManager");
 let NFTManagerProxy = artifacts.require("NFTManagerProxy");
 let LockStakingRewardsPool = artifacts.require("LockStakingRewardsPool");
+let LockStakingRewardsPoolProxy = artifacts.require("LockStakingRewardsPoolProxy");
 let SnakeP2P = artifacts.require("SnakeP2P");
 let SnakeP2PProxy = artifacts.require("SnakeP2PProxy")
 
@@ -100,23 +102,30 @@ module.exports = async function(deployer) {
         //#endregion
 
         //#region DEPLOY STAKINGREWARDSPOOL 3/7
-        //stakingPool -> address _stakingToken address _stableCoin + set staking manager for access modifiers + update nftManager
         if (deployParams.deployLockStakingRewardsPool) {
             console.log("===== Start deploying LockStakingRewardsPool (3/7) =====");
 
-            await deployer.deploy(LockStakingRewardsPool, addresses.snk, addresses.busd);
+            await deployer.deploy(LockStakingRewardsPool);
             lockStakingRewardsPool = await LockStakingRewardsPool.deployed();
-            console.log(`staking rewards pool address: ${lockStakingRewardsPool.address}`)
+            console.log(`staking rewards pool address: ${lockStakingRewardsPool.address}`);
             addresses.lockStakingRewardsPool = lockStakingRewardsPool.address;
+
+            await deployer.deploy(LockStakingRewardsPoolProxy, addresses.lockStakingRewardsPool);
+            lockStakingRewardsPoolProxy = await LockStakingRewardsPoolProxy.deployed();
+            console.log(`staking rewards pool proxy address: ${lockStakingRewardsPoolProxy.address}`);
+            addresses.lockStakingRewardsPoolProxy = lockStakingRewardsPoolProxy.address;
+
+            lockStakingRewardsPool = await LockStakingRewardsPool.at(addresses.lockStakingRewardsPoolProxy);
+            await lockStakingRewardsPool.initialize(addresses.snk, addresses.busd);
 
             fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
         } else {
             lockStakingRewardsPool = { address: addresses.lockStakingRewardsPool };
+            lockStakingRewardsPoolProxy = { address: addresses.lockStakingRewardsPoolProxy };
         }
         //#endregion
 
         //#region DEPLOY NFTMANAGER 4/7
-        //nftManager -> address _stakingPool, address _router, address _snakeToken + set eggs and sakes properties + update eggs and snakes nft
         if (deployParams.deployNFTManager) {
             console.log("===== Start deploying NFTManager (4/7) =====");
 
@@ -147,7 +156,7 @@ module.exports = async function(deployer) {
             fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
 
             nftManager = await NFTManager.at(addresses.nftManagerProxy);
-            await nftManager.updateStakingPool(addresses.lockStakingRewardsPool);
+            await nftManager.updateStakingPool(addresses.lockStakingRewardsPoolProxy);
             await nftManager.updateRouter(addresses.router);
             await nftManager.updateSnakeToken(addresses.snk);
 
@@ -162,6 +171,9 @@ module.exports = async function(deployer) {
             await nftManager.updateCustodian(CUSTODIAN);
         } else {
             nftManager = { address: addresses.nftManager };
+            nftStatsManager = { address: addresses.nftStatsManager };
+            nftArtifactsManager = { address: addresses.nftArtifactsManager };
+            nftManagerProxy = { address: addresses.nftManagerProxy };
         }
         //#endregion
 
@@ -224,14 +236,13 @@ module.exports = async function(deployer) {
             snakesNFT = await SnakesNFT.at(addresses.snakesNFTProxy);
             await snakesNFT.updateNFTManager(addresses.nftManagerProxy);
 
-            lockStakingRewardsPool = await LockStakingRewardsPool.at(addresses.lockStakingRewardsPool);
+            lockStakingRewardsPool = await LockStakingRewardsPool.at(addresses.lockStakingRewardsPoolProxy);
             await lockStakingRewardsPool.updateNFTManager(addresses.nftManagerProxy);
 
             nftManager = await NFTManager.at(addresses.nftManagerProxy);
             await nftManager.updateSnakeEggsShop(addresses.snakeEggsShop);
 
             for (let i = 0; i < EGGS.length; i++) {
-
                 nftStatsManager = await NFTManager.at(addresses.nftManagerProxy);
                 await nftStatsManager.updateEggProperties(i+1, [EGGS[i].name, EGGS[i].description, EGGS[i].uri, EGGS[i].snakeType, EGGS[i].price, EGGS[i].hatchingPeriod]);
                 await nftStatsManager.updateSnakeProperties(i+1, [SNAKES[i].name, SNAKES[i].description, SNAKES[i].uri, SNAKES[i].type, SNAKES[i].deathPoint]);
