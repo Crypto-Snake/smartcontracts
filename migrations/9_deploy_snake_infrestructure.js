@@ -168,7 +168,11 @@ module.exports = async function(deployer) {
             await nftManager.updateSnakeEggsNFT(addresses.snakeEggsNFTProxy);
             await nftManager.updateSnakesNFT(addresses.snakesNFTProxy);
             await nftManager.updateArtifactsNFT(addresses.snakeArtifactsNFTProxy);
-            await nftManager.updateCustodian(CUSTODIAN);
+            await nftManager.updateCustodian(process.env.CUSTODIAN);
+
+            for (let i = 1; i < 11; i++) {
+                await nftManager.updateAllowedArtifacts(i, true);
+            }
         } else {
             nftManager = { address: addresses.nftManager };
             nftStatsManager = { address: addresses.nftStatsManager };
@@ -178,11 +182,10 @@ module.exports = async function(deployer) {
         //#endregion
 
         //#region DEPLOY SNAKEEGGSSHOP 5/7
-        //shop -> address _router, address _snakeEggsNFT, address _nftManager, address _snakeToken, address _custodian + set allowed token + set weighted rate
         if (deployParams.deployShop) {
             console.log("===== Start deploying SnakeEggsShop (5/7) =====");
 
-            await deployer.deploy(SnakeEggsShop, addresses.router, addresses.snakeEggsNFTProxy, addresses.nftManagerProxy, addresses.snk, CUSTODIAN);
+            await deployer.deploy(SnakeEggsShop, addresses.router, addresses.snakeEggsNFTProxy, addresses.nftManagerProxy, addresses.snk, process.env.CUSTODIAN);
             snakeEggsShop = await SnakeEggsShop.deployed();
             console.log(`snake eggs shop address: ${snakeEggsShop.address}`)
             addresses.snakeEggsShop = snakeEggsShop.address;
