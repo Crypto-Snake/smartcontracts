@@ -3,10 +3,9 @@
 pragma solidity ^0.8.0;
 
 import "../utils/Proxy.sol";
-import "../utils/Ownable.sol";
 import "../storages/BaseTokenStorage.sol";
 
-contract SnakeEggsNFTProxy is Proxy, Ownable, BaseTokenStorage {
+contract SnakeEggsNFTProxy is Proxy, BaseTokenStorage {
 
     event ReplaceImplementation(address oldTarget, address newTarget);
 

@@ -7,10 +7,9 @@ import "../interfaces/IBEP721Enumerable.sol";
 import "../interfaces/IBEP721Metadata.sol";
 import "../utils/Address.sol";
 import "../utils/Strings.sol";
-import "../utils/Ownable.sol";
 import "../storages/BaseTokenStorage.sol";
 
-contract SnakesNFTBase is Ownable, IBEP721, IBEP721Metadata, BaseTokenStorage {
+contract SnakesNFTBase is IBEP721, IBEP721Metadata, BaseTokenStorage {
     using Address for address;
     using Strings for uint256;
 
