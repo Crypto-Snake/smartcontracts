@@ -25,7 +25,7 @@ abstract contract StakingPoolStorage is Initializable, Convertable, ReentrancyGu
 
     uint256 public constant rewardDuration = 365 days;
 
-    uint public pythonBonusRate = 1e16;
+    uint public pythonBonusRate = 27e14;
   
     mapping(uint256 => uint256) public stakeNonces;
 
