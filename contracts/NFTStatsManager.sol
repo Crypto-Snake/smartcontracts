@@ -39,13 +39,13 @@ contract NFTStatsManager is NFTManagerBase {
         );
 
         address recoveredAddress = ecrecover(digest, v, r, s);
-        require(recoveredAddress != address(0) && recoveredAddress == owner(), 'NFTManager: INVALID_SIGNATURE');
+        require(recoveredAddress != address(0) && (recoveredAddress == lowerAdmin() || recoveredAddress == owner()), 'NFTManager: INVALID_SIGNATURE');
 
         _updateStakeAmount(snakeId, stakeAmount, false, 0);
         _updateGameBalance(snakeId, gameBalance, 0);
     }
 
-    function applyGameResults(uint snakeId, uint stakeAmount, uint gameBalance) external onlyOwner {
+    function applyGameResults(uint snakeId, uint stakeAmount, uint gameBalance) external onlyOwnerOrLowerAdmin {
         _updateStakeAmount(snakeId, stakeAmount, false, 0);
         _updateGameBalance(snakeId, gameBalance, 0);
     }
@@ -62,12 +62,12 @@ contract NFTStatsManager is NFTManagerBase {
         );
 
         address recoveredAddress = ecrecover(digest, v, r, s);
-        require(recoveredAddress != address(0) && recoveredAddress == owner(), 'NFTManager: INVALID_SIGNATURE');
+        require(recoveredAddress != address(0) && (recoveredAddress == lowerAdmin() || recoveredAddress == owner()), 'NFTManager: INVALID_SIGNATURE');
 
         _updateStakeAmount(snakeId, stakeAmount, increase, artifactId);
     }
 
-    function updateStakeAmount(uint snakeId, uint stakeAmount, bool increase, uint artifactId) external onlyOwner {
+    function updateStakeAmount(uint snakeId, uint stakeAmount, bool increase, uint artifactId) external onlyOwnerOrLowerAdmin {
         _updateStakeAmount(snakeId, stakeAmount, increase, artifactId);
     }
 
@@ -83,12 +83,12 @@ contract NFTStatsManager is NFTManagerBase {
         );
 
         address recoveredAddress = ecrecover(digest, v, r, s);
-        require(recoveredAddress != address(0) && recoveredAddress == owner(), 'NFTManager: INVALID_SIGNATURE');
+        require(recoveredAddress != address(0) && (recoveredAddress == lowerAdmin() || recoveredAddress == owner()), 'NFTManager: INVALID_SIGNATURE');
 
         _updateGameBalance(snakeId, gameBalance, artifactId);
     }
 
-    function updateGameBalance(uint snakeId, uint gameBalance, uint artifactId) external onlyOwner {
+    function updateGameBalance(uint snakeId, uint gameBalance, uint artifactId) external onlyOwnerOrLowerAdmin {
         _updateGameBalance(snakeId, gameBalance, artifactId);
     }
 
