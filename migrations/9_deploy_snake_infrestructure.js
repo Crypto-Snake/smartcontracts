@@ -199,6 +199,7 @@ module.exports = async function(deployer) {
             await nftManager.updateSnakesNFT(addresses.snakesNFTProxy);
             await nftManager.updateArtifactsNFT(addresses.snakeArtifactsNFTProxy);
             await nftManager.updateCustodian(process.env.CUSTODIAN);
+            await nftManager.updateLowerAdmin(process.env.LOWER_ADMIN);
 
             for (let i = 1; i < 11; i++) {
                 await nftManager.updateAllowedArtifacts(i, true);
