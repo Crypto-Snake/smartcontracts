@@ -73,11 +73,7 @@ contract NFTManager is NFTManagerBase {
             snakes[snakeId].TimesFeededMoreThanTreshold += 1;
         }
 
-        if(stats.Type == 2 && stats.TimesFeededMoreThanTreshold == 10) {
-            stakingPool.updateStakeIsLocked(snakeId, false);
-        }
-
-        if(stats.StakeAmount > properties.Price * stats.TimesRateUpdated * 10 && stats.APR < maxRate) {
+        if(snakes[snakeId].StakeAmount > properties.Price * stats.TimesRateUpdated * 10 && stats.APR < maxRate) {
             if(stats.TimesRateUpdated == 1) {
                 snakes[snakeId].APR += (2 * bonusFeedRate);
             } else {
