@@ -47,10 +47,8 @@ contract NFTManager is NFTManagerBase {
 
         snakeEggsNFT.safeBurn(tokenId);
         snakesNFT.safeMint(msg.sender, tokenId);
-
-        bool isLocked = stats.SnakeType == 2 ? true : false;
         
-        stakingPool.stakeFor(stats.PurchasingAmount, tokenId, baseRate, isLocked);
+        stakingPool.stakeFor(stats.PurchasingAmount, tokenId, baseRate, false);
         snakes[tokenId] = SnakeStats(tokenId, stats.SnakeType, block.timestamp, baseRate, 0, stats.PurchasingAmount, 0, 0, 0, 0, 0, 1, false, 0);
         snakeAppliedArtifacts[tokenId] = SnakeAppliedArtifacts(0, 0, 0, 0, 0, 0, false, false, false, 0);
         emit HatchEgg(tokenId);

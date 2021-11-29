@@ -113,6 +113,10 @@ contract NFTManagerBase is NFTManagerStorage {
         if(stats.Type == 4 && isFeeded(snakeId) && amount > 0 && artifactId == 0) {
             amount *= 5;
         }
+
+        if(stats.Type == 2 && stats.TimesFeededMoreThanTreshold > 10) {
+            amount *= 2;
+        }
         
         snakes[snakeId].GameBalance += amount;
         emit UpdateGameBalance(snakeId, stats.GameBalance, snakes[snakeId].GameBalance, msg.sender, artifactId);
