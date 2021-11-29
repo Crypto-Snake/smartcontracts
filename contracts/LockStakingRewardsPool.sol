@@ -64,6 +64,10 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, StakingPoolStorage {
         return (tokenStakeInfo[tokenId].balance * (block.timestamp - tokenStakeInfo[tokenId].weightedStakeDate) * rate) / (percentPrecision * rewardDuration);
     }
 
+    function getStakeAmountByNonce(uint tokenId, uint nonce) external view returns (uint) {
+        return stakeInfo[tokenId][nonce].stakeAmount;
+    }
+
     function stakeFor(uint256 amount, uint256 tokenId, uint rate, bool isLocked) external override nonReentrant onlyNFTManager {
         _stake(amount, tokenId, rate, isLocked);
     }
@@ -137,7 +141,7 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, StakingPoolStorage {
     }
 
     function updateAmountForStake(uint tokenId, uint amount, bool increase) external override onlyNFTManager {
-        uint nonce = stakeNonces[tokenId];
+        uint nonce = stakeNonces[tokenId] - 1;
         
         uint newAmount;
         if (increase) {
