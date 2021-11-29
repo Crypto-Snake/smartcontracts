@@ -46,18 +46,6 @@ contract NFTManagerBase is NFTManagerStorage {
         
         return false;
     }
-
-    function canApplyArtifact(uint snakeId, uint artifactId) external view returns (bool canApply) {
-        if(artifactId == 2) {
-            return snakeAppliedArtifacts[snakeId].TimesDiamondApplied <= 4 ? true : false;
-        } else if(artifactId == 7) {
-            return !snakeAppliedArtifacts[snakeId].IsRainbowUnicornApplied ? true : false;
-        } else if(artifactId == 8) {
-            return !snakeAppliedArtifacts[snakeId].IsSnakeHunterApplied ? true : false;
-        } else if(artifactId == 9) {
-            return !snakeAppliedArtifacts[snakeId].IsSnakeCharmerApplied ? true : false;
-        }
-    }
         
     function isEggReadyForHatch(uint eggId) public view returns (bool) {
         EggStats memory stats = eggs[eggId];
