@@ -40,6 +40,33 @@ let LockStakingRewardsPoolProxy = artifacts.require("LockStakingRewardsPoolProxy
 let SnakeP2P = artifacts.require("SnakeP2P");
 let SnakeP2PProxy = artifacts.require("SnakeP2PProxy")
 
+async function getSnakeStats(id) {
+    nftManager = await NFTManager.at(addresses.nftManagerProxy);
+    let stats = await nftManager.getSnakeStats(id);
+    console.log(stats)
+}
+
+async function getSnakeArtifacts(id) {
+    сonsole.log(1)
+    nftManager = await NFTArtifactsManager.at(addresses.nftManagerProxy);
+    let stats = await nftManager.getSnakeAppliedArtifacts(id);
+    console.log(stats)
+}
+
+async function getSnakeOwner(id) {
+    snakesNFT = await SnakesNFT.at(addresses.snakesNFTProxy);
+    let o = await snakesNFT.ownerOf(17);
+    console.log(o)
+}
+
+async function sendArtifacts(address, count) {
+    artifactsNFT = await SnakeArtifactsNFT.at(addresses.snakeArtifactsNFTProxy);
+
+    for (let i = 1; i < 11; i++) {
+    await artifactsNFT.safeTransferFrom("0xD4DC28c3B384EA9F3A41a97Cd202d63Dd339474d", address, i, count, "0x0")
+    }
+}
+
 module.exports = async function(deployer) {
 
     const deployParams = {
@@ -117,6 +144,9 @@ module.exports = async function(deployer) {
 
             lockStakingRewardsPool = await LockStakingRewardsPool.at(addresses.lockStakingRewardsPoolProxy);
             await lockStakingRewardsPool.initialize(addresses.snk, addresses.busd);
+            await lockStakingRewardsPool.updateAllowedTokens(addresses.busd, true);
+            await lockStakingRewardsPool.updateAllowedTokens(addresses.snk, true);
+            await lockStakingRewardsPool.updateTokenWeightedExchangeRate(addresses.busd, "10000000000000000");
 
             fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
         } else {
@@ -244,6 +274,10 @@ module.exports = async function(deployer) {
 
             nftManager = await NFTManager.at(addresses.nftManagerProxy);
             await nftManager.updateSnakeEggsShop(addresses.snakeEggsShop);
+            
+            //call with SnakeArtifactsNFT owner
+            // artifactsNFT = await SnakeArtifactsNFT.at(addresses.snakeArtifactsNFTProxy)
+            // await artifactsNFT.updateAllowedAddresses(addresses.nftManagerProxy, true)
 
             for (let i = 0; i < EGGS.length; i++) {
                 nftStatsManager = await NFTManager.at(addresses.nftManagerProxy);
