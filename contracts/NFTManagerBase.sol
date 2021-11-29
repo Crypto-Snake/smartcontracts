@@ -134,21 +134,28 @@ contract NFTManagerBase is NFTManagerStorage {
         SnakeStats memory stats = snakes[snakeId];
         Snake memory properties = snakesProperties[stats.Type];
 
-        if(increase) {
-            snakes[snakeId].StakeAmount += amount;
+        if(artifactId == 3 && amount == 0 && increase == false) {
+            snakesNFT.safeBurn(snakeId);
+            emit UpdateStakeIsDead(snakeId, 3);
         } else {
-            require(stats.StakeAmount> amount, "NFTManager: Snake`s stake amount lower then update amount");
-            snakes[snakeId].StakeAmount -= amount;
+            
+            if(increase) {
+                snakes[snakeId].StakeAmount += amount;
+            } else {
+                require(stats.StakeAmount> amount, "NFTManager: Snake`s stake amount lower then update amount");
+                snakes[snakeId].StakeAmount -= amount;
 
-            if(snakes[snakeId].StakeAmount < properties.DeathPoint) {
-                destroySnake(snakeId);
-                snakes[snakeId].IsDead = true;
-                emit UpdateStakeIsDead(snakeId, 0);
-                return;
+                if(snakes[snakeId].StakeAmount < properties.DeathPoint) {
+                    destroySnake(snakeId);
+                    snakes[snakeId].IsDead = true;
+                    emit UpdateStakeIsDead(snakeId, 0);
+                    return;
+                }
             }
-        }
 
-        stakingPool.updateAmountForStake(snakeId, amount, increase);
+            stakingPool.updateAmountForStake(snakeId, amount, increase);
+        }
+        
         emit UpdateStakeAmount(snakeId, stats.StakeAmount, snakes[snakeId].StakeAmount, msg.sender, artifactId);
     }
 
