@@ -11,7 +11,7 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, StakingPoolStorage {
 
     event Staked(uint256 indexed tokenId, uint256 amount);
     event Withdrawn(uint256 indexed tokenId, uint256 amount, address indexed to);
-    event RewardPaid(uint256 indexed tokenId, uint256 reward, address indexed rewardToken, address indexed to);
+    event RewardPaid(uint256 indexed tokenId, uint256 reward, address indexed rewardToken, address indexed to, uint artifactId);
 
     modifier onlyNFTManager {
         require(msg.sender == address(nftManager), "LockStakingReward: caller is not an NFT manager contract");
@@ -105,7 +105,7 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, StakingPoolStorage {
         withdraw(tokenId, receiver);
     }
 
-    function getRewardFor(uint256 tokenId, address receiver, bool stable) public nonReentrant onlyNFTManager {
+    function getRewardFor(uint256 tokenId, address receiver, bool stable, uint artifactId) public nonReentrant onlyNFTManager {
         require(!stakeInfo[tokenId][0].isLocked, "LockStakingRewardsPool: Unable to withdraw locked staking");
         
         uint256 reward = earned(tokenId);
@@ -116,11 +116,11 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, StakingPoolStorage {
             uint stableCoinEquivalentReward = getTokenEquivalentAmount(address(stableCoin), reward);
             require(stableCoin.balanceOf(address(this)) > stableCoinEquivalentReward, "StakingRewardsPool: Not enough stable coin on staking contract");
             TransferHelper.safeTransfer(address(stableCoin), receiver, stableCoinEquivalentReward);
-            emit RewardPaid(tokenId, stableCoinEquivalentReward, address(stableCoin), receiver);
+            emit RewardPaid(tokenId, stableCoinEquivalentReward, address(stableCoin), receiver, artifactId);
         } else {
             require(stakingToken.balanceOf(address(this)) > reward, "StakingRewardsPool: Not enough reward token on staking contract");
             TransferHelper.safeTransfer(address(stakingToken), receiver, reward);
-            emit RewardPaid(tokenId, reward, address(stakingToken), receiver);
+            emit RewardPaid(tokenId, reward, address(stakingToken), receiver, artifactId);
         }
 
         tokenStakeInfo[tokenId].weightedStakeDate = block.timestamp;
@@ -136,7 +136,7 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, StakingPoolStorage {
             require(stakingToken.balanceOf(address(this)) > reward, "StakingRewardsPool: Not enough reward token on staking contract");
             TransferHelper.safeTransfer(address(stakingToken), receiver, reward);
 
-            emit RewardPaid(tokenId, reward, address(stakingToken), receiver);
+            emit RewardPaid(tokenId, reward, address(stakingToken), receiver, 0);
         }
     }
 
