@@ -80,8 +80,13 @@ contract NFTManager is NFTManagerBase {
         }
 
         if(stats.StakeAmount > properties.Price * stats.TimesRateUpdated * 10 && stats.APR < maxRate) {
+            if(stats.TimesRateUpdated == 1) {
+                snakes[snakeId].APR += (2 * bonusFeedRate);
+            } else {
+                snakes[snakeId].APR += bonusFeedRate;
+            }
+
             snakes[snakeId].TimesRateUpdated += 1;
-            snakes[snakeId].APR += bonusFeedRate;
         }
 
         uint totalAPR = snakes[snakeId].APR + snakes[snakeId].BonusAPR;
