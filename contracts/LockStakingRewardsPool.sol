@@ -144,28 +144,26 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, StakingPoolStorage {
         uint nonce = stakeNonces[tokenId] - 1;
         
         uint newAmount;
+        uint previousStake = stakeInfo[tokenId][nonce].stakeAmount;
         if (increase) {
             newAmount = stakeInfo[tokenId][nonce].stakeAmount + amount;
             stakeInfo[tokenId][nonce].stakeAmount = newAmount;
             tokenStakeInfo[tokenId].balance += amount;
             tokenStakeInfo[tokenId].accumulatedBalance += amount;
-            if (nonce > 0)  
-                tokenStakeInfo[tokenId].weightedStakeDate = 
-                    tokenStakeInfo[tokenId].weightedStakeDate * stakeInfo[tokenId][nonce - 1].stakeAmount / newAmount 
-                    + block.timestamp * amount / newAmount;
+            tokenStakeInfo[tokenId].weightedStakeDate = 
+                tokenStakeInfo[tokenId].weightedStakeDate * previousStake / newAmount 
+                + block.timestamp * amount / newAmount;
         } else {
-            uint balance = stakeInfo[tokenId][nonce].stakeAmount;
-            require (balance >= amount, "StakingRewardsPool: Balance is lower than decrease amount");
+            require (previousStake >= amount, "StakingRewardsPool: Balance is lower than decrease amount");
             unchecked {
-                newAmount = balance - amount;
+                newAmount = previousStake - amount;
                 stakeInfo[tokenId][nonce].stakeAmount = newAmount;
                 tokenStakeInfo[tokenId].balance -= amount;
                 tokenStakeInfo[tokenId].accumulatedBalance -= amount;
             }
-            if (nonce > 0)  
-                tokenStakeInfo[tokenId].weightedStakeDate = 
-                    tokenStakeInfo[tokenId].weightedStakeDate * stakeInfo[tokenId][nonce - 1].stakeAmount / newAmount 
-                    - block.timestamp * amount / newAmount;
+            tokenStakeInfo[tokenId].weightedStakeDate = 
+                tokenStakeInfo[tokenId].weightedStakeDate * previousStake / newAmount 
+                - block.timestamp * amount / newAmount;
         }
     }    
 
@@ -183,7 +181,7 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, StakingPoolStorage {
         uint newAmount = previousAmount + amount;
         tokenStakeInfo[tokenId].weightedStakeDate = tokenStakeInfoLocal.weightedStakeDate * previousAmount / newAmount + block.timestamp * amount / newAmount;
         tokenStakeInfo[tokenId].balance = newAmount;
-        tokenStakeInfo[tokenId].accumulatedBalance += amount;
+        tokenStakeInfo[tokenId].accumulatedBalance += newAmount;
         stakeInfo[tokenId][stakeNonce].stakeAmount = newAmount;
 
         stakeInfo[tokenId][stakeNonce].tokenId = tokenId;
