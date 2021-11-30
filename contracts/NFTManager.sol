@@ -74,14 +74,16 @@ contract NFTManager is NFTManagerBase {
             snakes[snakeId].TimesFeededMoreThanTreshold += 1;
         }
 
-        if(snakes[snakeId].StakeAmount > properties.Price * stats.TimesRateUpdated * 10 && stats.APR < maxRate) {
-            if(stats.TimesRateUpdated == 1) {
-                snakes[snakeId].APR += (2 * bonusFeedRate);
-            } else {
-                snakes[snakeId].APR += bonusFeedRate;
-            }
+        uint rateUpdates = snakes[snakeId].StakeAmount / properties.Price;
+        uint updateTimes = rateUpdates - stats.TimesRateUpdated;
 
-            snakes[snakeId].TimesRateUpdated += 1;
+        if(updateTimes > 0 && snakes[snakeId].APR < maxRate) {
+            if(rateUpdates == 1 && stats.TimesRateUpdated == 1) {
+                snakes[snakeId].APR += bonusFeedRate;
+            } 
+            
+            snakes[snakeId].APR += (updateTimes * bonusFeedRate);
+            snakes[snakeId].TimesRateUpdated = rateUpdates;
         }
 
         uint totalAPR = snakes[snakeId].APR + snakes[snakeId].BonusAPR;
