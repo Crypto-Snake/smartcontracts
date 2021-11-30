@@ -30,7 +30,7 @@ contract NFTArtifactsManager is NFTManagerBase {
             snakeAppliedArtifacts[snakeId].TimesMysteryBoxApplied += 1;
             emit ApplyMysteryBoxArtifact(snakeId, block.timestamp, msg.sender);
         } else if(artifactId == 2) {
-            require(snakeAppliedArtifacts[snakeId].TimesDiamondApplied <= 4, "Cannot apply diamond more times for one snake");
+            require(snakeAppliedArtifacts[snakeId].TimesDiamondApplied < 4, "Cannot apply diamond more than 4 times for one snake");
             _applyDiamondArtifact(snakeId);
         } else if(artifactId == 3) {
             snakeAppliedArtifacts[snakeId].TimesBombApplied += 1;
