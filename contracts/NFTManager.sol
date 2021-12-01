@@ -75,7 +75,7 @@ contract NFTManager is NFTManagerBase {
         }
 
         
-        uint rateUpdates = snakes[snakeId].StakeAmount / (properties.Price * 10);
+        uint rateUpdates = snakes[snakeId].StakeAmount / (properties.Price * 10) + 1;
 
         if(rateUpdates > 11) {
             rateUpdates = 11;
