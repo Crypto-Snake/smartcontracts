@@ -10,7 +10,6 @@ contract NFTArtifactsManager is NFTManagerBase {
     event ApplyDiamondArtifact(uint indexed snakeId, uint applyingTime, address indexed user);
     event ApplyBombArtifact(uint indexed snakeId, uint applyingTime, address indexed user);
     event ApplyMouseArtifact(uint indexed snakeId, uint stakeAmountBonus, uint applyingTime, address indexed user);
-    event ApplyShadowSnakeArtifact(uint indexed snakeId, uint stakeAmountBonus, uint applyingTime, address indexed user);
     event ApplyTrophyArtifact(uint indexed snakeId, uint applyingTime, address indexed user);
     event ApplyRainbowUnicornArtifact(uint indexed snakeId, uint applyingTime, address indexed user);
     event ApplySnakeHunterArtifact(uint indexed snakeId, uint applyingTime, address indexed user);
@@ -44,7 +43,9 @@ contract NFTArtifactsManager is NFTManagerBase {
             snakeAppliedArtifacts[snakeId].IsRainbowUnicornApplied = true;
             emit ApplyRainbowUnicornArtifact(snakeId, block.timestamp, msg.sender);
         } else if(artifactId == 7) {
-            _applyShadowSnakeArtifact(snakeId);
+            SnakeStats memory stats = snakes[snakeId];
+            uint updateAmount = stats.StakeAmount * (shadowSnakeTVLMultiplier - 1);
+            _applyShadowSnakeArtifact(snakeId, updateAmount, shadowSnakeDestroyLockPeriod);
         } else if(artifactId == 8) {
             require(!snakeAppliedArtifacts[snakeId].IsSnakeHunterApplied, "Cannot apply more than one snake hunter for one snake");
             snakeAppliedArtifacts[snakeId].IsSnakeHunterApplied = true;
@@ -91,18 +92,6 @@ contract NFTArtifactsManager is NFTManagerBase {
         _updateStakeAmount(snakeId, updateAmount, true, 4);
         snakeAppliedArtifacts[snakeId].TimesMouseApplied += 1;
         emit ApplyMouseArtifact(snakeId, updateAmount, block.timestamp, msg.sender);
-    }
-
-    function _applyShadowSnakeArtifact(uint snakeId) internal {
-        SnakeStats memory stats = snakes[snakeId];
-        require(stats.Type == 1, "NFTManager: Can apply this artifact only to dasypeltis");
-        require(stats.StakeAmount >= shadowSnakeRequiredTVL, "NFTManager: Snake`s TVL less than required");
-
-        snakes[snakeId].DestroyLock = block.timestamp + shadowSnakeDestroyLockPeriod;
-        uint updateAmount = stats.StakeAmount * (shadowSnakeTVLMultiplier - 1);
-        _updateStakeAmount(snakeId, updateAmount, true, 5);
-        snakeAppliedArtifacts[snakeId].TimesShadowSnakeApplied += 1;
-        emit ApplyShadowSnakeArtifact(snakeId, updateAmount, block.timestamp, msg.sender);
     }
 
     function _applySnakeTimeArtifact(uint snakeId) internal {

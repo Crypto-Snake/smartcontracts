@@ -15,6 +15,7 @@ contract NFTManagerBase is NFTManagerStorage {
     event UpdateGameBalance(uint indexed snakeId, uint oldGameBalance, uint newGameBalance, address indexed updater, uint indexed artifactId);
     event UpdateBonusStakeRate(uint indexed snakeId, uint oldStakeRate, uint newStakeRate, address indexed updater);
     event UpdateStakeIsDead(uint indexed snakeId, uint artifactId);
+    event ApplyShadowSnakeArtifact(uint indexed snakeId, uint stakeAmountBonus, uint applyingTime, address indexed user);
     event DestroySnake(uint indexed tokenId);
 
     modifier onlySnakeEggsShop() {
@@ -161,5 +162,17 @@ contract NFTManagerBase is NFTManagerStorage {
         }
 
         emit UpdateBonusStakeRate(snakeId, previousStakeRate, snakes[snakeId].BonusAPR, msg.sender);
+    }
+
+    function _applyShadowSnakeArtifact(uint snakeId, uint updateAmount, uint lockPeriod) internal {
+        SnakeStats memory stats = snakes[snakeId];
+        require(stats.Type == 1, "NFTManager: Can apply this artifact only to dasypeltis");
+        require(stats.StakeAmount >= shadowSnakeRequiredTVL, "NFTManager: Snake`s TVL less than required");
+        require(snakeAppliedArtifacts[snakeId].TimesShadowSnakeApplied == 0, "NFTManager: Shadow snake has been already applied");
+
+        snakes[snakeId].DestroyLock = block.timestamp + lockPeriod;
+        _updateStakeAmount(snakeId, updateAmount, true, 5);
+        snakeAppliedArtifacts[snakeId].TimesShadowSnakeApplied += 1;
+        emit ApplyShadowSnakeArtifact(snakeId, updateAmount, block.timestamp, msg.sender);
     }
 }
