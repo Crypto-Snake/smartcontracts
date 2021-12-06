@@ -15,6 +15,7 @@ contract NFTStatsManager is NFTManagerBase {
         _setTarget(this.updateGameBalance.selector, _target);
         _setTarget(this.updateBonusStakeRate.selector, _target);
         _setTarget(this.updateEggStats.selector, _target);
+        _setTarget(this.applyShadowSnakeBySign.selector, _target);
         
         _setTarget(this.isFeeded.selector, _target);
         _setTarget(this.isEggReadyForHatch.selector, _target);
@@ -101,7 +102,7 @@ contract NFTStatsManager is NFTManagerBase {
             abi.encodePacked(
                 '\x19\x01',
                 DOMAIN_SEPARATOR,
-                keccak256(abi.encode(UPDATE_GAME_BALANCE_TYPEHASH, snakeId, updateAmount, lockPeriod, msg.sender, nonce, deadline))
+                keccak256(abi.encode(APPLY_ARTIFACT_TYPEHASH, snakeId, updateAmount, lockPeriod, msg.sender, nonce, deadline))
             )
         );
 
