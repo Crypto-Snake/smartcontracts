@@ -175,18 +175,6 @@ contract NFTManagerStorage is Convertable, Objects {
         emit UpdateShadowSnakeRequiredTVL(requiredTVL);
     }
 
-    function updateShadowSnakeDestroyLockPeriod(uint lockPeriod) external onlyOwner {
-        require(lockPeriod > 0, "NFTManager: lock period bonus must be grater than 0");
-        shadowSnakeDestroyLockPeriod = lockPeriod;
-        emit UpdateShadowSnakeDestroyLockPeriod(lockPeriod);
-    }
-
-    function updateShadowSnakeTVLMultiplier(uint tvlMultiplier) external onlyOwner {
-        require(tvlMultiplier > 0, "NFTManager: TVL multiplier bonus must be grater than 0");
-        shadowSnakeTVLMultiplier = tvlMultiplier;
-        emit UpdateShadowSnakeTVLMultiplier(tvlMultiplier);
-    }
-
     function updateDiamondMaxAppliances(uint maxAppliances) external onlyOwner {
         require(maxAppliances > 0, "NFTManager: Diamond max appliances count must be grater than 0");
         diamondMaxAppliances = maxAppliances;
