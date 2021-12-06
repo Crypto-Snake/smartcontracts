@@ -39,6 +39,7 @@ let LockStakingRewardsPool = artifacts.require("LockStakingRewardsPool");
 let LockStakingRewardsPoolProxy = artifacts.require("LockStakingRewardsPoolProxy");
 let SnakeP2P = artifacts.require("SnakeP2P");
 let SnakeP2PProxy = artifacts.require("SnakeP2PProxy")
+let NFTManagerRescue = artifacts.require("NFTManagerRescue")
 
 async function getSnakeStats(id) {
     nftManager = await NFTManager.at(addresses.nftManagerProxy);
