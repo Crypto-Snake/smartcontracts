@@ -21,6 +21,7 @@
     "dotenv": "^10.0.0",
     "ethers": "^5.1.4",
     "truffle": "^5.4.13",
+    "truffle-contract-size": "^2.0.1",
     "web3": "^1.6.0"
   },
   "devDependencies": {
