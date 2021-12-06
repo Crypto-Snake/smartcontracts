@@ -105,28 +105,28 @@ const SNAKES_METADATA = {
     dasypeltis : {
         name: "Dasypeltis",
         description: "Dasypeltis Description",
-        uri: "https://cryptosnake.game/",
+        uri: "https://ipfs.io/ipfs/QmeEcezaPgNGjoJhPmGEPSatqW1GTw4YoWm3cgWFSPvTSt",
         type: "1",
         deathPoint: "100" + "000000000000000000"
     },
     viper : {
         name: "Viper",
         description: "Viper Description",
-        uri: "https://cryptosnake.game/",
+        uri: "https://ipfs.io/ipfs/QmQ4ng2srQZoaEpZkcRZqHNqArkJxTMgfZvit37dcrubYe",
         type: "2",
         deathPoint: "100" + "000000000000000000"
     },
     python : {
         name: "Python",
         description: "Python Description",
-        uri: "https://cryptosnake.game/",
+        uri: "https://ipfs.io/ipfs/QmXCV5addPYXCHYAPD93y5bQvjzQYbouPqcStphWAyXi7L",
         type: "3",
         deathPoint: "100" + "000000000000000000"
     },
     anaconda : {
         name: "Anaconda",
         description: "Anaconda Description",
-        uri: "https://cryptosnake.game/",
+        uri: "https://ipfs.io/ipfs/QmZK7pRyT2cKxh6PiLbCEpGUWTa162Q5kAikugf4G5ofoG",
         type: "4",
         deathPoint: "100" + "000000000000000000"
     }
@@ -143,34 +143,34 @@ const SNAKE_EGGS_METADATA = {
     dasypeltis : {
         name: "Dasypeltis Egg",
         description: "Dasypeltis Egg Description",
-        uri: "https://cryptosnake.game/",
+        uri: "https://ipfs.io/ipfs/QmVSjychUYoTv8Yctaaksfs5WcooHBbj2tfXUzr8TNUkBq",
         snakeType: "1",
         price: "2200" + "000000000000000000",
-        hatchingPeriod: "60" //86400 seconds = 1 day
+        hatchingPeriod: "86400" //86400 seconds = 1 day
     },
     viper : {
         name: "Viper Egg",
         description: "Viper Egg Description",
-        uri: "https://cryptosnake.game/",
+        uri: "https://ipfs.io/ipfs/QmS7HAGsF2PCero8FiD785AHoonTJ1AtjcrtTMKt4An9zf",
         snakeType: "2",
         price: "10000" + "000000000000000000",
-        hatchingPeriod: "60" //259200 seconds = 3 days
+        hatchingPeriod: "259200" //259200 seconds = 3 days
     },
     python : {
         name: "Python Egg",
         description: "Python Egg Description",
-        uri: "https://cryptosnake.game/",
+        uri: "https://ipfs.io/ipfs/QmTUnQTH9dzF8e1ECRF8n7YfcXvzDCgZwNhZdYRJbGMNfD",
         snakeType: "3",
         price: "100000" + "000000000000000000",
-        hatchingPeriod: "60" //604800 seconds = 7 days
+        hatchingPeriod: "604800" //604800 seconds = 7 days
     },
     anaconda : {
         name: "Anaconda Egg",
         description: "Anaconda Egg Description",
-        uri: "https://cryptosnake.game/",
+        uri: "https://ipfs.io/ipfs/QmPcgBHP2HsfTXQwMEJda5pb2NzCBXapQsTFpXAN6MgRJK",
         snakeType: "4",
         price: "500000" + "000000000000000000",
-        hatchingPeriod: "60" //1209600 seconds = 14 days
+        hatchingPeriod: "1209600" //1209600 seconds = 14 days
     }
 }
 
