@@ -316,23 +316,8 @@ contract SnakeP2P is SnakeP2PStorage, IBEP721Receiver {
 
     function cancelTrade(uint tradeId) external lock { 
         require(tradeCount >= tradeId && tradeId > 0, "SnakeP2P: Invalid trade id");
-        TradeSingle storage trade = tradesSingle[tradeId];
-        require(trade.initiator == msg.sender, "SnakeP2P: Not allowed");
-        require(trade.status == 0 && trade.deadline > block.timestamp, "SnakeP2P: Not active trade");
-
-        if (trade.proposedAssetType == AssetType.BEP721) {
-            IBEP721(trade.proposedAsset).transferFrom(address(this), msg.sender, trade.proposedTokenId);
-        } else if (trade.proposedAssetType == AssetType.BEP1155) {
-            IBEP1155(trade.proposedAsset).safeTransferFrom(address(this), msg.sender, trade.proposedTokenId, trade.proposedAmount, "");
-        } else if (trade.proposedAsset != address(WBNB)) {
-            TransferHelper.safeTransfer(trade.proposedAsset, msg.sender, trade.proposedAmount);
-        } else {
-            WBNB.withdraw(trade.proposedAmount);
-            TransferHelper.safeTransferBNB(msg.sender, trade.proposedAmount);
-        }
-
-        trade.status = 2;
-        emit CancelTrade(tradeId);
+        require(tradesSingle[tradeId].initiator == msg.sender, "SnakeP2P: Not allowed");
+        _cancelTrade(tradeId);
     }
 
     function cancelTradeMulti(uint tradeId) external lock { 
@@ -551,6 +536,31 @@ contract SnakeP2P is SnakeP2PStorage, IBEP721Receiver {
         emit SupportTrade(tradeId, msg.sender);
     }
 
+    function _cancelTrade(uint tradeId) internal { 
+        TradeSingle storage trade = tradesSingle[tradeId];
+        require(trade.status == 0 && trade.deadline > block.timestamp, "SnakeP2P: Not active trade");
+
+        if (trade.proposedAssetType == AssetType.BEP721) {
+            IBEP721(trade.proposedAsset).transferFrom(address(this), trade.initiator, trade.proposedTokenId);
+        } else if (trade.proposedAssetType == AssetType.BEP1155) {
+            IBEP1155(trade.proposedAsset).safeTransferFrom(address(this), trade.initiator, trade.proposedTokenId, trade.proposedAmount, "");
+        } else if (trade.proposedAsset != address(WBNB)) {
+            TransferHelper.safeTransfer(trade.proposedAsset, trade.initiator, trade.proposedAmount);
+        } else {
+            WBNB.withdraw(trade.proposedAmount);
+            TransferHelper.safeTransferBNB(trade.initiator, trade.proposedAmount);
+        }
+
+        trade.status = 2;
+        emit CancelTrade(tradeId);
+    }
+
+
+
+    function cancelTradeFor(uint tradeId) external lock onlyOwner { 
+        require(tradeCount >= tradeId && tradeId > 0, "SnakeP2P: Invalid trade id");
+        _cancelTrade(tradeId);
+    }
 
     function toggleAnyNFTAllowed() external onlyOwner {
         isAnyNFTAllowed = !isAnyNFTAllowed;
