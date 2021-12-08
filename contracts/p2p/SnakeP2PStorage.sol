@@ -11,7 +11,8 @@ enum TradeState {
     Succeeded,
     Canceled,
     Withdrawn,
-    Overdue
+    Overdue,
+    CanceledOrWithdrawn
 }
 
 contract SnakeP2PStorage is Ownable, TradeObjects {    
@@ -31,6 +32,7 @@ contract SnakeP2PStorage is Ownable, TradeObjects {
     event SupportTrade(uint indexed tradeId, address indexed counterparty);
     event CancelTrade(uint indexed tradeId);
     event WithdrawOverdueAsset(uint indexed tradeId);
+    event CancelOrWithdrawOverdueAssetTrade(uint indexed tradeId);
     event UpdateIsAnyNFTAllowed(bool indexed isAllowed);
     event UpdateAllowedNFT(address indexed nftContract, bool indexed isAllowed);
 }

@@ -317,7 +317,22 @@ contract SnakeP2P is SnakeP2PStorage, IBEP721Receiver {
     function cancelTrade(uint tradeId) external lock { 
         require(tradeCount >= tradeId && tradeId > 0, "SnakeP2P: Invalid trade id");
         require(tradesSingle[tradeId].initiator == msg.sender, "SnakeP2P: Not allowed");
-        _cancelTrade(tradeId);
+        require(tradesSingle[tradeId].status == 0 && tradesSingle[tradeId].deadline > block.timestamp, "SnakeP2P: Not active trade");
+        
+        _cancelTradeOrWithdrawOverdueAssets(tradeId);
+        
+        tradesSingle[tradeId].status = 2;
+        emit CancelTrade(tradeId);
+    }
+
+    function cancelTradeOrWithdrawOverdueAssets(uint tradeId) external lock { 
+        require(tradeCount >= tradeId && tradeId > 0, "SnakeP2P: Invalid trade id");
+        require(tradesSingle[tradeId].initiator == msg.sender, "SnakeP2P: Not allowed");
+        
+        _cancelTradeOrWithdrawOverdueAssets(tradeId);
+
+        tradesSingle[tradeId].status = 5;
+        emit CancelOrWithdrawOverdueAssetTrade(tradeId);
     }
 
     function cancelTradeMulti(uint tradeId) external lock { 
@@ -351,16 +366,7 @@ contract SnakeP2P is SnakeP2PStorage, IBEP721Receiver {
         require(trade.initiator == msg.sender, "SnakeP2P: Not allowed");
         require(trade.status == 0 && trade.deadline < block.timestamp, "SnakeP2P: Not available for withdrawal");
 
-        if (trade.proposedAssetType == AssetType.BEP721) {
-            IBEP721(trade.proposedAsset).transferFrom(address(this), msg.sender, trade.proposedTokenId);
-        } else if (trade.proposedAssetType == AssetType.BEP1155) {
-            IBEP1155(trade.proposedAsset).safeTransferFrom(address(this), msg.sender, trade.proposedTokenId, trade.proposedAmount, "");
-        } else if (trade.proposedAsset != address(WBNB)) {
-            TransferHelper.safeTransfer(trade.proposedAsset, msg.sender, trade.proposedAmount);
-        } else {
-            WBNB.withdraw(trade.proposedAmount);
-            TransferHelper.safeTransferBNB(msg.sender, trade.proposedAmount);
-        }
+        _cancelTradeOrWithdrawOverdueAssets(tradeId);
 
         trade.status = 3;
         emit WithdrawOverdueAsset(tradeId);
@@ -404,7 +410,7 @@ contract SnakeP2P is SnakeP2PStorage, IBEP721Receiver {
         TradeSingle storage trade = tradesSingle[tradeId];
         if (trade.status == 1) {
             return TradeState.Succeeded;
-        } else if (trade.status == 2 || trade.status == 3) {
+        } else if (trade.status == 2 || trade.status == 3 || trade.status == 5) {
             return TradeState(trade.status);
         } else if (trade.deadline < block.timestamp) {
             return TradeState.Overdue;
@@ -536,9 +542,8 @@ contract SnakeP2P is SnakeP2PStorage, IBEP721Receiver {
         emit SupportTrade(tradeId, msg.sender);
     }
 
-    function _cancelTrade(uint tradeId) internal { 
-        TradeSingle storage trade = tradesSingle[tradeId];
-        require(trade.status == 0 && trade.deadline > block.timestamp, "SnakeP2P: Not active trade");
+    function _cancelTradeOrWithdrawOverdueAssets(uint tradeId) internal { 
+        TradeSingle memory trade = tradesSingle[tradeId];
 
         if (trade.proposedAssetType == AssetType.BEP721) {
             IBEP721(trade.proposedAsset).transferFrom(address(this), trade.initiator, trade.proposedTokenId);
@@ -550,16 +555,18 @@ contract SnakeP2P is SnakeP2PStorage, IBEP721Receiver {
             WBNB.withdraw(trade.proposedAmount);
             TransferHelper.safeTransferBNB(trade.initiator, trade.proposedAmount);
         }
-
-        trade.status = 2;
-        emit CancelTrade(tradeId);
     }
 
 
 
-    function cancelTradeFor(uint tradeId) external lock onlyOwner { 
+    function cancelTradeOrWithdrawOverdueAssetsFor(uint tradeId) external lock onlyOwner { 
         require(tradeCount >= tradeId && tradeId > 0, "SnakeP2P: Invalid trade id");
-        _cancelTrade(tradeId);
+        require(tradesSingle[tradeId].status == 0 && tradesSingle[tradeId].deadline > block.timestamp, "SnakeP2P: Not active trade");
+        
+        _cancelTradeOrWithdrawOverdueAssets(tradeId);
+        
+        tradesSingle[tradeId].status = 5;
+        emit CancelOrWithdrawOverdueAssetTrade(tradeId);
     }
 
     function toggleAnyNFTAllowed() external onlyOwner {
