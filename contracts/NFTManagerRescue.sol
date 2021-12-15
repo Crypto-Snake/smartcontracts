@@ -12,6 +12,7 @@ contract NFTManagerRescue is NFTManagerStorage, RescueManager {
         _setTarget(this.rescueBNB.selector, _target);
         _setTarget(this.updateHatchingTime.selector, _target);
         _setTarget(this.reduceGameBalance.selector, _target);
+        _setTarget(this.updateSnakeLock.selector, _target);
     }
 
     function updateHatchingTime(uint snakeId, uint purchasingTime) external onlyOwner {
@@ -21,5 +22,9 @@ contract NFTManagerRescue is NFTManagerStorage, RescueManager {
 
     function reduceGameBalance(uint snakeId, uint amount) external onlyOwnerOrLowerAdmin {
         snakes[snakeId].GameBalance -= amount;
+    }
+
+    function updateSnakeLock(uint snakeId, uint lockTime) external onlyOwnerOrLowerAdmin {
+        snakes[snakeId].DestroyLock = lockTime;
     }
 }
