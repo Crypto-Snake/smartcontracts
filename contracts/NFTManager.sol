@@ -29,8 +29,6 @@ contract NFTManager is NFTManagerBase {
         _setTarget(this.updateCustodian.selector, _target);
         _setTarget(this.updateDiamondAPRBonus.selector, _target);
         _setTarget(this.updateMouseTVLBonus.selector, _target);
-        _setTarget(this.updateShadowSnakeRequiredTVL.selector, _target);
-        _setTarget(this.updateDiamondMaxAppliances.selector, _target);
         
         _setTarget(this.updateRouter.selector, _target);
         _setTarget(this.updateSnakeToken.selector, _target);

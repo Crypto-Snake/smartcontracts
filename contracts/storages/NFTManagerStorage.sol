@@ -169,17 +169,6 @@ contract NFTManagerStorage is Convertable, Objects {
         emit UpdateMouseTVLBonus(tvlBonus);
     }
 
-    function updateShadowSnakeRequiredTVL(uint requiredTVL) external onlyOwner {
-        require(requiredTVL > 0, "NFTManager: required TVL bonus must be grater than 0");
-        shadowSnakeRequiredTVL = requiredTVL;
-        emit UpdateShadowSnakeRequiredTVL(requiredTVL);
-    }
-
-    function updateDiamondMaxAppliances(uint maxAppliances) external onlyOwner {
-        require(maxAppliances > 0, "NFTManager: Diamond max appliances count must be grater than 0");
-        diamondMaxAppliances = maxAppliances;
-        emit UpdateDiamondMaxAppliances(maxAppliances);
-    }
 
     function _setTarget(
         bytes4 sig,
