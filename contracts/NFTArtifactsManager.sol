@@ -24,6 +24,7 @@ contract NFTArtifactsManager is NFTManagerBase {
 
     function applyArtifact(uint snakeId, uint artifactId) external onlySnakeOwner(snakeId) onlyArtifactOwner(artifactId) {
         require(allowedArtifacts[artifactId], "NFTManager: Not allowed to apply");
+        require(isStakeAmountGraterThanRequired(snakeId), "NFTManager: Stake amount should be grater than treshold");
 
         if(artifactId == 1) {
             snakeAppliedArtifacts[snakeId].TimesMysteryBoxApplied += 1;

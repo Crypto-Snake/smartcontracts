@@ -34,6 +34,8 @@ contract NFTManager is NFTManagerBase {
         _setTarget(this.updateSnakeToken.selector, _target);
         _setTarget(this.toggleUseWeightedRates.selector, _target);
         _setTarget(this.updateTokenWeightedExchangeRate.selector, _target);
+        _setTarget(this.updateBlackMambaRequiredStakeAmount.selector, _target);
+        _setTarget(this.isStakeAmountGraterThanRequired.selector, _target);
     }
 
     function hatchEgg(uint tokenId) external onlyEggOwner(tokenId) {

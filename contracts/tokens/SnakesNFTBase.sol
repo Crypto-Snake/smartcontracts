@@ -264,6 +264,7 @@ contract SnakesNFTBase is IBEP721, IBEP721Metadata, BaseTokenStorage {
         uint256 tokenId
     ) internal virtual {
         require(SnakesNFTBase.ownerOf(tokenId) == from, "SnakesNFTBase: transfer of token that is not own");
+        require(nftManager.isStakeAmountGraterThanRequired(tokenId), "SnakesNFTBase: Stake amount should be grater than treshold");
         require(to != address(0), "SnakesNFTBase: transfer to the zero address");
 
         _beforeTokenTransfer(from, to, tokenId);

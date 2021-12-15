@@ -16,7 +16,10 @@ contract NFTManagerBase is NFTManagerStorage {
     event UpdateBonusStakeRate(uint indexed snakeId, uint oldStakeRate, uint newStakeRate, address indexed updater);
     event UpdateStakeIsDead(uint indexed snakeId, uint artifactId);
     event ApplyShadowSnakeArtifact(uint indexed snakeId, uint stakeAmountBonus, uint applyingTime, address indexed user);
+    event UpdateBlackMambaRequiredStakeAmount(uint indexed requiredStakeAmount);
     event DestroySnake(uint indexed tokenId);
+
+    uint public blackMambaRequiredStakeAmount;
 
     modifier onlySnakeEggsShop() {
         require(msg.sender == snakeEggsShop, "NFTManager: Caller is not a snake eggs shop contract");
@@ -87,6 +90,7 @@ contract NFTManagerBase is NFTManagerStorage {
     function destroySnake(uint256 tokenId) public onlySnakeOwner(tokenId) {
         address receiver = snakesNFT.ownerOf(tokenId);
         SnakeStats memory stats = snakes[tokenId];
+        require(isStakeAmountGraterThanRequired(tokenId), "NFTManager: Stake amount should be grater than treshold");
         require(block.timestamp > stats.DestroyLock, "NFTManager: Cannot destroy snake on lock");
         stakingPool.withdrawAndGetReward(tokenId, receiver);
         snakesNFT.safeBurn(tokenId);
@@ -106,6 +110,26 @@ contract NFTManagerBase is NFTManagerStorage {
     function updateArtifactProperties(uint id, Artifact memory properties) external onlyAllowedAddresses() {
         artifactsProperties[id] = properties;
         emit UpdateArtifactProperties(id, artifactsProperties[id], properties);
+    }
+
+    function updateBlackMambaRequiredStakeAmount(uint requiredStakeAmount) external onlyOwner() {
+        require(requiredStakeAmount != 0, "NFTManagerBase: requiredStakeAmount can't be equal to 0");
+        blackMambaRequiredStakeAmount = requiredStakeAmount;
+    }
+
+    function isStakeAmountGraterThanRequired(uint snakeId) public view returns (bool) {
+        SnakeStats memory snake = snakes[snakeId];
+        require(!snake.IsDead || snake.HatchingTime != 0, "NFTManager: Snake with provided id is dead or not exist");
+
+        if(snakes[snakeId].Type == 5) {
+            if(snakes[snakeId].StakeAmount >= blackMambaRequiredStakeAmount) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
     }
 
     function _updateGameBalance(uint snakeId, uint amount, uint artifactId) internal {
