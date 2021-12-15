@@ -166,7 +166,6 @@ contract NFTManagerBase is NFTManagerStorage {
 
     function _applyShadowSnakeArtifact(uint snakeId, uint updateAmount, uint lockPeriod) internal {
         SnakeStats memory stats = snakes[snakeId];
-        require(stats.Type == 1, "NFTManager: Can apply this artifact only to dasypeltis");
         require(stats.StakeAmount >= shadowSnakeRequiredTVL, "NFTManager: Snake`s TVL less than required");
         require(snakeAppliedArtifacts[snakeId].TimesShadowSnakeApplied == 0, "NFTManager: Shadow snake has been already applied");
 
