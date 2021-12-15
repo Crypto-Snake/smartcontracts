@@ -4,7 +4,7 @@ const fs = require('fs');
 let addresses = getAddresses();
 
 function getAddresses() {
-    return JSON.parse(fs.readFileSync('../addresses_testnet.json', 'utf-8'))
+    return JSON.parse(fs.readFileSync('../addresses_mainnet.json', 'utf-8'))
 }
 
 let snakesNFT;
@@ -14,6 +14,7 @@ let snakeEggsNFTProxy;
 let nftManager;
 let nftStatsManager;
 let nftArtifactsManager;
+let nftManagerRescue;
 let nftManagerProxy;
 let lockStakingRewardsPool;
 let lockStakingRewardsPoolProxy;
@@ -31,6 +32,8 @@ let SnakeEggsNFTProxy = artifacts.require("SnakeEggsNFTProxy");
 let NFTManager = artifacts.require("NFTManager");
 let NFTStatsManager = artifacts.require("NFTStatsManager");
 let NFTArtifactsManager = artifacts.require("NFTArtifactsManager");
+let NFTManagerRescue = artifacts.require("NFTManagerRescue");
+
 let NFTManagerProxy = artifacts.require("NFTManagerProxy");
 let LockStakingRewardsPool = artifacts.require("LockStakingRewardsPool");
 let LockStakingRewardsPoolProxy = artifacts.require("LockStakingRewardsPoolProxy");
@@ -43,7 +46,7 @@ module.exports = async function(deployer) {
         replaceSnakeEggsNFT: false,
         replaceSnakesNFT: false,
         replaceLockStakingRewardsPool: false,
-        replaceNFTManager: false,
+        replaceNFTManager: true,
         replaceP2P: false,
     }
 
@@ -60,7 +63,7 @@ module.exports = async function(deployer) {
             snakeArtifactsNFTProxy = await SnakeArtifactsNFTProxy.at(addresses.snakeArtifactsNFTProxy);
             await snakeArtifactsNFTProxy.replaceImplementation(addresses.snakeArtifactsNFT)
 
-            fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
+            fs.writeFileSync('addresses_mainnet.json', JSON.stringify(addresses));
         } else {
             snakeArtifactsNFT = { address: addresses.snakeArtifactsNFT };
             snakeArtifactsNFTProxy = { address: addresses.snakeArtifactsNFTProxy };
@@ -79,7 +82,7 @@ module.exports = async function(deployer) {
             snakeEggsNFTProxy = await SnakeEggsNFTProxy.at(addresses.snakeEggsNFTProxy);
             await snakeEggsNFTProxy.replaceImplementation(addresses.snakeEggsNFT)
 
-            fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
+            fs.writeFileSync('addresses_mainnet.json', JSON.stringify(addresses));
         } else {
             snakeEggsNFT = { address: addresses.snakeEggsNFT };
             snakeEggsNFTProxy = { address: addresses.snakeEggsNFTProxy };
@@ -98,7 +101,7 @@ module.exports = async function(deployer) {
             snakesNFTProxy = await SnakesNFTProxy.at(addresses.snakesNFTProxy);
             await snakesNFTProxy.replaceImplementation(addresses.snakesNFT);
 
-            fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
+            fs.writeFileSync('addresses_mainnet.json', JSON.stringify(addresses));
         } else {
             snakesNFT = { address: addresses.snakesNFT };
             snakesNFTProxy = { address: addresses.snakesNFTProxy };
@@ -117,7 +120,7 @@ module.exports = async function(deployer) {
             lockStakingRewardsPoolProxy = await LockStakingRewardsPoolProxy.at(addresses.lockStakingRewardsPoolProxy);
             await lockStakingRewardsPoolProxy.replaceImplementation(addresses.lockStakingRewardsPool);
 
-            fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
+            fs.writeFileSync('addresses_mainnet.json', JSON.stringify(addresses));
         } else {
             lockStakingRewardsPool = { address: addresses.lockStakingRewardsPool };
             lockStakingRewardsPoolProxy = { address: addresses.lockStakingRewardsPoolProxy };
@@ -143,13 +146,19 @@ module.exports = async function(deployer) {
             console.log(`NFT artifacts manager address: ${nftArtifactsManager.address}`)
             addresses.nftArtifactsManager = nftArtifactsManager.address;
 
+            await deployer.deploy(NFTManagerRescue);
+            nftManagerRescue = await NFTManagerRescue.deployed();
+            console.log(`NFT rescue manager address: ${nftManagerRescue.address}`)
+            addresses.nftManagerRescue = nftManagerRescue.address;
+
             nftManagerProxy = await NFTManagerProxy.at(addresses.nftManagerProxy);
             
             await nftManagerProxy.addImplementationContract(addresses.nftManager);
             await nftManagerProxy.addImplementationContract(addresses.nftStatsManager);
             await nftManagerProxy.addImplementationContract(addresses.nftArtifactsManager);
+            await nftManagerProxy.addImplementationContract(addresses.nftManagerRescue);
 
-            fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
+            fs.writeFileSync('addresses_mainnet.json', JSON.stringify(addresses));
         } else {
             nftManager = { address: addresses.nftManager };
             nftStatsManager = { address: addresses.nftStatsManager };
@@ -168,9 +177,9 @@ module.exports = async function(deployer) {
             addresses.snakeP2P = snakeP2P.address;
 
             snakeP2PProxy = await SnakeP2PProxy.at(addresses.snakeP2PProxy);
-            await snakeP2PProxy.replaceImplementation(addresses.snakeP2P);
+            await snakeP2PProxy.setTarget(addresses.snakeP2P);
 
-            fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
+            fs.writeFileSync('addresses_mainnet.json', JSON.stringify(addresses));
         } else {
             snakeP2P = { address: addresses.snakeP2P };
             snakeP2PProxy = { address: addresses.snakeP2PProxy };
