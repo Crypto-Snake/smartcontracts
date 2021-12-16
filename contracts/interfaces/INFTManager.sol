@@ -15,4 +15,6 @@ abstract contract INFTManager is Objects {
     function updateArtifactProperties(uint id, Artifact memory properties) external virtual;
     function getArtifactProperties(uint id) external virtual view returns (Artifact memory);
     function isStakeAmountGraterThanRequired(uint snakeId) public virtual view returns (bool);
+    function getSnakeTypeProperties(uint id) external virtual view returns (Snake memory);
+    function getEggTypeProperties(uint id) external virtual view returns (Egg memory);
 }
