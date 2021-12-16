@@ -11,30 +11,8 @@ contract NFTManager is NFTManagerBase {
 
     function initialize(address _target) external onlyOwner {
         _setTarget(this.hatchEgg.selector, _target);
-        _setTarget(this.feedSnake.selector, _target);
-        
+        _setTarget(this.feedSnake.selector, _target);       
         _setTarget(this.destroySnake.selector, _target);
-        _setTarget(this.updateAllowedTokens.selector, _target);
-        _setTarget(this.updateLowerAdmin.selector, _target);
-        _setTarget(this.updateAllowedArtifacts.selector, _target);
-        _setTarget(this.updateSnakeEggsShop.selector, _target);
-        _setTarget(this.updateStakingPool.selector, _target);
-        _setTarget(this.updateSnakeEggsNFT.selector, _target);
-        _setTarget(this.updateSnakesNFT.selector, _target);
-        _setTarget(this.updateArtifactsNFT.selector, _target);
-        _setTarget(this.updateTreshold.selector, _target);
-        _setTarget(this.updateBaseRate.selector, _target);
-        _setTarget(this.updateBonusFeedRate.selector, _target);
-        _setTarget(this.updateMaxRate.selector, _target);
-        _setTarget(this.updateCustodian.selector, _target);
-        _setTarget(this.updateDiamondAPRBonus.selector, _target);
-        _setTarget(this.updateMouseTVLBonus.selector, _target);
-        
-        _setTarget(this.updateRouter.selector, _target);
-        _setTarget(this.updateSnakeToken.selector, _target);
-        _setTarget(this.toggleUseWeightedRates.selector, _target);
-        _setTarget(this.updateTokenWeightedExchangeRate.selector, _target);
-        _setTarget(this.updateBlackMambaRequiredStakeAmount.selector, _target);
         _setTarget(this.isStakeAmountGraterThanRequired.selector, _target);
     }
 

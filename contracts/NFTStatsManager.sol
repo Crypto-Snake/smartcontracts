@@ -23,9 +23,6 @@ contract NFTStatsManager is NFTManagerBase {
         _setTarget(this.getSnakeProperties.selector, _target);
         _setTarget(this.getEggStats.selector, _target);
         _setTarget(this.getSnakeStats.selector, _target);
-        _setTarget(this.updateSnakeProperties.selector, _target);
-        _setTarget(this.updateEggProperties.selector, _target);
-        _setTarget(this.updateArtifactProperties.selector, _target);
 
         APPLY_ARTIFACT_TYPEHASH = keccak256("ApplyShadowSnakeBySign(uint snakeId,uint updateAmount,uint lockPeriod,address sender,uint256 nonce,uint256 deadline)");
     }

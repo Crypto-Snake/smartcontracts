@@ -6,9 +6,6 @@ import "./storages/NFTManagerStorage.sol";
 
 contract NFTManagerBase is NFTManagerStorage {
 
-    event UpdateSnakeProperties(uint id, Snake oldProperties, Snake newProperties);
-    event UpdateEggProperties(uint id, Egg oldProperties, Egg newProperties);
-    event UpdateArtifactProperties(uint id, Artifact oldProperties, Artifact newProperties);
     event UpdateSnakeStats(uint indexed id, SnakeStats indexed oldStats, SnakeStats indexed newStats);
     event UpdateEggStats(uint indexed id, EggStats indexed oldStats, EggStats indexed newStats);
     event UpdateStakeAmount(uint indexed snakeId, uint oldStakeAmount, uint newStakeAmount, address indexed updater, uint indexed artifactId);
@@ -16,7 +13,6 @@ contract NFTManagerBase is NFTManagerStorage {
     event UpdateBonusStakeRate(uint indexed snakeId, uint oldStakeRate, uint newStakeRate, address indexed updater);
     event UpdateStakeIsDead(uint indexed snakeId, uint artifactId);
     event ApplyShadowSnakeArtifact(uint indexed snakeId, uint stakeAmountBonus, uint applyingTime, address indexed user);
-    event UpdateBlackMambaRequiredStakeAmount(uint indexed requiredStakeAmount);
     event DestroySnake(uint indexed tokenId);
 
     uint public blackMambaRequiredStakeAmount;
@@ -50,11 +46,26 @@ contract NFTManagerBase is NFTManagerStorage {
         
         return false;
     }
+
+    function isStakeAmountGraterThanRequired(uint snakeId) public view returns (bool) {
+        SnakeStats memory snake = snakes[snakeId];
+        require(!snake.IsDead || snake.HatchingTime != 0, "NFTManager: Snake with provided id is dead or not exist");
+
+        if(snakes[snakeId].Type == 5) {
+            if(snakes[snakeId].StakeAmount >= blackMambaRequiredStakeAmount) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
         
     function isEggReadyForHatch(uint eggId) public view returns (bool) {
         EggStats memory stats = eggs[eggId];
         require(stats.PurchasingTime != 0, "NFTManager: Cannot find egg with provided id");
-        Egg memory properties = getEggProperties(stats.SnakeType);
+        Egg memory properties = getEggTypeProperties(stats.SnakeType);
         
         if(block.timestamp >= properties.HatchingPeriod + stats.PurchasingTime) {
             return true;
@@ -63,17 +74,18 @@ contract NFTManagerBase is NFTManagerStorage {
         return false;
     }
         
-    function getEggProperties(uint id) public view returns (Egg memory) {
-        Egg memory eggPropertiesLocal = eggsProperties[id];
-        require(eggPropertiesLocal.Price != 0, "NFTManager: Egg with provided id does not exists");
+    function getEggTypeProperties(uint typeId) public view returns (Egg memory) {
+        Egg memory eggPropertiesLocal = eggsProperties[typeId];
+        require(eggPropertiesLocal.Price != 0, "NFTManager: Egg with provided type id does not exists");
         return eggPropertiesLocal;
     }
 
-    function getSnakeProperties(uint id) public view returns (Snake memory) {
-        Snake memory snakePropertiesLocal = snakesProperties[id];
-        require(snakePropertiesLocal.Type != 0, "NFTManager: Snake with provided id does not exists");
+    function getSnakeTypeProperties(uint typeId) public view returns (Snake memory) {
+        Snake memory snakePropertiesLocal = snakesProperties[typeId];
+        require(snakePropertiesLocal.Type != 0, "NFTManager: Snake with provided type id does not exists");
         return snakePropertiesLocal;
     }
+
 
     function getEggStats(uint tokenId) public view returns (EggStats memory) {
         EggStats memory eggStatsLocal = eggs[tokenId];
@@ -95,41 +107,6 @@ contract NFTManagerBase is NFTManagerStorage {
         stakingPool.withdrawAndGetReward(tokenId, receiver);
         snakesNFT.safeBurn(tokenId);
         emit DestroySnake(tokenId);
-    }
-
-    function updateSnakeProperties(uint id, Snake memory properties) external onlyAllowedAddresses() {
-        snakesProperties[id] = properties;
-        emit UpdateSnakeProperties(id, snakesProperties[id], properties);
-    }
-
-    function updateEggProperties(uint id, Egg memory properties) external onlyAllowedAddresses() {
-        eggsProperties[id] = properties;
-        emit UpdateEggProperties(id, eggsProperties[id], properties);
-    }
-
-    function updateArtifactProperties(uint id, Artifact memory properties) external onlyAllowedAddresses() {
-        artifactsProperties[id] = properties;
-        emit UpdateArtifactProperties(id, artifactsProperties[id], properties);
-    }
-
-    function updateBlackMambaRequiredStakeAmount(uint requiredStakeAmount) external onlyOwner() {
-        require(requiredStakeAmount != 0, "NFTManagerBase: requiredStakeAmount can't be equal to 0");
-        blackMambaRequiredStakeAmount = requiredStakeAmount;
-    }
-
-    function isStakeAmountGraterThanRequired(uint snakeId) public view returns (bool) {
-        SnakeStats memory snake = snakes[snakeId];
-        require(!snake.IsDead || snake.HatchingTime != 0, "NFTManager: Snake with provided id is dead or not exist");
-
-        if(snakes[snakeId].Type == 5) {
-            if(snakes[snakeId].StakeAmount >= blackMambaRequiredStakeAmount) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return true;
-        }
     }
 
     function _updateGameBalance(uint snakeId, uint amount, uint artifactId) internal {
