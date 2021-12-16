@@ -278,7 +278,8 @@ module.exports = async function(deployer) {
 
             nftManager = await NFTManager.at(addresses.nftManagerProxy);
             await nftManager.updateSnakeEggsShop(addresses.snakeEggsShop);
-            
+            await nftManager.updateBlackMambaRequiredStakeAmount("2100000000000000000000");
+
             //call with SnakeArtifactsNFT owner
             // artifactsNFT = await SnakeArtifactsNFT.at(addresses.snakeArtifactsNFTProxy)
             // await artifactsNFT.updateAllowedAddresses(addresses.nftManagerProxy, true)

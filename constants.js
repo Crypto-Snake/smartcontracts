@@ -143,7 +143,8 @@ const SNAKES = [
     SNAKES_METADATA.dasypeltis,
     SNAKES_METADATA.viper,
     SNAKES_METADATA.python,
-    SNAKES_METADATA.anaconda
+    SNAKES_METADATA.anaconda,
+    SNAKES_METADATA.mamba
 ]
 
 const SNAKE_EGGS_METADATA = {
@@ -193,7 +194,8 @@ const EGGS = [
     SNAKE_EGGS_METADATA.dasypeltis,
     SNAKE_EGGS_METADATA.viper,
     SNAKE_EGGS_METADATA.python,
-    SNAKE_EGGS_METADATA.anaconda
+    SNAKE_EGGS_METADATA.anaconda,
+    SNAKE_EGGS_METADATA.mamba
 ]
 
 const USERS = [
