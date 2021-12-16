@@ -30,7 +30,7 @@ contract SnakeEggsShop is NFTShop {
 
     function buyEgg(uint typeId, address purchaseToken, uint purchaseTokenAmount) external {
         require(allowedTokens[purchaseToken], "SnakeEggsShop: Token not allowed");
-        uint price = nftManager.getEggProperties(typeId).Price; 
+        uint price = nftManager.getEggTypeProperties(typeId).Price; 
         require(price != 0, "SnakeEggsShop: Egg type not found");
         uint snakeEquivalentAmount = getSnakeEquivalentAmount(purchaseToken, purchaseTokenAmount);
         require(snakeEquivalentAmount >= price, "SnakeEggsShop: Token amount can't be lower than minimal price");

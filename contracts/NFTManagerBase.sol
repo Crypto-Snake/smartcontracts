@@ -86,6 +86,17 @@ contract NFTManagerBase is NFTManagerStorage {
         return snakePropertiesLocal;
     }
 
+    function getSnakeProperties(uint tokenId) public view returns (Snake memory) {
+        SnakeStats memory snakeStats = snakes[tokenId];
+        require(snakeStats.HatchingTime != 0, "NFTManager: Snake with provided token id does not exists");
+        return snakesProperties[snakeStats.Type];
+    }
+
+    function getEggProperties(uint tokenId) public view returns (Egg memory) {
+        EggStats memory eggStats = eggs[tokenId];
+        require(eggStats.PurchasingTime != 0, "NFTManager: Egg with provided token id does not exists");
+        return eggsProperties[eggStats.SnakeType];
+    }
 
     function getEggStats(uint tokenId) public view returns (EggStats memory) {
         EggStats memory eggStatsLocal = eggs[tokenId];

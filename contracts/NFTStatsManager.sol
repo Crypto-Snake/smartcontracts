@@ -21,6 +21,8 @@ contract NFTStatsManager is NFTManagerBase {
         _setTarget(this.isEggReadyForHatch.selector, _target);
         _setTarget(this.getEggProperties.selector, _target);
         _setTarget(this.getSnakeProperties.selector, _target);
+        _setTarget(this.getEggTypeProperties.selector, _target);
+        _setTarget(this.getSnakeTypeProperties.selector, _target);
         _setTarget(this.getEggStats.selector, _target);
         _setTarget(this.getSnakeStats.selector, _target);
 
