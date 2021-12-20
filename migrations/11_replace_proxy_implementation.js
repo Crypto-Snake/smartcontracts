@@ -15,6 +15,7 @@ let nftManager;
 let nftStatsManager;
 let nftArtifactsManager;
 let nftManagerRescue;
+let nftPropertiesManager;
 let nftManagerProxy;
 let lockStakingRewardsPool;
 let lockStakingRewardsPoolProxy;
@@ -33,7 +34,7 @@ let NFTManager = artifacts.require("NFTManager");
 let NFTStatsManager = artifacts.require("NFTStatsManager");
 let NFTArtifactsManager = artifacts.require("NFTArtifactsManager");
 let NFTManagerRescue = artifacts.require("NFTManagerRescue");
-
+let NFTPropertiesManager = artifacts.require("NFTPropertiesManager");
 let NFTManagerProxy = artifacts.require("NFTManagerProxy");
 let LockStakingRewardsPool = artifacts.require("LockStakingRewardsPool");
 let LockStakingRewardsPoolProxy = artifacts.require("LockStakingRewardsPoolProxy");
@@ -151,23 +152,31 @@ module.exports = async function(deployer) {
             console.log(`NFT rescue manager address: ${nftManagerRescue.address}`)
             addresses.nftManagerRescue = nftManagerRescue.address;
 
+            await deployer.deploy(NFTPropertiesManager);
+            nftPropertiesManager = await NFTPropertiesManager.deployed();
+            console.log(`NFT properties manager address: ${nftPropertiesManager.address}`)
+            addresses.nftPropertiesManager = nftPropertiesManager.address;
+
             nftManagerProxy = await NFTManagerProxy.at(addresses.nftManagerProxy);
             
             await nftManagerProxy.addImplementationContract(addresses.nftManager);
             await nftManagerProxy.addImplementationContract(addresses.nftStatsManager);
             await nftManagerProxy.addImplementationContract(addresses.nftArtifactsManager);
             await nftManagerProxy.addImplementationContract(addresses.nftManagerRescue);
+            await nftManagerProxy.addImplementationContract(addresses.nftPropertiesManager);
 
             fs.writeFileSync('addresses_mainnet.json', JSON.stringify(addresses));
         } else {
             nftManager = { address: addresses.nftManager };
             nftStatsManager = { address: addresses.nftStatsManager };
             nftArtifactsManager = { address: addresses.nftArtifactsManager };
+            nftManagerRescue = { address: addresses.nftManagerRescue };
+            nftPropertiesManager = { address: addresses.nftPropertiesManager };
             nftManagerProxy = { address: addresses.nftManagerProxy };
         }
         //#endregion
 
-        // //#region REPLACE SNAKEP2P 6/6
+        //#region REPLACE SNAKEP2P 6/6
         if (deployParams.replaceP2P) {
             console.log("===== Start replacing SnakeP2P contract on proxy (6/6) =====");
 
