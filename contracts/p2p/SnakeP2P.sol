@@ -452,7 +452,7 @@ contract SnakeP2P is SnakeP2PStorage, IBEP721Receiver {
         AssetType proposedAssetType,
         AssetType askedAssetType
     ) private returns (uint tradeId) { 
-        require(askedAsset != proposedAsset, "SnakeP2P: Asked asset can't be equal to proposed asset");
+        require(askedAsset != proposedAsset, "SnakeP2P: Asked asset can not be equal to proposed asset");
         require(deadline > block.timestamp, "SnakeP2P: Incorrect deadline");
         tradeId = ++tradeCount;
         
