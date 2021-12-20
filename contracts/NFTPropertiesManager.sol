@@ -123,7 +123,7 @@ contract NFTPropertiesManager is NFTManagerBase {
     }
 
     function updateCustodian(address newCustodian) external onlyOwner {
-        require(newCustodian != address(0), "NFTManager: newCustodian can't be zero address");
+        require(newCustodian != address(0), "NFTManager: newCustodian can not be zero address");
         custodian = newCustodian;
         emit UpdateCustodian(newCustodian);
     }
@@ -156,7 +156,7 @@ contract NFTPropertiesManager is NFTManagerBase {
     }
 
     function updateMambaRequiredStakeAmount(uint requiredStakeAmount) external onlyOwner() {
-        require(requiredStakeAmount != 0, "NFTManagerBase: requiredStakeAmount can't be equal to 0");
+        require(requiredStakeAmount != 0, "NFTManagerBase: requiredStakeAmount can not be equal to 0");
         blackMambaRequiredStakeAmount = requiredStakeAmount;
     }
 }
