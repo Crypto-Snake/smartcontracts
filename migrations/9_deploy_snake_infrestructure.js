@@ -13,6 +13,7 @@ let snakesNFTProxy;
 let snakeEggsNFT;
 let snakeEggsNFTProxy;
 let snakeEggsShop;
+let snakeEggsShopProxy;
 let nftManager;
 let nftStatsManager;
 let nftArtifactsManager;
@@ -30,7 +31,8 @@ let SnakesNFT = artifacts.require("SnakesNFT");
 let SnakesNFTProxy = artifacts.require("SnakesNFTProxy");
 let SnakeEggsNFT = artifacts.require("SnakeEggsNFT");
 let SnakeEggsNFTProxy = artifacts.require("SnakeEggsNFTProxy");
-let SnakeEggsShop = artifacts.require("SnakeEggsShop"); 
+let SnakeEggsShop = artifacts.require("SnakeEggsShop");
+let SnakeEggsShopProxy = artifacts.require("SnakeEggsShopProxy");
 let NFTManager = artifacts.require("NFTManager");
 let NFTStatsManager = artifacts.require("NFTStatsManager");
 let NFTArtifactsManager = artifacts.require("NFTArtifactsManager");
@@ -175,6 +177,16 @@ module.exports = async function(deployer) {
             console.log(`NFT artifacts manager address: ${nftArtifactsManager.address}`)
             addresses.nftArtifactsManager = nftArtifactsManager.address;
 
+            await deployer.deploy(NFTManagerRescue);
+            nftManagerRescue = await NFTManagerRescue.deployed();
+            console.log(`NFT rescue manager address: ${nftManagerRescue.address}`)
+            addresses.nftManagerRescue = nftManagerRescue.address;
+
+            await deployer.deploy(NFTPropertiesManager);
+            nftPropertiesManager = await NFTPropertiesManager.deployed();
+            console.log(`NFT properties manager address: ${nftPropertiesManager.address}`)
+            addresses.nftPropertiesManager = nftPropertiesManager.address;
+
             await deployer.deploy(NFTManagerProxy);
             nftManagerProxy = await NFTManagerProxy.deployed();
             console.log(`NFT manager proxy address: ${nftManagerProxy.address}`)
@@ -183,6 +195,8 @@ module.exports = async function(deployer) {
             await nftManagerProxy.addImplementationContract(addresses.nftManager);
             await nftManagerProxy.addImplementationContract(addresses.nftStatsManager);
             await nftManagerProxy.addImplementationContract(addresses.nftArtifactsManager);
+            await nftManagerProxy.addImplementationContract(addresses.nftManagerRescue);
+            await nftManagerProxy.addImplementationContract(addresses.nftPropertiesManager);
 
             fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
 
@@ -211,6 +225,8 @@ module.exports = async function(deployer) {
             nftManager = { address: addresses.nftManager };
             nftStatsManager = { address: addresses.nftStatsManager };
             nftArtifactsManager = { address: addresses.nftArtifactsManager };
+            nftManagerRescue = { address: addresses.nftManagerRescue };
+            nftPropertiesManager = { address: addresses.nftPropertiesManager };
             nftManagerProxy = { address: addresses.nftManagerProxy };
         }
         //#endregion
@@ -219,12 +235,20 @@ module.exports = async function(deployer) {
         if (deployParams.deployShop) {
             console.log("===== Start deploying SnakeEggsShop (5/7) =====");
 
-            await deployer.deploy(SnakeEggsShop, addresses.router, addresses.snakeEggsNFTProxy, addresses.nftManagerProxy, addresses.snk, process.env.CUSTODIAN);
+            await deployer.deploy(SnakeEggsShop);
             snakeEggsShop = await SnakeEggsShop.deployed();
             console.log(`snake eggs shop address: ${snakeEggsShop.address}`)
             addresses.snakeEggsShop = snakeEggsShop.address;
 
+            await deployer.deploy(SnakeEggsShopProxy, addresses.snakeEggsShop);
+            snakeEggsShopProxy = await SnakeEggsShopProxy.deployed();
+            console.log(`snake eggs shop proxy address: ${snakeEggsShopProxy.address}`)
+            addresses.snakeEggsShopProxy = snakeEggsShopProxy.address;
+
+            snakeEggsShop = await SnakeEggsShop.at(addresses.snakeEggsShopProxy);
+            await snakeEggsShop.initialize(addresses.router, addresses.snakeEggsNFTProxy, addresses.nftManagerProxy, addresses.snk, process.env.CUSTODIAN);
             await snakeEggsShop.updateAllowedTokens(addresses.snk, true);
+            await snakeEggsShop.setCurrentEggId(66);
 
             // await snakeEggsShop.updateAllowedTokens(addresses.busd, true);
             // await snakeEggsShop.toggleUseWeightedRates();
@@ -234,6 +258,7 @@ module.exports = async function(deployer) {
             fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
         } else {
             snakeEggsShop = { address: addresses.snakeEggsShop };
+            snakeEggsShopProxy = { address: addresses.snakeEggsShopProxy };
         }
         //#endregion
 
@@ -262,7 +287,7 @@ module.exports = async function(deployer) {
         if (deployParams.setupAccessModifiers) {
             console.log("===== Start setuping access modifiers (7/7) =====");
 
-            snakeEggsShop = await SnakeEggsShop.at(addresses.snakeEggsShop);
+            snakeEggsShop = await SnakeEggsShop.at(addresses.snakeEggsShopProxy);
             await snakeEggsShop.updateNFTManager(addresses.nftManagerProxy);
             await snakeEggsShop.updateAllowedTokens(addresses.snk, true);
 

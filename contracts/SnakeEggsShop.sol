@@ -2,20 +2,12 @@
 
 pragma solidity ^0.8.0;
 
-import "./NFTShop.sol";
-import "./utils/Ownable.sol";
-import "./utils/Counters.sol";
+import "./storages/SnakeEggsShopStorage.sol";
 
-contract SnakeEggsShop is NFTShop {
-    using Counters for Counters.Counter;
-
-    IBEP721Enumerable public snakeEggsNFT;
-
-    Counters.Counter public counter;
-
+contract SnakeEggsShop is SnakeEggsShopStorage {
     event BuyEgg(address indexed buyer, uint eggId, uint typeId, address indexed token, uint indexed purchaseAmount, uint purchaseTime);
 
-    constructor(address _router, address _snakeEggsNFT, address _nftManager, address _snakeToken, address _custodian) { 
+    function initialize(address _router, address _snakeEggsNFT, address _nftManager, address _snakeToken, address _custodian) external initializer { 
         require(Address.isContract(_snakeEggsNFT), "_snakeEggsNFT is not a contract");
         require(Address.isContract(_router), "_router is not a contract");
         require(Address.isContract(_nftManager), "_nftManager is not a contract");
@@ -33,7 +25,7 @@ contract SnakeEggsShop is NFTShop {
         uint price = nftManager.getEggTypeProperties(typeId).Price; 
         require(price != 0, "SnakeEggsShop: Egg type not found");
         uint snakeEquivalentAmount = getSnakeEquivalentAmount(purchaseToken, purchaseTokenAmount);
-        require(snakeEquivalentAmount >= price, "SnakeEggsShop: Token amount can't be lower than minimal price");
+        require(snakeEquivalentAmount >= price, "SnakeEggsShop: Token amount can not be lower than minimal price");
         TransferHelper.safeTransferFrom(purchaseToken, msg.sender, custodian, purchaseTokenAmount);
 
         Counters.increment(counter);
