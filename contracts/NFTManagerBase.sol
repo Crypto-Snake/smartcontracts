@@ -14,8 +14,11 @@ contract NFTManagerBase is NFTManagerStorage {
     event UpdateStakeIsDead(uint indexed snakeId, uint artifactId);
     event ApplyShadowSnakeArtifact(uint indexed snakeId, uint stakeAmountBonus, uint applyingTime, address indexed user);
     event DestroySnake(uint indexed tokenId);
+    event WarningLock(uint indexed snakeId, address indexed caller, uint indexed amount);
 
     uint public blackMambaRequiredStakeAmount;
+    uint internal changeAmountTreshold = 1e22;
+    uint internal warningLockPeriod = 7 days;
 
     modifier onlySnakeEggsShop() {
         require(msg.sender == snakeEggsShop, "NFTManager: Caller is not a snake eggs shop contract");
@@ -130,6 +133,11 @@ contract NFTManagerBase is NFTManagerStorage {
         if(stats.Type == 2 && stats.TimesFeededMoreThanTreshold > 10) {
             amount *= 2;
         }
+
+        if(amount > changeAmountTreshold) {
+            snakes[snakeId].DestroyLock = block.timestamp + warningLockPeriod;
+            emit WarningLock(snakeId, msg.sender, amount);
+        }
         
         snakes[snakeId].GameBalance += amount;
         emit UpdateGameBalance(snakeId, stats.GameBalance, snakes[snakeId].GameBalance, msg.sender, artifactId);
@@ -145,6 +153,11 @@ contract NFTManagerBase is NFTManagerStorage {
         } else {
             
             if(increase) {
+                if(amount > changeAmountTreshold) {
+                    snakes[snakeId].DestroyLock = block.timestamp + warningLockPeriod;
+                    emit WarningLock(snakeId, msg.sender, amount);
+                }
+
                 snakes[snakeId].StakeAmount += amount;
             } else {
                 require(stats.StakeAmount> amount, "NFTManager: Snake`s stake amount lower then update amount");

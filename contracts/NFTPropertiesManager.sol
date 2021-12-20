@@ -37,6 +37,8 @@ contract NFTPropertiesManager is NFTManagerBase {
     event UpdateEggProperties(uint id, Egg oldProperties, Egg newProperties);
     event UpdateArtifactProperties(uint id, Artifact oldProperties, Artifact newProperties);
     event UpdateBlackMambaRequiredStakeAmount(uint indexed requiredStakeAmount);
+    event UpdateChangeAmountTreshold(uint indexed treshold);
+    event UpdateWarningLockPeriod(uint indexed period);
     
     event UpdateStakingPool(address indexed _stakingPool);
     event UpdateSnakeEggsShop(address indexed _snakeEggsShop);
@@ -156,7 +158,20 @@ contract NFTPropertiesManager is NFTManagerBase {
     }
 
     function updateMambaRequiredStakeAmount(uint requiredStakeAmount) external onlyOwner() {
-        require(requiredStakeAmount != 0, "NFTManagerBase: requiredStakeAmount can not be equal to 0");
+        require(requiredStakeAmount != 0, "NFTPropertiesManager: requiredStakeAmount can not be equal to 0");
         blackMambaRequiredStakeAmount = requiredStakeAmount;
+        emit UpdateBlackMambaRequiredStakeAmount(requiredStakeAmount);
+    }
+
+    function updateChangeAmountTreshold(uint treshold) external onlyOwner() {
+        require(treshold != 0, "NFTPropertiesManager: treshold can not be equal to 0");
+        changeAmountTreshold = treshold;
+        emit UpdateChangeAmountTreshold(treshold);
+    }
+
+    function updateWarningLockPeriod(uint period) external onlyOwner() {
+        require(period != 0, "NFTPropertiesManager: period can not be equal to 0");
+        warningLockPeriod = period;
+        emit UpdateWarningLockPeriod(period);
     }
 }
