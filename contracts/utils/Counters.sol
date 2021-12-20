@@ -37,6 +37,10 @@ library Counters {
         }
     }
 
+    function setValue(Counter storage counter, uint value) internal {
+        counter._value = value;
+    }
+
     function reset(Counter storage counter) internal {
         counter._value = 0;
     }
