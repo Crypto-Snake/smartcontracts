@@ -17,6 +17,8 @@ let snakeEggsShopProxy;
 let nftManager;
 let nftStatsManager;
 let nftArtifactsManager;
+let nftPropertiesManager;
+let nftManagerRescue;
 let nftManagerProxy;
 let lockStakingRewardsPool;
 let lockStakingRewardsPoolProxy;
@@ -36,12 +38,13 @@ let SnakeEggsShopProxy = artifacts.require("SnakeEggsShopProxy");
 let NFTManager = artifacts.require("NFTManager");
 let NFTStatsManager = artifacts.require("NFTStatsManager");
 let NFTArtifactsManager = artifacts.require("NFTArtifactsManager");
+let NFTManagerRescue = artifacts.require("NFTManagerRescue")
+let NFTPropertiesManager = artifacts.require("NFTPropertiesManager");
 let NFTManagerProxy = artifacts.require("NFTManagerProxy");
 let LockStakingRewardsPool = artifacts.require("LockStakingRewardsPool");
 let LockStakingRewardsPoolProxy = artifacts.require("LockStakingRewardsPoolProxy");
 let SnakeP2P = artifacts.require("SnakeP2P");
 let SnakeP2PProxy = artifacts.require("SnakeP2PProxy")
-let NFTManagerRescue = artifacts.require("NFTManagerRescue")
 
 async function getSnakeStats(id) {
     nftManager = await NFTManager.at(addresses.nftManagerProxy);
@@ -309,11 +312,11 @@ module.exports = async function(deployer) {
             // artifactsNFT = await SnakeArtifactsNFT.at(addresses.snakeArtifactsNFTProxy)
             // await artifactsNFT.updateAllowedAddresses(addresses.nftManagerProxy, true)
 
-            nftStatsManager = await NFTManager.at(addresses.nftManagerProxy);
+            nftPropertiesManager = await NFTPropertiesManager.at(addresses.nftManagerProxy);
 
             for (let i = 0; i < EGGS.length; i++) {
-                await nftStatsManager.updateSnakeProperties(i+1, [SNAKES[i].name, SNAKES[i].description, SNAKES[i].uri, SNAKES[i].type, SNAKES[i].deathPoint]);
-                await nftStatsManager.updateEggProperties(i+1, [EGGS[i].name, EGGS[i].description, EGGS[i].uri, EGGS[i].snakeType, EGGS[i].price, EGGS[i].hatchingPeriod]);
+                await nftPropertiesManager.updateSnakeProperties(i+1, [SNAKES[i].name, SNAKES[i].description, SNAKES[i].uri, SNAKES[i].type, SNAKES[i].deathPoint]);
+                await nftPropertiesManager.updateEggProperties(i+1, [EGGS[i].name, EGGS[i].description, EGGS[i].uri, EGGS[i].snakeType, EGGS[i].price, EGGS[i].hatchingPeriod]);
             }
         }
         //#endregion

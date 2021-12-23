@@ -19,6 +19,7 @@ contract NFTManagerBase is NFTManagerStorage {
     uint public blackMambaRequiredStakeAmount;
     uint internal changeAmountTreshold = 1e22;
     uint internal warningLockPeriod = 7 days;
+    uint public blackMambaBaseRate = 3e17; // 30%
 
     modifier onlySnakeEggsShop() {
         require(msg.sender == snakeEggsShop, "NFTManager: Caller is not a snake eggs shop contract");

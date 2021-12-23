@@ -135,7 +135,7 @@ const SNAKES_METADATA = {
         description: "Black Mamba Description",
         uri: "https://ipfs.io/ipfs/QmZK7pRyT2cKxh6PiLbCEpGUWTa162Q5kAikugf4G5ofoG",
         type: "5",
-        deathPoint: "100" + "000000000000000000"
+        deathPoint: "5" + "000000000000000000"
     }
 }
 

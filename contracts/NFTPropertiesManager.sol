@@ -11,6 +11,7 @@ contract NFTPropertiesManager is NFTManagerBase {
         _setTarget(this.updateEggProperties.selector, _target);
         _setTarget(this.updateArtifactProperties.selector, _target);
         _setTarget(this.updateMambaRequiredStakeAmount.selector, _target);
+        _setTarget(this.updateBlackMambaBaseRate.selector, _target);
 
         _setTarget(this.updateAllowedTokens.selector, _target);
         _setTarget(this.updateLowerAdmin.selector, _target);
@@ -37,6 +38,7 @@ contract NFTPropertiesManager is NFTManagerBase {
     event UpdateEggProperties(uint id, Egg oldProperties, Egg newProperties);
     event UpdateArtifactProperties(uint id, Artifact oldProperties, Artifact newProperties);
     event UpdateBlackMambaRequiredStakeAmount(uint indexed requiredStakeAmount);
+    event UpdateBlackMambaBaseRate(uint indexed rate);
     event UpdateChangeAmountTreshold(uint indexed treshold);
     event UpdateWarningLockPeriod(uint indexed period);
     
@@ -173,5 +175,11 @@ contract NFTPropertiesManager is NFTManagerBase {
         require(period != 0, "NFTPropertiesManager: period can not be equal to 0");
         warningLockPeriod = period;
         emit UpdateWarningLockPeriod(period);
+    }
+
+    function updateBlackMambaBaseRate(uint rate) external onlyOwner() {
+        require(rate > 0, "NFTPropertiesManager: rate must be grater than 0");
+        blackMambaBaseRate = rate;
+        emit UpdateBlackMambaBaseRate(rate);
     }
 }

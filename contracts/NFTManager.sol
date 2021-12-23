@@ -26,7 +26,12 @@ contract NFTManager is NFTManagerBase {
         snakesNFT.safeMint(msg.sender, tokenId);
         
         stakingPool.stakeFor(stats.PurchasingAmount, tokenId, baseRate, false);
-        snakes[tokenId] = SnakeStats(tokenId, stats.SnakeType, block.timestamp, baseRate, 0, stats.PurchasingAmount, 0, 0, 0, 0, 0, 1, false, 0);
+        if(stats.SnakeType == 5) {
+            snakes[tokenId] = SnakeStats(tokenId, stats.SnakeType, block.timestamp, blackMambaBaseRate, 0, stats.PurchasingAmount, 0, 0, 0, 0, 0, 1, false, 0);
+        } else {
+            snakes[tokenId] = SnakeStats(tokenId, stats.SnakeType, block.timestamp, baseRate, 0, stats.PurchasingAmount, 0, 0, 0, 0, 0, 1, false, 0);
+        }
+        
         snakeAppliedArtifacts[tokenId] = SnakeAppliedArtifacts(0, 0, 0, 0, 0, 0, false, false, false, 0);
         emit HatchEgg(tokenId);
     }
@@ -50,24 +55,25 @@ contract NFTManager is NFTManagerBase {
             snakes[snakeId].TimesFeededMoreThanTreshold += 1;
         }
 
-        
-        uint rateUpdates = snakes[snakeId].StakeAmount / (properties.Price * 10) + 1;
+        if(stats.Type != 5) {
+            uint rateUpdates = snakes[snakeId].StakeAmount / (properties.Price * 10) + 1;
 
-        if(rateUpdates > 11) {
-            rateUpdates = 11;
-        }
-        
-        uint updateTimes = rateUpdates - stats.TimesRateUpdated;
-
-        if(updateTimes > 0 && snakes[snakeId].APR < maxRate) {
-            if(stats.TimesRateUpdated == 1) {
-                snakes[snakeId].APR += bonusFeedRate;
-            } 
+            if(rateUpdates > 11) {
+                rateUpdates = 11;
+            }
             
-            snakes[snakeId].APR += (updateTimes * bonusFeedRate);
-            snakes[snakeId].TimesRateUpdated = rateUpdates;
-        }
+            uint updateTimes = rateUpdates - stats.TimesRateUpdated;
 
+            if(updateTimes > 0 && snakes[snakeId].APR < maxRate) {
+                if(stats.TimesRateUpdated == 1) {
+                    snakes[snakeId].APR += bonusFeedRate;
+                } 
+                
+                snakes[snakeId].APR += (updateTimes * bonusFeedRate);
+                snakes[snakeId].TimesRateUpdated = rateUpdates;
+            }
+        }
+        
         uint totalAPR = snakes[snakeId].APR + snakes[snakeId].BonusAPR;
 
         stakingPool.stakeFor(snakeEquivalentAmount, snakeId, totalAPR, false);
