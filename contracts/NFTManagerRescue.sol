@@ -3,9 +3,9 @@
 pragma solidity ^0.8.0;
 
 import "./utils/RescueManager.sol";
-import "./storages/NFTManagerStorage.sol";
+import "./NFTManagerBase.sol";
 
-contract NFTManagerRescue is NFTManagerStorage, RescueManager {
+contract NFTManagerRescue is NFTManagerBase, RescueManager {
 
     function initialize(address _target) external onlyOwner {
         _setTarget(this.rescue.selector, _target);
