@@ -71,73 +71,73 @@ contract NFTPropertiesManager is NFTManagerBase {
     }
 
     function updateSnakeEggsShop(address _snakeEggsShop) external onlyOwner {
-        require(Address.isContract(_snakeEggsShop), "NFTManager: _snakeEggsShop is not a contract");
+        require(Address.isContract(_snakeEggsShop), "NFTPropertiesManager: _snakeEggsShop is not a contract");
         snakeEggsShop = _snakeEggsShop;
         emit UpdateSnakeEggsShop(_snakeEggsShop);
     }
         
     function updateStakingPool(address _stakingPool) external onlyOwner {
-        require(Address.isContract(_stakingPool), "NFTManager: _stakingPool is not a contract");
+        require(Address.isContract(_stakingPool), "NFTPropertiesManager: _stakingPool is not a contract");
         stakingPool = ILockStakingRewardsPool(_stakingPool);
         emit UpdateStakingPool(_stakingPool);
     }
     
     function updateSnakeEggsNFT(address _snakeEggsNFT) external onlyOwner {
-        require(Address.isContract(_snakeEggsNFT), "NFTManager: _snakeEggsNFT is not a contract");
+        require(Address.isContract(_snakeEggsNFT), "NFTPropertiesManager: _snakeEggsNFT is not a contract");
         snakeEggsNFT = IBEP721Enumerable(_snakeEggsNFT);
         emit UpdateSnakeEggsNFT(_snakeEggsNFT);
     }
 
     function updateSnakesNFT(address _snakesNFT) external onlyOwner {
-        require(Address.isContract(_snakesNFT), "NFTManager: _snakesNFT is not a contract");
+        require(Address.isContract(_snakesNFT), "NFTPropertiesManager: _snakesNFT is not a contract");
         snakesNFT = IBEP721Enumerable(_snakesNFT);
         emit UpdateSnakesNFT(_snakesNFT);
     }
 
     function updateArtifactsNFT(address _artifactsNFT) external onlyOwner {
-        require(Address.isContract(_artifactsNFT), "NFTManager: _artifactsNFT is not a contract");
+        require(Address.isContract(_artifactsNFT), "NFTPropertiesManager: _artifactsNFT is not a contract");
         artifactsNFT = IBEP1155(_artifactsNFT);
         emit UpdateArtifactsNFT(_artifactsNFT);
     }
 
     function updateTreshold(uint _treshold) external onlyOwner {
-        require(_treshold > 0, "NFTManager: treshold must be grater than 0");
+        require(_treshold > 0, "NFTPropertiesManager: treshold must be grater than 0");
         treshold = _treshold;
         emit UpdateTreshold(_treshold);
     }
 
     function updateBaseRate(uint _baseRate) external onlyOwner {
-        require(_baseRate > 0, "NFTManager: base rate must be grater than 0");
+        require(_baseRate > 0, "NFTPropertiesManager: base rate must be grater than 0");
         baseRate = _baseRate;
         emit UpdateBaseRate(_baseRate);
     }
 
     function updateBonusFeedRate(uint _bonusFeedRate) external onlyOwner {
-        require(_bonusFeedRate > 0, "NFTManager: bonus rate must be grater than 0");
+        require(_bonusFeedRate > 0, "NFTPropertiesManager: bonus rate must be grater than 0");
         bonusFeedRate = _bonusFeedRate;
         emit UpdateBonusFeedRate(_bonusFeedRate);
     }
 
     function updateMaxRate(uint _maxRate) external onlyOwner {
-        require(_maxRate > 0, "NFTManager: max rate must be grater than 0");
+        require(_maxRate > 0, "NFTPropertiesManager: max rate must be grater than 0");
         maxRate = _maxRate;
         emit UpdateMaxRate(_maxRate);
     }
 
     function updateCustodian(address newCustodian) external onlyOwner {
-        require(newCustodian != address(0), "NFTManager: newCustodian can not be zero address");
+        require(newCustodian != address(0), "NFTPropertiesManager: newCustodian can not be zero address");
         custodian = newCustodian;
         emit UpdateCustodian(newCustodian);
     }
 
     function updateDiamondAPRBonus(uint aprBonus) external onlyOwner {
-        require(aprBonus > 0, "NFTManager: APR bonus must be grater than 0");
+        require(aprBonus > 0, "NFTPropertiesManager: APR bonus must be grater than 0");
         diamondAPRBonus = aprBonus;
         emit UpdateDiamondAPRBonus(aprBonus);
     }
 
     function updateMouseTVLBonus(uint tvlBonus) external onlyOwner {
-        require(tvlBonus > 0, "NFTManager: TVL bonus must be grater than 0");
+        require(tvlBonus > 0, "NFTPropertiesManager: TVL bonus must be grater than 0");
         mouseTVLBonus = tvlBonus;
         emit UpdateMouseTVLBonus(tvlBonus);
     }
