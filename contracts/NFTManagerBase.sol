@@ -16,10 +16,10 @@ contract NFTManagerBase is NFTManagerStorage {
     event DestroySnake(uint indexed tokenId);
     event WarningLock(uint indexed snakeId, address indexed caller, uint indexed amount);
 
-    uint public blackMambaRequiredStakeAmount;
-    uint internal changeAmountTreshold = 1e22;
-    uint internal warningLockPeriod = 7 days;
-    uint public blackMambaBaseRate = 3e17; // 30%
+    uint internal _blackMambaRequiredStakeAmount = 2201e18;
+    uint internal _changeAmountTreshold = 1e22;
+    uint internal _warningLockPeriod = 7 days;
+    uint internal _blackMambaBaseRate = 3e17; // 30%
 
     modifier onlySnakeEggsShop() {
         require(msg.sender == snakeEggsShop, "NFTManager: Caller is not a snake eggs shop contract");
@@ -40,6 +40,22 @@ contract NFTManagerBase is NFTManagerStorage {
         require(artifactsNFT.balanceOf(msg.sender, artifactId) > 0, "NFTManager: Caller is not an owner of an artifact");
         _;
     }
+    
+    function blackMambaRequiredStakeAmount() public view returns (uint) {
+        return _blackMambaRequiredStakeAmount;
+    }
+
+    function changeAmountTreshold() public view returns (uint) {
+        return _changeAmountTreshold;
+    }
+
+    function warningLockPeriod() public view returns (uint) {
+        return _warningLockPeriod;
+    }
+
+    function blackMambaBaseRate() public view returns (uint) {
+        return _blackMambaBaseRate;
+    }
 
     function isFeeded(uint snakeId) public view returns (bool) {
         SnakeStats memory stats = snakes[snakeId];
@@ -56,7 +72,7 @@ contract NFTManagerBase is NFTManagerStorage {
         require(!snake.IsDead || snake.HatchingTime != 0, "NFTManager: Snake with provided id is dead or not exist");
 
         if(snakes[snakeId].Type == 5) {
-            if(snakes[snakeId].StakeAmount >= blackMambaRequiredStakeAmount) {
+            if(snakes[snakeId].StakeAmount >= blackMambaRequiredStakeAmount()) {
                 return true;
             } else {
                 return false;
@@ -135,8 +151,12 @@ contract NFTManagerBase is NFTManagerStorage {
             amount *= 2;
         }
 
-        if(amount > changeAmountTreshold) {
-            snakes[snakeId].DestroyLock = block.timestamp + warningLockPeriod;
+        if(amount > changeAmountTreshold()) {
+            if(snakes[snakeId].DestroyLock != 0) {
+                snakes[snakeId].DestroyLock += warningLockPeriod();
+            } else {
+                snakes[snakeId].DestroyLock = block.timestamp + warningLockPeriod();
+            }
             emit WarningLock(snakeId, msg.sender, amount);
         }
         
@@ -154,11 +174,6 @@ contract NFTManagerBase is NFTManagerStorage {
         } else {
             
             if(increase) {
-                if(amount > changeAmountTreshold) {
-                    snakes[snakeId].DestroyLock = block.timestamp + warningLockPeriod;
-                    emit WarningLock(snakeId, msg.sender, amount);
-                }
-
                 snakes[snakeId].StakeAmount += amount;
             } else {
                 require(stats.StakeAmount> amount, "NFTManager: Snake`s stake amount lower then update amount");

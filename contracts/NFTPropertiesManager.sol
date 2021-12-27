@@ -12,8 +12,16 @@ contract NFTPropertiesManager is NFTManagerBase {
         _setTarget(this.updateArtifactProperties.selector, _target);
         _setTarget(this.updateMambaRequiredStakeAmount.selector, _target);
         _setTarget(this.updateBlackMambaBaseRate.selector, _target);
+        _setTarget(this.updateChangeAmountTreshold.selector, _target);
+        _setTarget(this.updateWarningLockPeriod.selector, _target);
+
+        _setTarget(this.blackMambaRequiredStakeAmount.selector, _target);
+        _setTarget(this.changeAmountTreshold.selector, _target);
+        _setTarget(this.warningLockPeriod.selector, _target);
+        _setTarget(this.blackMambaBaseRate.selector, _target);
 
         _setTarget(this.updateAllowedTokens.selector, _target);
+        _setTarget(this.updateAllowedAddresses.selector, _target);
         _setTarget(this.updateLowerAdmin.selector, _target);
         _setTarget(this.updateAllowedArtifacts.selector, _target);
         _setTarget(this.updateSnakeEggsShop.selector, _target);
@@ -47,7 +55,6 @@ contract NFTPropertiesManager is NFTManagerBase {
     event UpdateSnakesNFT(address indexed _snakesNFT);
     event UpdateSnakeEggsNFT(address indexed _snakeEggsNFT);
     event UpdateArtifactsNFT(address indexed _artifactsNFT);
-    event UpdateAllowedAddresses(address indexed value, bool indexed allowance);
     event UpdateAllowedTokens(address indexed token, bool indexed allowance);
     event UpdateAllowedArtifacts(uint indexed artifactId, bool indexed allowance);
     event UpdateCustodian(address indexed newCustodian);
@@ -161,25 +168,25 @@ contract NFTPropertiesManager is NFTManagerBase {
 
     function updateMambaRequiredStakeAmount(uint requiredStakeAmount) external onlyOwner() {
         require(requiredStakeAmount != 0, "NFTPropertiesManager: requiredStakeAmount can not be equal to 0");
-        blackMambaRequiredStakeAmount = requiredStakeAmount;
+        _blackMambaRequiredStakeAmount = requiredStakeAmount;
         emit UpdateBlackMambaRequiredStakeAmount(requiredStakeAmount);
     }
 
     function updateChangeAmountTreshold(uint treshold) external onlyOwner() {
         require(treshold != 0, "NFTPropertiesManager: treshold can not be equal to 0");
-        changeAmountTreshold = treshold;
+        _changeAmountTreshold = treshold;
         emit UpdateChangeAmountTreshold(treshold);
     }
 
     function updateWarningLockPeriod(uint period) external onlyOwner() {
         require(period != 0, "NFTPropertiesManager: period can not be equal to 0");
-        warningLockPeriod = period;
+        _warningLockPeriod = period;
         emit UpdateWarningLockPeriod(period);
     }
 
     function updateBlackMambaBaseRate(uint rate) external onlyOwner() {
         require(rate > 0, "NFTPropertiesManager: rate must be grater than 0");
-        blackMambaBaseRate = rate;
+        _blackMambaBaseRate = rate;
         emit UpdateBlackMambaBaseRate(rate);
     }
 }
