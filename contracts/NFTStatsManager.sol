@@ -90,7 +90,7 @@ contract NFTStatsManager is NFTManagerBase {
         _updateGameBalance(snakeId, gameBalance, artifactId);
     }
 
-    function updateGameBalance(uint snakeId, uint gameBalance, uint artifactId) external onlyOwnerOrLowerAdmin {
+    function updateGameBalance(uint snakeId, uint gameBalance, uint artifactId) external onlyAllowedAddresses {
         _updateGameBalance(snakeId, gameBalance, artifactId);
     }
 
@@ -115,11 +115,11 @@ contract NFTStatsManager is NFTManagerBase {
         _applyShadowSnakeArtifact(snakeId, updateAmount, lockPeriod);
     }
 
-    function updateBonusStakeRate(uint snakeId, uint rate) external onlyAllowedAddresses() {
+    function updateBonusStakeRate(uint snakeId, uint rate) external onlyAllowedAddresses {
         _updateBonusStakeRate(snakeId, rate, true);
     }
 
-    function updateEggStats(uint tokenId, EggStats memory stats) external onlySnakeEggsShop() {
+    function updateEggStats(uint tokenId, EggStats memory stats) external onlySnakeEggsShop {
         require(eggs[tokenId].PurchasingTime == 0, "NFTManager: Egg with provided id already exists");
         eggs[tokenId] = stats;
         emit UpdateEggStats(tokenId, eggs[tokenId], stats);

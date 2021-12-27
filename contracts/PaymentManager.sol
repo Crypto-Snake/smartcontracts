@@ -8,7 +8,7 @@ import "./utils/Initializable.sol";
 import "./utils/TransferHelper.sol";
 import "./NFTStatsManager.sol";
 
-contract PaymentsManager is Allowable, Initializable {
+contract PaymentManager is Allowable, Initializable {
 
     address internal _implementationAddress;
     uint public version;
@@ -32,7 +32,7 @@ contract PaymentsManager is Allowable, Initializable {
     }
 
     function processTrophyPayment(uint[] memory snakes, uint[] memory amounts) external onlyAllowedAddresses {
-        require(snakes.length == amounts.length, "PaymentsManager: snakes and amounts arrays size missmatch");
+        require(snakes.length == amounts.length, "PaymentManager: snakes and amounts arrays size missmatch");
 
         for (uint256 i = 0; i < snakes.length; i++) {
             nftManager.updateGameBalance(snakes[i], amounts[i], 5);
@@ -41,22 +41,24 @@ contract PaymentsManager is Allowable, Initializable {
     }
 
     function processUnicornPayment(address[] memory users, uint[] memory amounts) external onlyAllowedAddresses {
-        require(users.length == amounts.length, "PaymentsManager: users and amounts arrays size missmatch");
+        require(users.length == amounts.length, "PaymentManager: users and amounts arrays size missmatch");
+
+        address sender = sendStableCoinFromContract ? address(this) : msg.sender;
 
         for (uint256 i = 0; i < users.length; i++) {
-            TransferHelper.safeTransferFrom(stableCoin, msg.sender, users[i], amounts[i]);
+            TransferHelper.safeTransferFrom(stableCoin, sender, users[i], amounts[i]);
             emit ProcessUnicornPayment(users[i], amounts[i]);
         }   
     }
 
     function updateNFTManager(address _nftManager) external onlyOwner {
-        require(Address.isContract(_nftManager), "PaymentsManager: _nftManager is not a contract");
+        require(Address.isContract(_nftManager), "PaymentManager: _nftManager is not a contract");
         nftManager = NFTStatsManager(_nftManager);
         emit UpdateNFTManager(_nftManager);
     }
 
     function updateStableCoin(address _stableCoin) external onlyOwner {
-        require(Address.isContract(_stableCoin), "PaymentsManager: _stableCoin is not a contract");
+        require(Address.isContract(_stableCoin), "PaymentManager: _stableCoin is not a contract");
         stableCoin = _stableCoin;
         emit UpdateStableCoin(_stableCoin);
     }
