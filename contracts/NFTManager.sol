@@ -23,14 +23,13 @@ contract NFTManager is NFTManagerBase {
         EggStats memory stats = eggs[tokenId];
 
         snakeEggsNFT.safeBurn(tokenId);
-        snakesNFT.safeMint(msg.sender, tokenId);
+        snakesNFT.safeMint(msg.sender, tokenId);        
+
+        uint rate = stats.SnakeType == 5 ? blackMambaBaseRate() : baseRate;
+
+        stakingPool.stakeFor(stats.PurchasingAmount, tokenId, rate, false);
         
-        stakingPool.stakeFor(stats.PurchasingAmount, tokenId, baseRate, false);
-        if(stats.SnakeType == 5) {
-            snakes[tokenId] = SnakeStats(tokenId, stats.SnakeType, block.timestamp, blackMambaBaseRate, 0, stats.PurchasingAmount, 0, 0, 0, 0, 0, 1, false, 0);
-        } else {
-            snakes[tokenId] = SnakeStats(tokenId, stats.SnakeType, block.timestamp, baseRate, 0, stats.PurchasingAmount, 0, 0, 0, 0, 0, 1, false, 0);
-        }
+        snakes[tokenId] = SnakeStats(tokenId, stats.SnakeType, block.timestamp, rate, 0, stats.PurchasingAmount, 0, 0, 0, 0, 0, 1, false, 0);
         
         snakeAppliedArtifacts[tokenId] = SnakeAppliedArtifacts(0, 0, 0, 0, 0, 0, false, false, false, 0);
         emit HatchEgg(tokenId);
