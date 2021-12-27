@@ -133,7 +133,7 @@ const SNAKES_METADATA = {
     mamba : {
         name: "Black Mamba",
         description: "Black Mamba Description",
-        uri: "https://ipfs.io/ipfs/QmZK7pRyT2cKxh6PiLbCEpGUWTa162Q5kAikugf4G5ofoG",
+        uri: "https://ipfs.io/ipfs/QmboNMaBfPy9HFgCsEtgAJADtZok5pue8xcKGWGsViB74e",
         type: "5",
         deathPoint: "5" + "000000000000000000"
     }
@@ -183,7 +183,7 @@ const SNAKE_EGGS_METADATA = {
     mamba : {
         name: "Black Mamba Egg",
         description: "Black Mamba Egg Description",
-        uri: "https://ipfs.io/ipfs/QmPcgBHP2HsfTXQwMEJda5pb2NzCBXapQsTFpXAN6MgRJK",
+        uri: "https://ipfs.io/ipfs/QmYyq2hAzsBvcPvj5qc5fUVe8WtrNSWoGFhXLEghos98oy",
         snakeType: "5",
         price: "99" + "000000000000000000",
         hatchingPeriod: "86400" //86400 seconds = 1 day
