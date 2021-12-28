@@ -73,7 +73,7 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, StakingPoolStorage {
     }
 
     function withdraw(uint256 tokenId, address receiver) public override nonReentrant onlyNFTManager {
-        require(stakeInfo[tokenId][0].stakeAmount > 0, "LockStakingRewardsPool: This stake nonce was withdrawn");
+        if(stakeInfo[tokenId][0].stakeAmount == 0) return;
         require(!stakeInfo[tokenId][0].isLocked, "LockStakingRewardsPool: Unable to withdraw locked staking");
 
         SnakeStats memory stats = nftManager.getSnakeStats(tokenId);
@@ -161,9 +161,12 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, StakingPoolStorage {
                 tokenStakeInfo[tokenId].balance -= amount;
                 tokenStakeInfo[tokenId].accumulatedBalance -= amount;
             }
-            tokenStakeInfo[tokenId].weightedStakeDate = 
-                tokenStakeInfo[tokenId].weightedStakeDate * previousStake / newAmount 
-                - block.timestamp * amount / newAmount;
+
+            if(newAmount > 0) {
+                tokenStakeInfo[tokenId].weightedStakeDate = 
+                    tokenStakeInfo[tokenId].weightedStakeDate * previousStake / newAmount 
+                    - block.timestamp * amount / newAmount;
+            }            
         }
     }    
 
