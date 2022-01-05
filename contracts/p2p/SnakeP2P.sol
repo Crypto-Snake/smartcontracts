@@ -328,6 +328,7 @@ contract SnakeP2P is SnakeP2PStorage, IBEP721Receiver {
     function cancelTradeOrWithdrawOverdueAssets(uint tradeId) external lock { 
         require(tradeCount >= tradeId && tradeId > 0, "SnakeP2P: Invalid trade id");
         require(tradesSingle[tradeId].initiator == msg.sender, "SnakeP2P: Not allowed");
+        require(tradesSingle[tradeId].status == 0, "SnakeP2P: Not active trade");
         
         _cancelTradeOrWithdrawOverdueAssets(tradeId);
 
