@@ -2,7 +2,7 @@ const openZeppelinHelper = require('@openzeppelin/test-helpers');
 
 const PROVIDERS = {
     BSC_MAINNET: `https://bsc-dataseed.binance.org/`,
-    BSC_TESTNET: `https://data-seed-prebsc-2-s3.binance.org:8545/`
+    BSC_TESTNET: `https://data-seed-prebsc-1-s3.binance.org:8545/`
 }
 
 const ARTIFACTS_METADATA = {
@@ -107,7 +107,7 @@ const SNAKES_METADATA = {
         description: "Dasypeltis Description",
         uri: "https://ipfs.io/ipfs/QmeEcezaPgNGjoJhPmGEPSatqW1GTw4YoWm3cgWFSPvTSt",
         type: "1",
-        deathPoint: "100" + "000000000000000000"
+        deathPoint: "22" + "000000000000000000"
     },
     viper : {
         name: "Viper",
@@ -121,14 +121,14 @@ const SNAKES_METADATA = {
         description: "Python Description",
         uri: "https://ipfs.io/ipfs/QmXCV5addPYXCHYAPD93y5bQvjzQYbouPqcStphWAyXi7L",
         type: "3",
-        deathPoint: "100" + "000000000000000000"
+        deathPoint: "1000" + "000000000000000000"
     },
     anaconda : {
         name: "Anaconda",
         description: "Anaconda Description",
         uri: "https://ipfs.io/ipfs/QmZK7pRyT2cKxh6PiLbCEpGUWTa162Q5kAikugf4G5ofoG",
         type: "4",
-        deathPoint: "100" + "000000000000000000"
+        deathPoint: "5000" + "000000000000000000"
     },
     mamba : {
         name: "Black Mamba",
