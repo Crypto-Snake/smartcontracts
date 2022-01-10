@@ -132,7 +132,7 @@ contract NFTManagerBase is NFTManagerStorage {
 
     function destroySnake(uint256 tokenId) public onlySnakeOwner(tokenId) {
         require(isStakeAmountGraterThanRequired(tokenId), "NFTManager: Stake amount should be grater than treshold");
-        _destroySnake(tokenId);
+        _destroySnake(tokenId, false);
     }
 
     function _updateGameBalance(uint snakeId, uint amount, uint artifactId) internal {
@@ -179,7 +179,7 @@ contract NFTManagerBase is NFTManagerStorage {
 
                 if(snakes[snakeId].StakeAmount < properties.DeathPoint) {
                     stakingPool.updateAmountForStake(snakeId, amount, increase);
-                    _destroySnake(snakeId);
+                    _destroySnake(snakeId, true);
                     snakes[snakeId].IsDead = true;
                     emit UpdateStakeIsDead(snakeId, 0);
                     return;
@@ -215,11 +215,12 @@ contract NFTManagerBase is NFTManagerStorage {
         emit ApplyShadowSnakeArtifact(snakeId, updateAmount, block.timestamp, msg.sender);
     }
 
-    function _destroySnake(uint256 tokenId) internal {
+    function _destroySnake(uint256 tokenId, bool hasCrashed) internal {
         address receiver = snakesNFT.ownerOf(tokenId);
         SnakeStats memory stats = snakes[tokenId];
         require(block.timestamp > stats.DestroyLock, "NFTManager: Cannot destroy snake on lock");
-        stakingPool.withdrawAndGetReward(tokenId, receiver);
+
+        if(!hasCrashed) stakingPool.withdrawAndGetReward(tokenId, receiver);
         snakesNFT.safeBurn(tokenId);
         emit DestroySnake(tokenId);
     }
