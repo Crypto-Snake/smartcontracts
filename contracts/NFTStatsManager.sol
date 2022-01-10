@@ -16,6 +16,7 @@ contract NFTStatsManager is NFTManagerBase {
         _setTarget(this.updateBonusStakeRate.selector, _target);
         _setTarget(this.updateEggStats.selector, _target);
         _setTarget(this.applyShadowSnakeBySign.selector, _target);
+        _setTarget(this.applyShadowSnake.selector, _target);
         
         _setTarget(this.isFeeded.selector, _target);
         _setTarget(this.isEggReadyForHatch.selector, _target);
