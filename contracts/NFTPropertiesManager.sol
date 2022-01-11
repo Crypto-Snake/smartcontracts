@@ -10,7 +10,7 @@ contract NFTPropertiesManager is NFTManagerBase {
         _setTarget(this.updateSnakeProperties.selector, _target);
         _setTarget(this.updateEggProperties.selector, _target);
         _setTarget(this.updateArtifactProperties.selector, _target);
-        _setTarget(this.updateMambaRequiredStakeAmount.selector, _target);
+        _setTarget(this.updateBlackMambaRequiredStakeAmount.selector, _target);
         _setTarget(this.updateBlackMambaBaseRate.selector, _target);
         _setTarget(this.updateChangeAmountTreshold.selector, _target);
         _setTarget(this.updateWarningLockPeriod.selector, _target);
@@ -19,6 +19,17 @@ contract NFTPropertiesManager is NFTManagerBase {
         _setTarget(this.changeAmountTreshold.selector, _target);
         _setTarget(this.warningLockPeriod.selector, _target);
         _setTarget(this.blackMambaBaseRate.selector, _target);
+
+        _setTarget(this.deathPointPercent.selector, _target);
+        _setTarget(this.blackMambaDeathPointPercent.selector, _target);
+
+        _setTarget(this.getSnakeStartPrice.selector, _target);
+        _setTarget(this.getSnakeDeathPoint.selector, _target);
+        _setTarget(this.getCurrentPriceBySnakeType.selector, _target);
+
+        _setTarget(this.getLastPeriodNumberBySnakeType.selector, _target);
+        _setTarget(this.getSnakePriceBySnakeTypeAndPeriodId.selector, _target);
+        _setTarget(this.getPeriodTimestampBySnakeTypeAndPeriodId.selector, _target);
 
         _setTarget(this.updateAllowedTokens.selector, _target);
         _setTarget(this.updateAllowedAddresses.selector, _target);
@@ -151,14 +162,16 @@ contract NFTPropertiesManager is NFTManagerBase {
         emit UpdateMouseTVLBonus(tvlBonus);
     }
 
-    function updateSnakeProperties(uint id, Snake memory properties) external onlyAllowedAddresses() {
-        snakesProperties[id] = properties;
-        emit UpdateSnakeProperties(id, snakesProperties[id], properties);
+    function updateSnakeProperties(uint typeId, Snake memory properties) external onlyAllowedAddresses {
+        Snake memory oldProperties = snakesProperties[typeId];
+        snakesProperties[typeId] = properties;
+        emit UpdateSnakeProperties(typeId, oldProperties, properties);
     }
 
-    function updateEggProperties(uint id, Egg memory properties) external onlyAllowedAddresses() {
-        eggsProperties[id] = properties;
-        emit UpdateEggProperties(id, eggsProperties[id], properties);
+    function updateEggProperties(uint typeId, Egg memory properties) external onlyAllowedAddresses {
+        Egg memory oldProperties = eggsProperties[typeId];
+        eggsProperties[typeId] = properties;
+        emit UpdateEggProperties(typeId, oldProperties, properties);
     }
 
     function updateArtifactProperties(uint id, Artifact memory properties) external onlyAllowedAddresses() {
@@ -166,7 +179,7 @@ contract NFTPropertiesManager is NFTManagerBase {
         emit UpdateArtifactProperties(id, artifactsProperties[id], properties);
     }
 
-    function updateMambaRequiredStakeAmount(uint requiredStakeAmount) external onlyOwner() {
+    function updateBlackMambaRequiredStakeAmount(uint requiredStakeAmount) external onlyOwner() {
         require(requiredStakeAmount != 0, "NFTPropertiesManager: requiredStakeAmount can not be equal to 0");
         _blackMambaRequiredStakeAmount = requiredStakeAmount;
         emit UpdateBlackMambaRequiredStakeAmount(requiredStakeAmount);

@@ -17,4 +17,5 @@ abstract contract INFTManager is Objects {
     function isStakeAmountGraterThanRequired(uint snakeId) public virtual view returns (bool);
     function getSnakeTypeProperties(uint id) external virtual view returns (Snake memory);
     function getEggTypeProperties(uint id) external virtual view returns (Egg memory);
+    function getCurrentPriceBySnakeType(uint typeId) external virtual view returns (uint);
 }

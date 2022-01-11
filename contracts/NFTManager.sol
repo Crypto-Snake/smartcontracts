@@ -37,7 +37,6 @@ contract NFTManager is NFTManagerBase {
 
     function feedSnake(uint snakeId, address token, uint amount) external onlySnakeOwner(snakeId) {
         SnakeStats memory stats = snakes[snakeId];
-        Egg memory properties = eggsProperties[stats.Type];
         require(amount > 0, "NFTManager: Feed amount cannot be lower then 1");
         require(allowedTokens[token], "NFTManager: Not allowed token for feed");
         require(!stats.IsDead, "NFTManager: Snake with provided id is dead");
@@ -55,7 +54,7 @@ contract NFTManager is NFTManagerBase {
         }
 
         if(stats.Type != 5) {
-            uint rateUpdates = snakes[snakeId].StakeAmount / (properties.Price * 10) + 1;
+            uint rateUpdates = snakes[snakeId].StakeAmount / (getSnakeStartPrice(snakeId) * 10) + 1;
 
             if(rateUpdates > 11) {
                 rateUpdates = 11;
