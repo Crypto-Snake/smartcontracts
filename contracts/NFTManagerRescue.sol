@@ -35,15 +35,15 @@ contract NFTManagerRescue is NFTManagerBase, RescueManager {
         snakes[snakeId].DestroyLock = lockTime;
     }
 
-    function updateEggPrice(uint typeId, uint price) external onlyOwner {
-        _updateEggPrice(typeId, price);
+    function updateEggPrice(uint typeId, uint price, uint timestamp) external onlyOwner {
+        _updateEggPrice(typeId, price, timestamp);
     }
 
-    function updateEggPrices(uint[] memory types, uint[] memory prices) external onlyOwner {
+    function updateEggPrices(uint[] memory types, uint[] memory prices, uint timestamp) external onlyOwner {
         require(types.length == prices.length, "NFTPropertiesManager: types and prices array length missmatch");
 
         for(uint i = 0; i < prices.length; i++) {
-            _updateEggPrice(types[i], prices[i]);
+            _updateEggPrice(types[i], prices[i], timestamp);
         }
     }
 
@@ -64,12 +64,13 @@ contract NFTManagerRescue is NFTManagerBase, RescueManager {
         _blackMambaRequiredStakeAmountByPeriodId[period] = amount;
     }
 
-    function _updateEggPrice(uint typeId, uint price) internal {
+    function _updateEggPrice(uint typeId, uint price, uint timestamp) internal {
         require(price != 0, "NFTPropertiesManager: price can not be equal to zero");
+        uint timestampValue = timestamp == 0 ? block.timestamp : timestamp;
         uint oldPrice = eggsProperties[typeId].Price;
         uint period = ++_lastPeriodIdBySnakeType[typeId];
-        _periodTimestampBySnakeTypeAndPeriodId[typeId][period] = block.timestamp;
+        _periodTimestampBySnakeTypeAndPeriodId[typeId][period] = timestampValue;
         _periodPriceBySnakeTypeAndPeriodId[typeId][period] = price;
-        emit UpdateEggPrice(typeId, oldPrice, price, period, block.timestamp);
+        emit UpdateEggPrice(typeId, oldPrice, price, period, timestampValue);
     }
 }
