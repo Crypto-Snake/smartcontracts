@@ -25,6 +25,7 @@ contract NFTManagerBase is NFTManagerStorage {
     mapping(uint => uint) internal _lastPeriodIdBySnakeType;
     mapping(uint => mapping(uint => uint)) internal _periodTimestampBySnakeTypeAndPeriodId;
     mapping(uint => mapping(uint => uint)) internal _periodPriceBySnakeTypeAndPeriodId;
+    mapping(uint => uint) internal _blackMambaRequiredStakeAmountByPeriodId;
 
     modifier onlySnakeEggsShop() {
         require(msg.sender == snakeEggsShop, "NFTManager: Caller is not a snake eggs shop contract");
@@ -57,9 +58,9 @@ contract NFTManagerBase is NFTManagerStorage {
     function getPeriodTimestampBySnakeTypeAndPeriodId(uint typeId, uint period) public view returns (uint) {
         return _periodTimestampBySnakeTypeAndPeriodId[typeId][period];
     }
-    
-    function blackMambaRequiredStakeAmount() public view returns (uint) {
-        return _blackMambaRequiredStakeAmount;
+
+    function getBlackMambaRequiredStakeAmountByPeriodId(uint period) public view returns (uint) {
+        return _blackMambaRequiredStakeAmountByPeriodId[period];
     }
 
     function changeAmountTreshold() public view returns (uint) {
@@ -90,6 +91,25 @@ contract NFTManagerBase is NFTManagerStorage {
         }
         
         return false;
+    }
+
+    function getBlackMambaRequiredStakeAmount(uint snakeId) public view returns (uint requiredStakeAmount) {
+        EggStats memory egg = eggs[snakeId];
+        require(egg.SnakeType == 5, "NFTManager: Snake with provided id is not a Black Mamba");
+        require(egg.PurchasingTime != 0, "NFTManager: Snake with provided id is dead or not exist");
+        uint lastPeriod = getLastPeriodNumberBySnakeType(egg.SnakeType);
+
+        if(getPeriodTimestampBySnakeTypeAndPeriodId(egg.SnakeType, lastPeriod) < egg.PurchasingTime) {
+            requiredStakeAmount = getBlackMambaRequiredStakeAmountByPeriodId(lastPeriod);
+        } else {
+            for(uint p = lastPeriod; p > 0; p--) {
+                if(getPeriodTimestampBySnakeTypeAndPeriodId(egg.SnakeType, p) > egg.PurchasingTime &&
+                    getPeriodTimestampBySnakeTypeAndPeriodId(egg.SnakeType, p - 1) < egg.PurchasingTime) {
+                        requiredStakeAmount = getBlackMambaRequiredStakeAmountByPeriodId(p - 1);
+                        break;
+                    }
+            }
+        }
     }
 
     function getSnakeStartPrice(uint snakeId) public view returns (uint snakePrice) {
@@ -130,7 +150,7 @@ contract NFTManagerBase is NFTManagerStorage {
         require(!snake.IsDead || snake.HatchingTime != 0, "NFTManager: Snake with provided id is dead or not exist");
 
         if(snakes[snakeId].Type == 5) {
-            if(snakes[snakeId].StakeAmount >= blackMambaRequiredStakeAmount()) {
+            if(snakes[snakeId].StakeAmount >= getBlackMambaRequiredStakeAmount(snakeId)) {
                 return true;
             } else {
                 return false;

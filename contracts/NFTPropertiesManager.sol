@@ -10,12 +10,10 @@ contract NFTPropertiesManager is NFTManagerBase {
         _setTarget(this.updateSnakeProperties.selector, _target);
         _setTarget(this.updateEggProperties.selector, _target);
         _setTarget(this.updateArtifactProperties.selector, _target);
-        _setTarget(this.updateBlackMambaRequiredStakeAmount.selector, _target);
         _setTarget(this.updateBlackMambaBaseRate.selector, _target);
         _setTarget(this.updateChangeAmountTreshold.selector, _target);
         _setTarget(this.updateWarningLockPeriod.selector, _target);
 
-        _setTarget(this.blackMambaRequiredStakeAmount.selector, _target);
         _setTarget(this.changeAmountTreshold.selector, _target);
         _setTarget(this.warningLockPeriod.selector, _target);
         _setTarget(this.blackMambaBaseRate.selector, _target);
@@ -26,10 +24,12 @@ contract NFTPropertiesManager is NFTManagerBase {
         _setTarget(this.getSnakeStartPrice.selector, _target);
         _setTarget(this.getSnakeDeathPoint.selector, _target);
         _setTarget(this.getCurrentPriceBySnakeType.selector, _target);
+        _setTarget(this.getBlackMambaRequiredStakeAmount.selector, _target);
 
         _setTarget(this.getLastPeriodNumberBySnakeType.selector, _target);
         _setTarget(this.getSnakePriceBySnakeTypeAndPeriodId.selector, _target);
         _setTarget(this.getPeriodTimestampBySnakeTypeAndPeriodId.selector, _target);
+        _setTarget(this.getBlackMambaRequiredStakeAmountByPeriodId.selector, _target);
 
         _setTarget(this.updateAllowedTokens.selector, _target);
         _setTarget(this.updateAllowedAddresses.selector, _target);
@@ -56,7 +56,6 @@ contract NFTPropertiesManager is NFTManagerBase {
     event UpdateSnakeProperties(uint id, Snake oldProperties, Snake newProperties);
     event UpdateEggProperties(uint id, Egg oldProperties, Egg newProperties);
     event UpdateArtifactProperties(uint id, Artifact oldProperties, Artifact newProperties);
-    event UpdateBlackMambaRequiredStakeAmount(uint indexed requiredStakeAmount);
     event UpdateBlackMambaBaseRate(uint indexed rate);
     event UpdateChangeAmountTreshold(uint indexed treshold);
     event UpdateWarningLockPeriod(uint indexed period);
@@ -177,12 +176,6 @@ contract NFTPropertiesManager is NFTManagerBase {
     function updateArtifactProperties(uint id, Artifact memory properties) external onlyAllowedAddresses() {
         artifactsProperties[id] = properties;
         emit UpdateArtifactProperties(id, artifactsProperties[id], properties);
-    }
-
-    function updateBlackMambaRequiredStakeAmount(uint requiredStakeAmount) external onlyOwner() {
-        require(requiredStakeAmount != 0, "NFTPropertiesManager: requiredStakeAmount can not be equal to 0");
-        _blackMambaRequiredStakeAmount = requiredStakeAmount;
-        emit UpdateBlackMambaRequiredStakeAmount(requiredStakeAmount);
     }
 
     function updateChangeAmountTreshold(uint treshold) external onlyOwner() {

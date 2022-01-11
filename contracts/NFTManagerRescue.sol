@@ -17,6 +17,7 @@ contract NFTManagerRescue is NFTManagerBase, RescueManager {
         _setTarget(this.updateEggPrice.selector, _target);
         _setTarget(this.updateEggPrices.selector, _target);
         _setTarget(this.initEggPrices.selector, _target);
+        _setTarget(this.updateBlackMambaRequiredStakeAmount.selector, _target);
     }
 
     event UpdateEggPrice(uint id, uint oldPrice, uint newPrice, uint period, uint timestamp);
@@ -34,7 +35,7 @@ contract NFTManagerRescue is NFTManagerBase, RescueManager {
         snakes[snakeId].DestroyLock = lockTime;
     }
 
-        function updateEggPrice(uint typeId, uint price) external onlyOwner {
+    function updateEggPrice(uint typeId, uint price) external onlyOwner {
         _updateEggPrice(typeId, price);
     }
 
@@ -55,6 +56,12 @@ contract NFTManagerRescue is NFTManagerBase, RescueManager {
             _periodPriceBySnakeTypeAndPeriodId[i + 1][0] = prices[i];
             emit UpdateEggPrice(i + 1, 0, prices[i], 0, timestamp);
         }
+    }
+
+    function updateBlackMambaRequiredStakeAmount(uint period, uint amount) external onlyOwner {
+        require(amount > 0, "NFTPropertiesManager: required stake amount should be grater than zero");
+
+        _blackMambaRequiredStakeAmountByPeriodId[period] = amount;
     }
 
     function _updateEggPrice(uint typeId, uint price) internal {
