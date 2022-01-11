@@ -51,6 +51,8 @@ contract NFTPropertiesManager is NFTManagerBase {
         _setTarget(this.updateSnakeToken.selector, _target);
         _setTarget(this.toggleUseWeightedRates.selector, _target);
         _setTarget(this.updateTokenWeightedExchangeRate.selector, _target);
+        _setTarget(this.updateDeathPointPercent.selector, _target);
+        _setTarget(this.updateBlackMambaDeathPointPercent.selector, _target);
     }
 
     event UpdateSnakeProperties(uint id, Snake oldProperties, Snake newProperties);
@@ -194,5 +196,13 @@ contract NFTPropertiesManager is NFTManagerBase {
         require(rate > 0, "NFTPropertiesManager: rate must be grater than 0");
         _blackMambaBaseRate = rate;
         emit UpdateBlackMambaBaseRate(rate);
+    }
+
+    function updateDeathPointPercent(uint percent) external onlyOwner() {
+        _deathPointPercent = percent;
+    }
+
+    function updateBlackMambaDeathPointPercent(uint percent) external onlyOwner() {
+        _blackMambaDeathPointPercent = percent;
     }
 }
