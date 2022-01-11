@@ -20,6 +20,8 @@ contract NFTManagerBase is NFTManagerStorage {
     uint internal _changeAmountTreshold = 1e22;
     uint internal _warningLockPeriod = 7 days;
     uint internal _blackMambaBaseRate = 3e17; // 30%
+    uint internal _deathPointPercent = 1e16; // 1%
+    uint internal _blackMambaDeathPointPercent = 5e16; // 5%
     mapping(uint => uint) internal _lastPeriodIdBySnakeType;
     mapping(uint => mapping(uint => uint)) internal _periodTimestampBySnakeTypeAndPeriodId;
     mapping(uint => mapping(uint => uint)) internal _periodPriceBySnakeTypeAndPeriodId;
@@ -70,6 +72,14 @@ contract NFTManagerBase is NFTManagerStorage {
 
     function blackMambaBaseRate() public view returns (uint) {
         return _blackMambaBaseRate;
+    }
+
+    function deathPointPercent() public view returns (uint) {
+        return _deathPointPercent;
+    }
+
+    function blackMambaDeathPointPercent() public view returns (uint) {
+        return _blackMambaDeathPointPercent;
     }
 
     function isFeeded(uint snakeId) public view returns (bool) {
@@ -209,7 +219,6 @@ contract NFTManagerBase is NFTManagerStorage {
 
     function _updateStakeAmount(uint snakeId, uint amount, bool increase, uint artifactId) internal {
         SnakeStats memory stats = snakes[snakeId];
-        Snake memory properties = snakesProperties[stats.Type];
 
         if(artifactId == 3 && amount == 0 && increase == false) {
             snakesNFT.safeBurn(snakeId);
@@ -225,7 +234,7 @@ contract NFTManagerBase is NFTManagerStorage {
 
                 snakes[snakeId].StakeAmount -= amount;
 
-                if(snakes[snakeId].StakeAmount < properties.DeathPoint) {
+                if(snakes[snakeId].StakeAmount < getSnakeDeathPoint(snakeId)) {
                     stakingPool.updateAmountForStake(snakeId, amount, increase);
                     _destroySnake(snakeId, true);
                     snakes[snakeId].IsDead = true;
