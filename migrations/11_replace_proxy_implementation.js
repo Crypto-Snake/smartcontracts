@@ -23,6 +23,8 @@ let snakeP2P;
 let snakeP2PProxy;
 let snakeArtifactsNFT;
 let snakeArtifactsNFTProxy;
+let snakeEggsShop;
+let snakeEggsShopProxy;
 
 let SnakeArtifactsNFT = artifacts.require("SnakeArtifactsNFT");
 let SnakeArtifactsNFTProxy = artifacts.require("SnakeArtifactsNFTProxy");
@@ -36,6 +38,8 @@ let NFTArtifactsManager = artifacts.require("NFTArtifactsManager");
 let NFTManagerRescue = artifacts.require("NFTManagerRescue");
 let NFTPropertiesManager = artifacts.require("NFTPropertiesManager");
 let NFTManagerProxy = artifacts.require("NFTManagerProxy");
+let SnakeEggsShop = artifacts.require("SnakeEggsShop");
+let SnakeEggsShopProxy = artifacts.require("SnakeEggsShopProxy");
 let LockStakingRewardsPool = artifacts.require("LockStakingRewardsPool");
 let LockStakingRewardsPoolProxy = artifacts.require("LockStakingRewardsPoolProxy");
 let SnakeP2P = artifacts.require("SnakeP2P");
@@ -47,14 +51,15 @@ module.exports = async function(deployer) {
         replaceSnakeEggsNFT: false,
         replaceSnakesNFT: false,
         replaceLockStakingRewardsPool: false,
-        replaceNFTManager: true,
+        replaceNFTManager: false,
         replaceP2P: false,
+        replaceShop: false
     }
 
     deployer.then(async( err, res ) => {
-        //#region REPLACE SNAKEARTIFACTSNFT STRUCTURE 1/6
+        //#region REPLACE SNAKEARTIFACTSNFT STRUCTURE 1/7
         if (deployParams.replaceSnakeArtifactsNFT) {
-            console.log("===== Start replacing SnakeArtifactsNFT contract on proxy (1/6) =====");
+            console.log("===== Start replacing SnakeArtifactsNFT contract on proxy (1/7) =====");
 
             await deployer.deploy(SnakeArtifactsNFT);
             snakeArtifactsNFT = await SnakeArtifactsNFT.deployed();
@@ -71,9 +76,9 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region REPLACE SNAKEEGGSNFT STRUCTURE 2/6
+        //#region REPLACE SNAKEEGGSNFT STRUCTURE 2/7
         if (deployParams.replaceSnakeEggsNFT) {
-            console.log("===== Start replacing SnakeEggsNFT contract on proxy (2/6) =====");
+            console.log("===== Start replacing SnakeEggsNFT contract on proxy (2/7) =====");
 
             await deployer.deploy(SnakeEggsNFT);
             snakeEggsNFT = await SnakeEggsNFT.deployed();
@@ -90,9 +95,9 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region REPLACE SNAKESNFT STRUCTURE 3/6
+        //#region REPLACE SNAKESNFT STRUCTURE 3/7
         if (deployParams.replaceSnakesNFT) {
-            console.log("===== Start replacing SnakesNFT contract on proxy (3/6) =====");
+            console.log("===== Start replacing SnakesNFT contract on proxy (3/7) =====");
 
             await deployer.deploy(SnakesNFT);
             snakesNFT = await SnakesNFT.deployed();
@@ -109,9 +114,9 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region REPLACE STAKINGREWARDSPOOL 4/6
+        //#region REPLACE STAKINGREWARDSPOOL 4/7
         if (deployParams.replaceLockStakingRewardsPool) {
-            console.log("===== Start replacing LockStakingRewardsPool contract on proxy (4/6) =====");
+            console.log("===== Start replacing LockStakingRewardsPool contract on proxy (4/7) =====");
 
             await deployer.deploy(LockStakingRewardsPool);
             lockStakingRewardsPool = await LockStakingRewardsPool.deployed();
@@ -128,9 +133,9 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region REPLACE NFTMANAGER 5/6
+        //#region REPLACE NFTMANAGER 5/7
         if (deployParams.replaceNFTManager) {
-            console.log("===== Start replacing NFTManager contracts on proxy (5/6) =====");
+            console.log("===== Start replacing NFTManager contracts on proxy (5/7) =====");
 
             await deployer.deploy(NFTManager);
             nftManager = await NFTManager.deployed();
@@ -176,9 +181,9 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region REPLACE SNAKEP2P 6/6
+        //#region REPLACE SNAKEP2P 6/7
         if (deployParams.replaceP2P) {
-            console.log("===== Start replacing SnakeP2P contract on proxy (6/6) =====");
+            console.log("===== Start replacing SnakeP2P contract on proxy (6/7) =====");
 
             await deployer.deploy(SnakeP2P);
             snakeP2P = await SnakeP2P.deployed();
@@ -192,6 +197,24 @@ module.exports = async function(deployer) {
         } else {
             snakeP2P = { address: addresses.snakeP2P };
             snakeP2PProxy = { address: addresses.snakeP2PProxy };
+        }
+        //#endregion
+
+        //#region REPLACE SNAKEEggsSHOP 7/7
+        if (deployParams.replaceShop) {
+            console.log("===== Start replacing SnakeEggsShop contract on proxy (7/7) =====");
+            await deployer.deploy(SnakeEggsShop);
+            snakeEggsShop = await SnakeEggsShop.deployed();
+            console.log(`snake eggs shop address: ${snakeEggsShop.address}`)
+            addresses.snakeEggsShop = snakeEggsShop.address;
+
+            snakeEggsShopProxy = await SnakeEggsShopProxy.at(addresses.snakeEggsShopProxy);
+            await snakeEggsShopProxy.replaceImplementation(addresses.snakeEggsShop);
+
+            fs.writeFileSync('addresses_mainnet.json', JSON.stringify(addresses));
+        } else {
+            snakeEggsShop = { address: addresses.snakeEggsShop };
+            snakeEggsShopProxy = { address: addresses.snakeEggsShopProxy };
         }
         //#endregion
     })
