@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "./storages/SnakeEggsShopStorage.sol";
 
 contract SnakeEggsShop is SnakeEggsShopStorage {
-    event BuyEgg(address indexed buyer, uint eggId, uint typeId, address indexed token, uint indexed purchaseAmount, uint purchaseTime);
+    event BuyEgg(address indexed buyer, address receiver, uint eggId, uint typeId, address indexed token, uint indexed purchaseAmount, uint purchaseTime);
 
     function initialize(address _router, address _snakeEggsNFT, address _nftManager, address _snakeToken, address _custodian) external initializer { 
         require(Address.isContract(_snakeEggsNFT), "_snakeEggsNFT is not a contract");
@@ -21,6 +21,19 @@ contract SnakeEggsShop is SnakeEggsShopStorage {
     }
 
     function buyEgg(uint typeId, address purchaseToken, uint purchaseTokenAmount) external {
+        _buyEgg(typeId, purchaseToken, purchaseTokenAmount, msg.sender);
+    }
+
+    function buyEggFor(uint typeId, address purchaseToken, uint purchaseTokenAmount, address receiver) external {
+        _buyEgg(typeId, purchaseToken, purchaseTokenAmount, receiver);
+    }
+
+    function updateSnakeEggsNFT(address _snakeEggsNFT) external onlyOwner {
+        require(Address.isContract(_snakeEggsNFT), "BaseTokenStorage: _snakeEggsNFT is not a contract");
+        snakeEggsNFT = IBEP721Enumerable(_snakeEggsNFT);
+    }
+
+    function _buyEgg(uint typeId, address purchaseToken, uint purchaseTokenAmount, address receiver) internal {
         require(allowedTokens[purchaseToken], "SnakeEggsShop: Token not allowed");
         uint price = nftManager.getCurrentPriceBySnakeType(typeId); 
         require(price != 0, "SnakeEggsShop: Egg type not found");
@@ -32,13 +45,8 @@ contract SnakeEggsShop is SnakeEggsShopStorage {
         uint tokenId = Counters.current(counter);
         
         nftManager.updateEggStats(tokenId, EggStats(tokenId, snakeEquivalentAmount, block.timestamp, typeId));
-        snakeEggsNFT.safeMint(msg.sender, tokenId);
+        snakeEggsNFT.safeMint(receiver, tokenId);
 
-        emit BuyEgg(msg.sender, tokenId ,typeId, purchaseToken, purchaseTokenAmount, block.timestamp); 
-    }
-
-    function updateSnakeEggsNFT(address _snakeEggsNFT) external onlyOwner {
-        require(Address.isContract(_snakeEggsNFT), "BaseTokenStorage: _snakeEggsNFT is not a contract");
-        snakeEggsNFT = IBEP721Enumerable(_snakeEggsNFT);
+        emit BuyEgg(msg.sender, receiver, tokenId ,typeId, purchaseToken, purchaseTokenAmount, block.timestamp); 
     }
 }
