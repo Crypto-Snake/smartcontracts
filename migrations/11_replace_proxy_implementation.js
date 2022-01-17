@@ -69,7 +69,7 @@ module.exports = async function(deployer) {
             snakeArtifactsNFTProxy = await SnakeArtifactsNFTProxy.at(addresses.snakeArtifactsNFTProxy);
             await snakeArtifactsNFTProxy.replaceImplementation(addresses.snakeArtifactsNFT)
 
-            fs.writeFileSync('addresses_mainnet.json', JSON.stringify(addresses));
+            fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
         } else {
             snakeArtifactsNFT = { address: addresses.snakeArtifactsNFT };
             snakeArtifactsNFTProxy = { address: addresses.snakeArtifactsNFTProxy };

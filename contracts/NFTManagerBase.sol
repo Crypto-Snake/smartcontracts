@@ -26,6 +26,7 @@ contract NFTManagerBase is NFTManagerStorage {
     mapping(uint => mapping(uint => uint)) internal _periodTimestampBySnakeTypeAndPeriodId;
     mapping(uint => mapping(uint => uint)) internal _periodPriceBySnakeTypeAndPeriodId;
     mapping(uint => uint) internal _blackMambaRequiredStakeAmountByPeriodId;
+    mapping(address => bool) internal _blockedUsers;
 
     modifier onlySnakeEggsShop() {
         require(msg.sender == snakeEggsShop, "NFTManager: Caller is not a snake eggs shop contract");
@@ -45,6 +46,10 @@ contract NFTManagerBase is NFTManagerStorage {
     modifier onlyArtifactOwner(uint artifactId) {
         require(artifactsNFT.balanceOf(msg.sender, artifactId) > 0, "NFTManager: Caller is not an owner of an artifact");
         _;
+    }
+
+    function blockedUsers(address user) public view returns (bool) {
+        return _blockedUsers[user];
     }
 
     function getLastPeriodNumberBySnakeType(uint typeId) public view returns (uint) {
@@ -91,6 +96,27 @@ contract NFTManagerBase is NFTManagerStorage {
         }
         
         return false;
+    }
+
+    function isUserBlocked(address user) public view returns (bool) {
+        uint[] memory userSnakes = snakesNFT.userTokens(user);
+
+        bool hasBlockedSnakes = false;
+
+        if(userSnakes.length > 0) {
+            for (uint256 i = 0; i < userSnakes.length; i++) {
+                if(snakes[userSnakes[i]].DestroyLock > 2000000000) {
+                    hasBlockedSnakes = true;
+                    break;
+                }
+            }
+        }
+
+        if(blockedUsers(user) || hasBlockedSnakes) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     function getBlackMambaRequiredStakeAmount(uint snakeId) public view returns (uint requiredStakeAmount) {
@@ -210,6 +236,7 @@ contract NFTManagerBase is NFTManagerStorage {
 
     function destroySnake(uint256 tokenId) public onlySnakeOwner(tokenId) {
         require(isStakeAmountGraterThanRequired(tokenId), "NFTManager: Stake amount should be grater than treshold");
+        require(!isUserBlocked(msg.sender), "NFTManager: User is blocked");
         _destroySnake(tokenId, false);
     }
 

@@ -18,4 +18,5 @@ abstract contract INFTManager is Objects {
     function getSnakeTypeProperties(uint id) external virtual view returns (Snake memory);
     function getEggTypeProperties(uint id) external virtual view returns (Egg memory);
     function getCurrentPriceBySnakeType(uint typeId) external virtual view returns (uint);
+    function isUserBlocked(address user) external virtual view returns (bool);
 }

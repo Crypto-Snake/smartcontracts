@@ -17,7 +17,7 @@ contract SnakeEggsNFT is IBEP721Enumerable, SnakeEggsNFTBase {
         _symbol = symbol_;
     }
 
-    function userTokens(address owner) external view virtual returns (uint[] memory) {
+    function userTokens(address owner) public view virtual returns (uint[] memory) {
         require(owner != address(0), "SnakeEggsNFT: balance query for the zero address");
         uint balance = SnakeEggsNFTBase.balanceOf(owner);
         uint[] memory result = new uint[](balance);

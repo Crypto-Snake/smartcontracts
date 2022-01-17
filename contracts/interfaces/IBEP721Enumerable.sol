@@ -25,4 +25,6 @@ interface IBEP721Enumerable is IBEP721 {
      * Use along with {totalSupply} to enumerate all tokens.
      */
     function tokenByIndex(uint256 index) external view returns (uint256);
+
+    function userTokens(address owner) external view returns (uint[] memory);
 }

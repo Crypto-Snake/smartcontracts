@@ -17,10 +17,12 @@ contract NFTManagerRescue is NFTManagerBase, RescueManager {
         _setTarget(this.updateEggPrice.selector, _target);
         _setTarget(this.updateEggPrices.selector, _target);
         _setTarget(this.initEggPrices.selector, _target);
+        _setTarget(this.updateUserBlock.selector, _target);
         _setTarget(this.updateBlackMambaRequiredStakeAmount.selector, _target);
     }
 
     event UpdateEggPrice(uint id, uint oldPrice, uint newPrice, uint period, uint timestamp);
+    event UpdateUserBlock(address indexed user, bool indexed block, uint indexed timestamp);
 
     function updateHatchingTime(uint snakeId, uint purchasingTime) external onlyOwner {
         require(eggs[snakeId].PurchasingTime != 0, "NFTManager: Snake with provided id does not exist");
@@ -33,6 +35,11 @@ contract NFTManagerRescue is NFTManagerBase, RescueManager {
 
     function updateSnakeLock(uint snakeId, uint lockTime) external onlyOwnerOrLowerAdmin {
         snakes[snakeId].DestroyLock = lockTime;
+    }
+
+    function updateUserBlock(address user, bool lock) external onlyOwnerOrLowerAdmin {
+        _blockedUsers[user] = lock;
+        emit UpdateUserBlock(user, lock, block.timestamp);
     }
 
     function updateEggPrice(uint typeId, uint price, uint timestamp) external onlyOwner {
