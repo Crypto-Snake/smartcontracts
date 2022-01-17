@@ -46,10 +46,6 @@ contract NFTPropertiesManager is NFTManagerBase {
         _setTarget(this.updateBonusFeedRate.selector, _target);
         _setTarget(this.updateMaxRate.selector, _target);
         _setTarget(this.updateCustodian.selector, _target);
-        _setTarget(this.updateDiamondAPRBonus.selector, _target);
-        _setTarget(this.updateMouseTVLBonus.selector, _target);
-        _setTarget(this.updateRouter.selector, _target);
-        _setTarget(this.updateSnakeToken.selector, _target);
         _setTarget(this.toggleUseWeightedRates.selector, _target);
         _setTarget(this.updateTokenWeightedExchangeRate.selector, _target);
         _setTarget(this.updateDeathPointPercent.selector, _target);
@@ -72,12 +68,6 @@ contract NFTPropertiesManager is NFTManagerBase {
     event UpdateAllowedTokens(address indexed token, bool indexed allowance);
     event UpdateAllowedArtifacts(uint indexed artifactId, bool indexed allowance);
     event UpdateCustodian(address indexed newCustodian);
-    event UpdateDiamondAPRBonus(uint aprBonus);
-    event UpdateMouseTVLBonus(uint tvlBonus);
-    event UpdateShadowSnakeRequiredTVL(uint requiredTVL);
-    event UpdateShadowSnakeDestroyLockPeriod(uint lockPeriod);
-    event UpdateShadowSnakeTVLMultiplier(uint tvlMultiplier);
-    event UpdateDiamondMaxAppliances(uint maxAppilances);
     event UpdateTreshold(uint treshold);
     event UpdateBaseRate(uint baseRate);
     event UpdateBonusFeedRate(uint bonusRate);
@@ -154,16 +144,6 @@ contract NFTPropertiesManager is NFTManagerBase {
         emit UpdateCustodian(newCustodian);
     }
 
-    function updateDiamondAPRBonus(uint aprBonus) external onlyOwner {
-        require(aprBonus > 0, "NFTPropertiesManager: APR bonus must be grater than 0");
-        diamondAPRBonus = aprBonus;
-        emit UpdateDiamondAPRBonus(aprBonus);
-    }
-
-    function updateMouseTVLBonus(uint tvlBonus) external onlyOwner {
-        require(tvlBonus > 0, "NFTPropertiesManager: TVL bonus must be grater than 0");
-        mouseTVLBonus = tvlBonus;
-        emit UpdateMouseTVLBonus(tvlBonus);
     function updateHalvingDate(uint halvingDate) external onlyOwner {
         _halvingDate = halvingDate;
         emit UpdateHalvingDate(halvingDate);
