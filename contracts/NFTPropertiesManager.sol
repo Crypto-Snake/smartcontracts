@@ -17,6 +17,7 @@ contract NFTPropertiesManager is NFTManagerBase {
         _setTarget(this.changeAmountTreshold.selector, _target);
         _setTarget(this.warningLockPeriod.selector, _target);
         _setTarget(this.blackMambaBaseRate.selector, _target);
+        _setTarget(this.halvingDate.selector, _target);
 
         _setTarget(this.deathPointPercent.selector, _target);
         _setTarget(this.blackMambaDeathPointPercent.selector, _target);
@@ -53,6 +54,7 @@ contract NFTPropertiesManager is NFTManagerBase {
         _setTarget(this.updateTokenWeightedExchangeRate.selector, _target);
         _setTarget(this.updateDeathPointPercent.selector, _target);
         _setTarget(this.updateBlackMambaDeathPointPercent.selector, _target);
+        _setTarget(this.updateHalvingDate.selector, _target);
     }
 
     event UpdateSnakeProperties(uint id, Snake oldProperties, Snake newProperties);
@@ -80,6 +82,7 @@ contract NFTPropertiesManager is NFTManagerBase {
     event UpdateBaseRate(uint baseRate);
     event UpdateBonusFeedRate(uint bonusRate);
     event UpdateMaxRate(uint maxRate);
+    event UpdateHalvingDate(uint indexed halvingDate);
 
     function updateAllowedTokens(address token, bool allowance) external onlyOwner {
         allowedTokens[token] = allowance;
@@ -161,6 +164,9 @@ contract NFTPropertiesManager is NFTManagerBase {
         require(tvlBonus > 0, "NFTPropertiesManager: TVL bonus must be grater than 0");
         mouseTVLBonus = tvlBonus;
         emit UpdateMouseTVLBonus(tvlBonus);
+    function updateHalvingDate(uint halvingDate) external onlyOwner {
+        _halvingDate = halvingDate;
+        emit UpdateHalvingDate(halvingDate);
     }
 
     function updateSnakeProperties(uint typeId, Snake memory properties) external onlyAllowedAddresses {

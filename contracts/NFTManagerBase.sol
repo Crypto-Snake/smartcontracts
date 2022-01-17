@@ -28,6 +28,8 @@ contract NFTManagerBase is NFTManagerStorage {
     mapping(uint => uint) internal _blackMambaRequiredStakeAmountByPeriodId;
     mapping(address => bool) internal _blockedUsers;
 
+    uint internal _halvingDate;
+
     modifier onlySnakeEggsShop() {
         require(msg.sender == snakeEggsShop, "NFTManager: Caller is not a snake eggs shop contract");
         _;
@@ -46,6 +48,10 @@ contract NFTManagerBase is NFTManagerStorage {
     modifier onlyArtifactOwner(uint artifactId) {
         require(artifactsNFT.balanceOf(msg.sender, artifactId) > 0, "NFTManager: Caller is not an owner of an artifact");
         _;
+    }
+
+    function halvingDate() public view returns (uint) {
+        return _halvingDate;
     }
 
     function blockedUsers(address user) public view returns (bool) {

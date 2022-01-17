@@ -28,10 +28,15 @@ contract NFTManager is NFTManagerBase {
         snakesNFT.safeMint(msg.sender, tokenId);        
 
         uint rate = stats.SnakeType == 5 ? blackMambaBaseRate() : baseRate;
+        uint stakingAmount = stats.PurchasingAmount;
 
-        stakingPool.stakeFor(stats.PurchasingAmount, tokenId, rate, false);
-        
-        snakes[tokenId] = SnakeStats(tokenId, stats.SnakeType, block.timestamp, rate, 0, stats.PurchasingAmount, 0, 0, 0, 0, 0, 1, false, 0);
+        if(stats.PurchasingTime > halvingDate()) {
+            rate = rate / 2;
+            stakingAmount = stakingAmount / 2;
+        }
+
+        stakingPool.stakeFor(stakingAmount, tokenId, rate, false);
+        snakes[tokenId] = SnakeStats(tokenId, stats.SnakeType, block.timestamp, rate, 0, stakingAmount, 0, 0, 0, 0, 0, 1, false, 0);
         
         snakeAppliedArtifacts[tokenId] = SnakeAppliedArtifacts(0, 0, 0, 0, 0, 0, false, false, false, 0);
         emit HatchEgg(tokenId);
