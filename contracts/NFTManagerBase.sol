@@ -29,6 +29,9 @@ contract NFTManagerBase is NFTManagerStorage {
 
     uint internal _halvingDate;
 
+    uint internal _sleepingTime;
+    mapping(uint => uint) internal _sleepingStartTime;
+
     modifier onlySnakeEggsShop() {
         require(msg.sender == snakeEggsShop, "NFTManager: Caller is not a snake eggs shop contract");
         _;
@@ -47,6 +50,14 @@ contract NFTManagerBase is NFTManagerStorage {
     modifier onlyArtifactOwner(uint artifactId) {
         require(artifactsNFT.balanceOf(msg.sender, artifactId) > 0, "NFTManager: Caller is not an owner of an artifact");
         _;
+    }
+
+    function sleepingTime() public view returns (uint) {
+        return _sleepingTime;
+    }
+
+    function sleepingStartTime(uint snakeId) public view returns (uint) {
+        return _sleepingStartTime[snakeId];
     }
 
     function halvingDate() public view returns (uint) {
@@ -233,6 +244,14 @@ contract NFTManagerBase is NFTManagerStorage {
         return eggStatsLocal;
     }
 
+    function isSnakeReadyForDestroying(uint snakeId) public view returns (bool) {
+        if(sleepingStartTime(snakeId) > 0 && sleepingStartTime(snakeId) + sleepingTime() < block.timestamp) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     function getSnakeStats(uint tokenId) public view returns (SnakeStats memory) {
         SnakeStats memory snakeStatsLocal = snakes[tokenId];
         require(snakeStatsLocal.HatchingTime != 0, "NFTManager: Snake with provided id does not exists");
@@ -241,8 +260,20 @@ contract NFTManagerBase is NFTManagerStorage {
 
     function destroySnake(uint256 tokenId) public onlySnakeOwner(tokenId) {
         require(isStakeAmountGraterThanRequired(tokenId), "NFTManager: Stake amount should be grater than treshold");
+        require(isSnakeReadyForDestroying(tokenId), "NFTManager: Snake is not ready for destroying");
         require(!isUserBlocked(msg.sender), "NFTManager: User is blocked");
         _destroySnake(tokenId, false);
+    }
+
+    function sleepSnake(uint snakeId) external onlySnakeOwner(snakeId) {
+        require(sleepingStartTime(snakeId) == 0, "NFTManager: Snake with provided id is sleeping");
+        require(!snakes[snakeId].IsDead, "NFTManager: Snake with provided id is dead");
+        _sleepingStartTime[snakeId] = block.timestamp;
+    }
+
+    function wakeSnake(uint snakeId) external onlySnakeOwner(snakeId) {
+        require(!snakes[snakeId].IsDead, "NFTManager: Snake with provided id is dead");
+        _sleepingStartTime[snakeId] = 0;
     }
 
     function _updateGameBalance(uint snakeId, uint amount, uint artifactId) internal {

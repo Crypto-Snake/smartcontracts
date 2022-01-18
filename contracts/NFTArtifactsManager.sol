@@ -31,6 +31,7 @@ contract NFTArtifactsManager is NFTManagerBase {
         require(allowedArtifacts[artifactId], "NFTManager: Not allowed to apply");
         require(isStakeAmountGraterThanRequired(snakeId), "NFTManager: Stake amount should be grater than treshold");
         require(!isUserBlocked(msg.sender), "NFTManager: User is blocked");
+        require(sleepingStartTime(snakeId) == 0, "NFTManager: Snake with provided id is sleeping");
 
         if(artifactId == 1) {
             snakeAppliedArtifacts[snakeId].TimesMysteryBoxApplied += 1;

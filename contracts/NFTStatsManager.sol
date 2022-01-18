@@ -24,6 +24,7 @@ contract NFTStatsManager is NFTManagerBase {
         _setTarget(this.getSnakeTypeProperties.selector, _target);
         _setTarget(this.getEggStats.selector, _target);
         _setTarget(this.getSnakeStats.selector, _target);
+        _setTarget(this.sleepingStartTime.selector, _target);
     }
 
     function applyGameResultsBySign(uint snakeId, uint stakeAmount, uint gameBalance, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {

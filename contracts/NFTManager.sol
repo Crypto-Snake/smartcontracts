@@ -14,7 +14,10 @@ contract NFTManager is NFTManagerBase {
         _setTarget(this.feedSnake.selector, _target);       
         _setTarget(this.destroySnake.selector, _target);
         _setTarget(this.isStakeAmountGraterThanRequired.selector, _target);
+        _setTarget(this.isSnakeReadyForDestroying.selector, _target);
         _setTarget(this.isUserBlocked.selector, _target);
+        _setTarget(this.sleepSnake.selector, _target);
+        _setTarget(this.wakeSnake.selector, _target);
     }
 
     function hatchEgg(uint tokenId) external onlyEggOwner(tokenId) {
@@ -47,6 +50,7 @@ contract NFTManager is NFTManagerBase {
         require(amount > 0, "NFTManager: Feed amount cannot be lower then 1");
         require(allowedTokens[token], "NFTManager: Not allowed token for feed");
         require(!stats.IsDead, "NFTManager: Snake with provided id is dead");
+        require(sleepingStartTime(snakeId) == 0, "NFTManager: Snake with provided id is sleeping");
         require(!isUserBlocked(msg.sender), "NFTManager: User is blocked");
         
         uint snakeEquivalentAmount = getSnakeEquivalentAmount(token, amount);

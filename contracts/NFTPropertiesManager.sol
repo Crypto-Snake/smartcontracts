@@ -21,6 +21,7 @@ contract NFTPropertiesManager is NFTManagerBase {
 
         _setTarget(this.deathPointPercent.selector, _target);
         _setTarget(this.blackMambaDeathPointPercent.selector, _target);
+        _setTarget(this.sleepingTime.selector, _target);
 
         _setTarget(this.getSnakeStartPrice.selector, _target);
         _setTarget(this.getSnakeDeathPoint.selector, _target);
@@ -51,6 +52,7 @@ contract NFTPropertiesManager is NFTManagerBase {
         _setTarget(this.updateDeathPointPercent.selector, _target);
         _setTarget(this.updateBlackMambaDeathPointPercent.selector, _target);
         _setTarget(this.updateHalvingDate.selector, _target);
+        _setTarget(this.updateSleepingTime.selector, _target);
     }
 
     event UpdateSnakeProperties(uint id, Snake oldProperties, Snake newProperties);
@@ -73,6 +75,7 @@ contract NFTPropertiesManager is NFTManagerBase {
     event UpdateBonusFeedRate(uint bonusRate);
     event UpdateMaxRate(uint maxRate);
     event UpdateHalvingDate(uint indexed halvingDate);
+    event UpdateSleepingTime(uint indexed sleepingTime);
 
     function updateAllowedTokens(address token, bool allowance) external onlyOwner {
         allowedTokens[token] = allowance;
@@ -147,6 +150,11 @@ contract NFTPropertiesManager is NFTManagerBase {
     function updateHalvingDate(uint halvingDate) external onlyOwner {
         _halvingDate = halvingDate;
         emit UpdateHalvingDate(halvingDate);
+    }
+
+    function updateSleepingTime(uint sleepingTime) external onlyOwner {
+        _sleepingTime = sleepingTime;
+        emit UpdateSleepingTime(sleepingTime);
     }
 
     function updateSnakeProperties(uint typeId, Snake memory properties) external onlyAllowedAddresses {

@@ -236,6 +236,8 @@ contract SnakesNFTBase is IBEP721, IBEP721Metadata, BaseTokenStorage {
     function _burn(uint256 tokenId) internal virtual {
         address owner = SnakesNFTBase.ownerOf(tokenId);
         require(!nftManager.isUserBlocked(owner), "NFTManager: User is blocked");
+        require(nftManager.sleepingStartTime(tokenId) == 0, "SnakesNFTBase: Snake with provided id is sleeping");
+
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
@@ -266,7 +268,8 @@ contract SnakesNFTBase is IBEP721, IBEP721Metadata, BaseTokenStorage {
     ) internal virtual {
         require(SnakesNFTBase.ownerOf(tokenId) == from, "SnakesNFTBase: transfer of token that is not own");
         require(nftManager.isStakeAmountGraterThanRequired(tokenId), "SnakesNFTBase: Stake amount should be grater than treshold");
-        require(!nftManager.isUserBlocked(msg.sender), "NFTManager: User is blocked");
+        require(nftManager.sleepingStartTime(tokenId) == 0, "SnakesNFTBase: Snake with provided id is sleeping");
+        require(!nftManager.isUserBlocked(msg.sender), "SnakesNFTBase: User is blocked");
         require(to != address(0), "SnakesNFTBase: transfer to the zero address");
 
         _beforeTokenTransfer(from, to, tokenId);
