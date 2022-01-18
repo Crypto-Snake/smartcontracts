@@ -39,13 +39,6 @@ contract NFTPropertiesManager is NFTManagerBase {
         _setTarget(this.updateAllowedArtifacts.selector, _target);
         _setTarget(this.updateSnakeEggsShop.selector, _target);
         _setTarget(this.updateStakingPool.selector, _target);
-        _setTarget(this.updateSnakeEggsNFT.selector, _target);
-        _setTarget(this.updateSnakesNFT.selector, _target);
-        _setTarget(this.updateArtifactsNFT.selector, _target);
-        _setTarget(this.updateTreshold.selector, _target);
-        _setTarget(this.updateBaseRate.selector, _target);
-        _setTarget(this.updateBonusFeedRate.selector, _target);
-        _setTarget(this.updateMaxRate.selector, _target);
         _setTarget(this.updateCustodian.selector, _target);
         _setTarget(this.toggleUseWeightedRates.selector, _target);
         _setTarget(this.updateTokenWeightedExchangeRate.selector, _target);
@@ -64,16 +57,9 @@ contract NFTPropertiesManager is NFTManagerBase {
     
     event UpdateStakingPool(address indexed _stakingPool);
     event UpdateSnakeEggsShop(address indexed _snakeEggsShop);
-    event UpdateSnakesNFT(address indexed _snakesNFT);
-    event UpdateSnakeEggsNFT(address indexed _snakeEggsNFT);
-    event UpdateArtifactsNFT(address indexed _artifactsNFT);
     event UpdateAllowedTokens(address indexed token, bool indexed allowance);
     event UpdateAllowedArtifacts(uint indexed artifactId, bool indexed allowance);
     event UpdateCustodian(address indexed newCustodian);
-    event UpdateTreshold(uint treshold);
-    event UpdateBaseRate(uint baseRate);
-    event UpdateBonusFeedRate(uint bonusRate);
-    event UpdateMaxRate(uint maxRate);
     event UpdateHalvingDate(uint indexed halvingDate);
     event UpdateSleepingTime(uint indexed sleepingTime);
 
@@ -97,48 +83,6 @@ contract NFTPropertiesManager is NFTManagerBase {
         require(Address.isContract(_stakingPool), "NFTPropertiesManager: _stakingPool is not a contract");
         stakingPool = ILockStakingRewardsPool(_stakingPool);
         emit UpdateStakingPool(_stakingPool);
-    }
-    
-    function updateSnakeEggsNFT(address _snakeEggsNFT) external onlyOwner {
-        require(Address.isContract(_snakeEggsNFT), "NFTPropertiesManager: _snakeEggsNFT is not a contract");
-        snakeEggsNFT = IBEP721Enumerable(_snakeEggsNFT);
-        emit UpdateSnakeEggsNFT(_snakeEggsNFT);
-    }
-
-    function updateSnakesNFT(address _snakesNFT) external onlyOwner {
-        require(Address.isContract(_snakesNFT), "NFTPropertiesManager: _snakesNFT is not a contract");
-        snakesNFT = IBEP721Enumerable(_snakesNFT);
-        emit UpdateSnakesNFT(_snakesNFT);
-    }
-
-    function updateArtifactsNFT(address _artifactsNFT) external onlyOwner {
-        require(Address.isContract(_artifactsNFT), "NFTPropertiesManager: _artifactsNFT is not a contract");
-        artifactsNFT = IBEP1155(_artifactsNFT);
-        emit UpdateArtifactsNFT(_artifactsNFT);
-    }
-
-    function updateTreshold(uint _treshold) external onlyOwner {
-        require(_treshold > 0, "NFTPropertiesManager: treshold must be grater than 0");
-        treshold = _treshold;
-        emit UpdateTreshold(_treshold);
-    }
-
-    function updateBaseRate(uint _baseRate) external onlyOwner {
-        require(_baseRate > 0, "NFTPropertiesManager: base rate must be grater than 0");
-        baseRate = _baseRate;
-        emit UpdateBaseRate(_baseRate);
-    }
-
-    function updateBonusFeedRate(uint _bonusFeedRate) external onlyOwner {
-        require(_bonusFeedRate > 0, "NFTPropertiesManager: bonus rate must be grater than 0");
-        bonusFeedRate = _bonusFeedRate;
-        emit UpdateBonusFeedRate(_bonusFeedRate);
-    }
-
-    function updateMaxRate(uint _maxRate) external onlyOwner {
-        require(_maxRate > 0, "NFTPropertiesManager: max rate must be grater than 0");
-        maxRate = _maxRate;
-        emit UpdateMaxRate(_maxRate);
     }
 
     function updateCustodian(address newCustodian) external onlyOwner {
