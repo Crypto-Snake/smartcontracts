@@ -110,7 +110,7 @@ contract NFTManagerBase is NFTManagerStorage {
 
         if(userSnakes.length > 0) {
             for (uint256 i = 0; i < userSnakes.length; i++) {
-                if(snakes[userSnakes[i]].DestroyLock > 2000000000) {
+                if(snakes[userSnakes[i]].DestroyLock >= 2000000000) {
                     hasBlockedSnakes = true;
                     break;
                 }
