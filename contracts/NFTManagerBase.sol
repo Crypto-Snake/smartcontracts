@@ -286,15 +286,6 @@ contract NFTManagerBase is NFTManagerStorage {
         if(stats.Type == 2 && stats.TimesFeededMoreThanTreshold > 10) {
             amount *= 2;
         }
-
-        if(amount > changeAmountTreshold()) {
-            if(snakes[snakeId].DestroyLock != 0) {
-                snakes[snakeId].DestroyLock += warningLockPeriod();
-            } else {
-                snakes[snakeId].DestroyLock = block.timestamp + warningLockPeriod();
-            }
-            emit WarningLock(snakeId, msg.sender, amount);
-        }
         
         snakes[snakeId].GameBalance += amount;
         emit UpdateGameBalance(snakeId, stats.GameBalance, snakes[snakeId].GameBalance, msg.sender, artifactId);
