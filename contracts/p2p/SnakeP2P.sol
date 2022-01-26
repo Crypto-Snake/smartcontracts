@@ -9,8 +9,9 @@ import "../interfaces/IBEP721Receiver.sol";
 import "../interfaces/IBEP1155.sol";
 import "../interfaces/IBEP721.sol";
 import "../interfaces/IBEP20Permit.sol";
+import "../utils/BEP1155Holder.sol";
 
-contract SnakeP2P is SnakeP2PStorage, IBEP721Receiver {    
+contract SnakeP2P is SnakeP2PStorage, BEP1155Holder, IBEP721Receiver {    
     address public target;
 
     receive() external payable {
