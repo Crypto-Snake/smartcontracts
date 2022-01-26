@@ -236,8 +236,6 @@ contract SnakesNFTBase is IBEP721, IBEP721Metadata, BaseTokenStorage {
     function _burn(uint256 tokenId) internal virtual {
         address owner = SnakesNFTBase.ownerOf(tokenId);
         require(!nftManager.isUserBlocked(owner), "NFTManager: User is blocked");
-        require(nftManager.isSnakeReadyForDestroying(tokenId), "SnakesNFTBase: Snake with provided id is sleeping");
-
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
