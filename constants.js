@@ -2,7 +2,7 @@ const openZeppelinHelper = require('@openzeppelin/test-helpers');
 
 const PROVIDERS = {
     BSC_MAINNET: `https://bsc-dataseed.binance.org/`,
-    BSC_TESTNET: `https://data-seed-prebsc-1-s3.binance.org:8545/`
+    BSC_TESTNET: `https://data-seed-prebsc-1-s2.binance.org:8545/`
 }
 
 const ARTIFACTS_METADATA = {
