@@ -32,6 +32,10 @@ contract NFTManagerBase is NFTManagerStorage {
     uint internal _sleepingTime;
     mapping(uint => uint) internal _sleepingStartTime;
 
+    bytes32 internal _APPLY_MULTIPLE_GAME_RESULTS_TYPEHASH;
+
+    mapping(address => uint) internal _applyMultipleGameResultsNonces;
+
     modifier onlySnakeEggsShop() {
         require(msg.sender == snakeEggsShop, "NFTManager: Caller is not a snake eggs shop contract");
         _;
@@ -60,8 +64,16 @@ contract NFTManagerBase is NFTManagerStorage {
         return _sleepingStartTime[snakeId];
     }
 
+    function applyMultipleGameResultsNonces(address user) public view returns (uint) {
+        return _applyMultipleGameResultsNonces[user];
+    }
+
     function halvingDate() public view returns (uint) {
         return _halvingDate;
+    }
+
+    function APPLY_MULTIPLE_GAME_RESULTS_TYPEHASH() public view returns (bytes32) {
+        return _APPLY_MULTIPLE_GAME_RESULTS_TYPEHASH;
     }
 
     function blockedUsers(address user) public view returns (bool) {
@@ -266,6 +278,7 @@ contract NFTManagerBase is NFTManagerStorage {
     }
 
     function sleepSnake(uint snakeId) external onlySnakeOwner(snakeId) {
+        require(isStakeAmountGraterThanRequired(snakeId), "NFTManager: Stake amount should be grater than treshold");
         require(sleepingStartTime(snakeId) == 0, "NFTManager: Snake with provided id is sleeping");
         require(!snakes[snakeId].IsDead, "NFTManager: Snake with provided id is dead");
         _sleepingStartTime[snakeId] = block.timestamp;
@@ -312,7 +325,6 @@ contract NFTManagerBase is NFTManagerStorage {
                     stakingPool.updateAmountForStake(snakeId, amount, increase);
                     _destroySnake(snakeId, true);
                     snakes[snakeId].IsDead = true;
-                    emit UpdateStakeIsDead(snakeId, 0);
                     return;
                 }
             }
@@ -341,8 +353,13 @@ contract NFTManagerBase is NFTManagerStorage {
         SnakeStats memory stats = snakes[tokenId];
         require(block.timestamp > stats.DestroyLock, "NFTManager: Cannot destroy snake on lock");
 
-        if(!hasCrashed) stakingPool.withdrawAndGetReward(tokenId, receiver);
+        if(!hasCrashed) {
+            stakingPool.withdrawAndGetReward(tokenId, receiver);
+            emit DestroySnake(tokenId);
+        } else {
+            emit UpdateStakeIsDead(tokenId, 0);
+        }
+
         snakesNFT.safeBurn(tokenId);
-        emit DestroySnake(tokenId);
     }
 }
