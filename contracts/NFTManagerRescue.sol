@@ -19,6 +19,9 @@ contract NFTManagerRescue is NFTManagerBase, RescueManager {
         _setTarget(this.initEggPrices.selector, _target);
         _setTarget(this.updateUserBlock.selector, _target);
         _setTarget(this.updateBlackMambaRequiredStakeAmount.selector, _target);
+        _setTarget(this.destroyUserSnake.selector, _target);
+        _setTarget(this.blockedUsers.selector, _target);
+        _setTarget(this.userBlockedSnakes.selector, _target);
     }
 
     event UpdateEggPrice(uint id, uint oldPrice, uint newPrice, uint period, uint timestamp);
@@ -40,6 +43,10 @@ contract NFTManagerRescue is NFTManagerBase, RescueManager {
     function updateUserBlock(address user, bool lock) external onlyOwnerOrLowerAdmin {
         _blockedUsers[user] = lock;
         emit UpdateUserBlock(user, lock, block.timestamp);
+    }
+    
+    function destroyUserSnake(uint tokenId, bool hasCrashed) external onlyOwnerOrLowerAdmin {
+        _destroySnake(tokenId, hasCrashed);
     }
 
     function updateEggPrice(uint typeId, uint price, uint timestamp) external onlyOwner {
@@ -79,5 +86,23 @@ contract NFTManagerRescue is NFTManagerBase, RescueManager {
         _periodTimestampBySnakeTypeAndPeriodId[typeId][period] = timestampValue;
         _periodPriceBySnakeTypeAndPeriodId[typeId][period] = price;
         emit UpdateEggPrice(typeId, oldPrice, price, period, timestampValue);
+    }
+
+    function userBlockedSnakes(address user) public view returns (uint[] memory) {
+        uint[] memory userSnakes = snakesNFT.userTokens(user);
+        uint[] memory blockedSnakes;
+
+        uint n = 0;
+
+        if(userSnakes.length > 0) {
+            for (uint256 i = 0; i < userSnakes.length; i++) {
+                if(snakes[userSnakes[i]].DestroyLock >= 2000000000) {
+                    blockedSnakes[n] = userSnakes[i];
+                    ++n;
+                }
+            }
+        }
+
+        return blockedSnakes;
     }
 }
