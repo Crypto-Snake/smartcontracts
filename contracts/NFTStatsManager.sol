@@ -45,7 +45,10 @@ contract NFTStatsManager is NFTManagerBase {
             abi.encodePacked(
                 '\x19\x01',
                 DOMAIN_SEPARATOR,
-                keccak256(abi.encode(APPLY_MULTIPLE_GAME_RESULTS_TYPEHASH(), snakeIds, stakeAmounts, gameBalances, msg.sender, nonce, deadline))
+                keccak256(abi.encode(APPLY_MULTIPLE_GAME_RESULTS_TYPEHASH(), 
+                keccak256(abi.encodePacked(snakeIds)), 
+                keccak256(abi.encodePacked(stakeAmounts)), 
+                keccak256(abi.encodePacked(gameBalances)), msg.sender, nonce, deadline))
             )
         );
 
