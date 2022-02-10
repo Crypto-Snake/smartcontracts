@@ -11,6 +11,7 @@ contract Farming is FarmingStorage {
     event Stake(address indexed user, uint nonce, uint indexed stakeAmount, uint indexed rate, uint stakeTimestamp);
     event Withdraw(address indexed user, uint nonce, uint indexed withdrawAmount, uint withdrawTimestamp);
     event ClaimReward(address indexed user, uint nonce, uint indexed reward, uint claimRewardTimestamp);
+    event UpdateLockPeriod(uint indexed lockPeriod);
 
     function initialize(address stakingToken_, uint minRate_, uint maxRate_, uint maxTotalSupply_, uint lockPeriod_) external initializer {
         require(Address.isContract(stakingToken_), "stakingToken is not a contract");
@@ -84,6 +85,13 @@ contract Farming is FarmingStorage {
     function claimReward(uint nonce) external {
         _claimReward(nonce);
     }
+
+    function updateLockPeriod(uint lockPeriod_) external onlyOwner {
+        _lockPeriod = lockPeriod_;
+        emit UpdateLockPeriod(lockPeriod_);
+    }
+
+    function _withdraw(uint nonce) internal {
         FarmingInfo memory info = farmingInfo[msg.sender][nonce];
         require(info.Amount != 0, "Farming: Stake amount is equal to 0");
         require(info.EndTimestamp == 0, "Farming: Stake already withdrawn");
