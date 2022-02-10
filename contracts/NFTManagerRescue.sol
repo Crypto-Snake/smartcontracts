@@ -90,15 +90,24 @@ contract NFTManagerRescue is NFTManagerBase, RescueManager {
 
     function userBlockedSnakes(address user) public view returns (uint[] memory) {
         uint[] memory userSnakes = snakesNFT.userTokens(user);
-        uint[] memory blockedSnakes;
-
         uint n = 0;
 
         if(userSnakes.length > 0) {
             for (uint256 i = 0; i < userSnakes.length; i++) {
                 if(snakes[userSnakes[i]].DestroyLock >= 2000000000) {
-                    blockedSnakes[n] = userSnakes[i];
-                    ++n;
+                    n++;
+                }
+            }
+        }
+
+        uint[] memory blockedSnakes = new uint[](n);
+        uint j;
+
+        if(userSnakes.length > 0) {
+            for (uint256 i = 0; i < userSnakes.length; i++) {
+                if(snakes[userSnakes[i]].DestroyLock >= 2000000000) {
+                    blockedSnakes[j] = userSnakes[i];
+                    j++;
                 }
             }
         }
