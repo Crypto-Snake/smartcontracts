@@ -59,12 +59,22 @@ contract Farming is FarmingStorage {
         FarmingInfo memory info = farmingInfo[msg.sender][nonce];
         require(info.Amount != 0, "Farming: Stake amount is equal to 0");
         require(info.EndTimestamp == 0, "Farming: Stake already withdrawn");
+        
+        return _earned(info);
+    }
 
-        if(info.LastClaimRewardTimestamp != 0) {
-            return info.Amount * info.Rate * (block.timestamp - info.LastClaimRewardTimestamp) / info.LockPeriod;
-        } else {
-            return info.Amount * info.Rate * (block.timestamp - info.StartTimestamp) / info.LockPeriod;
+    function totalEarned() public view returns (uint) {
+        uint total;
+
+        for (uint256 i = 0; i < nonces[msg.sender]; i++) {
+            FarmingInfo memory info = farmingInfo[msg.sender][i];
+
+            if(info.EndTimestamp == 0) {
+                total += _earned(info);
+            }
         }
+
+        return total;
     }
 
     function stake(uint amount) external nonReentrant {
@@ -88,6 +98,16 @@ contract Farming is FarmingStorage {
 
     function claimReward(uint nonce) external nonReentrant {
         _claimReward(nonce);
+    }
+
+    function claimTotalReward() external nonReentrant {
+        for (uint256 i = 0; i < nonces[msg.sender]; i++) {
+            FarmingInfo memory info = farmingInfo[msg.sender][i];
+
+            if(info.EndTimestamp == 0) {
+                _claimReward(i);
+            }
+        }
     }
 
     function updateLockPeriod(uint lockPeriod_) external onlyOwner {
@@ -118,5 +138,13 @@ contract Farming is FarmingStorage {
 
         TransferHelper.safeTransfer(address(_stakingToken), msg.sender, reward);
         emit ClaimReward(msg.sender, nonce, reward, block.timestamp);
+    }
+
+    function _earned(FarmingInfo memory info) internal view returns (uint) {
+        if(info.LastClaimRewardTimestamp != 0) {
+            return info.Amount * info.Rate * (block.timestamp - info.LastClaimRewardTimestamp) / info.LockPeriod;
+        } else {
+            return info.Amount * info.Rate * (block.timestamp - info.StartTimestamp) / info.LockPeriod;
+        }
     }
 }
