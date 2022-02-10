@@ -5,9 +5,10 @@ pragma solidity ^0.8.9;
 import "../interfaces/IBEP20.sol";
 import "../utils/RescueManager.sol";
 import "../utils/Initializable.sol";
+import "../utils/ReentrancyGuard.sol";
 import "../objects/FarmingObjects.sol";
 
-contract FarmingStorage is Initializable, RescueManager, FarmingObjects {
+contract FarmingStorage is Initializable, ReentrancyGuard, RescueManager, FarmingObjects {
     address internal _implementationAddress;
     uint public version;
 

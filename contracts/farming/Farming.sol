@@ -67,7 +67,7 @@ contract Farming is FarmingStorage {
         }
     }
 
-    function stake(uint amount) external {
+    function stake(uint amount) external nonReentrant {
         require(amount > 0, "Farming: Stake amount is equal to 0");
         uint stakeNonce = nonces[msg.sender]++;
         uint rate = getCurrentRate();
@@ -81,12 +81,12 @@ contract Farming is FarmingStorage {
         emit Stake(msg.sender, stakeNonce, amount, rate, block.timestamp);
     }
 
-    function withdrawAndClaimReward(uint nonce) external {
+    function withdrawAndClaimReward(uint nonce) external nonReentrant {
         _claimReward(nonce); 
         _withdraw(nonce);
     }   
 
-    function claimReward(uint nonce) external {
+    function claimReward(uint nonce) external nonReentrant {
         _claimReward(nonce);
     }
 
