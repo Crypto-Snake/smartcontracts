@@ -9,6 +9,7 @@ abstract contract FarmingInfoStruct {
         uint CurrentPoolSize;
         uint LockPeriod;
         uint StartTimestamp;
+        uint LastClaimRewardTimestamp;
         uint EndTimestamp;
     }
 }

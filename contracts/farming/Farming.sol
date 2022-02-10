@@ -9,7 +9,8 @@ import "../utils/TransferHelper.sol";
 contract Farming is FarmingStorage {
     
     event Stake(address indexed user, uint nonce, uint indexed stakeAmount, uint indexed rate, uint stakeTimestamp);
-    event Withdraw(address indexed user, uint nonce, uint indexed witdrawAmount, uint reward, uint withdrawTimestamp);
+    event Withdraw(address indexed user, uint nonce, uint indexed withdrawAmount, uint withdrawTimestamp);
+    event ClaimReward(address indexed user, uint nonce, uint indexed reward, uint claimRewardTimestamp);
 
     function initialize(address stakingToken_, uint minRate_, uint maxRate_, uint maxTotalSupply_, uint lockPeriod_) external initializer {
         require(Address.isContract(stakingToken_), "stakingToken is not a contract");
@@ -53,8 +54,12 @@ contract Farming is FarmingStorage {
         FarmingInfo memory info = farmingInfo[msg.sender][nonce];
         require(info.Amount != 0, "Farming: Stake amount is equal to 0");
         require(info.EndTimestamp == 0, "Farming: Stake already withdrawn");
-        
-        return info.Amount * info.Rate * (block.timestamp - info.StartTimestamp) / info.LockPeriod;
+
+        if(info.LastClaimRewardTimestamp != 0) {
+            return info.Amount * info.Rate * (block.timestamp - info.LastClaimRewardTimestamp) / info.LockPeriod;
+        } else {
+            return info.Amount * info.Rate * (block.timestamp - info.StartTimestamp) / info.LockPeriod;
+        }
     }
 
     function stake(uint amount) external {
@@ -62,7 +67,7 @@ contract Farming is FarmingStorage {
         uint stakeNonce = nonces[msg.sender]++;
         uint rate = getCurrentRate();
 
-        FarmingInfo memory info = FarmingInfo(amount, rate, _totalSupply, _lockPeriod, block.timestamp, 0);
+        FarmingInfo memory info = FarmingInfo(amount, rate, _totalSupply, _lockPeriod, block.timestamp, 0, 0);
         farmingInfo[msg.sender][stakeNonce] = info;
 
         TransferHelper.safeTransferFrom(address(_stakingToken), msg.sender, address(this), amount);
@@ -71,7 +76,14 @@ contract Farming is FarmingStorage {
         emit Stake(msg.sender, stakeNonce, amount, rate, block.timestamp);
     }
 
-    function withdraw(uint nonce) external {
+    function withdrawAndClaimReward(uint nonce) external {
+        _claimReward(nonce); 
+        _withdraw(nonce);
+    }   
+
+    function claimReward(uint nonce) external {
+        _claimReward(nonce);
+    }
         FarmingInfo memory info = farmingInfo[msg.sender][nonce];
         require(info.Amount != 0, "Farming: Stake amount is equal to 0");
         require(info.EndTimestamp == 0, "Farming: Stake already withdrawn");
@@ -80,10 +92,19 @@ contract Farming is FarmingStorage {
         farmingInfo[msg.sender][nonce].EndTimestamp = block.timestamp;
         _totalSupply -= info.Amount;
 
-        uint reward = earned(nonce);
-        uint withdrawAmount = info.Amount + reward;
+        TransferHelper.safeTransfer(address(_stakingToken), msg.sender, info.Amount);
+        emit Withdraw(msg.sender, nonce, info.Amount, block.timestamp);
+    }
 
-        TransferHelper.safeTransfer(address(_stakingToken), msg.sender, withdrawAmount);
-        emit Withdraw(msg.sender, nonce, withdrawAmount, reward, block.timestamp);
+    function _claimReward(uint nonce) internal {
+        FarmingInfo memory info = farmingInfo[msg.sender][nonce];
+        require(info.Amount != 0, "Farming: Stake amount is equal to 0");
+        require(info.EndTimestamp == 0, "Farming: Stake already withdrawn");
+
+        uint reward = earned(nonce);
+        farmingInfo[msg.sender][nonce].LastClaimRewardTimestamp = block.timestamp;
+
+        TransferHelper.safeTransfer(address(_stakingToken), msg.sender, reward);
+        emit ClaimReward(msg.sender, nonce, reward, block.timestamp);
     }
 }
