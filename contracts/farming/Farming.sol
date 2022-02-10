@@ -48,7 +48,11 @@ contract Farming is FarmingStorage {
     }
 
     function getCurrentRate() public view returns (uint) {
-        return _maxRate - (_maxRate * _totalSupply * _maxTotalSupply);
+        if(_totalSupply > _maxTotalSupply) {
+            return _maxRate;
+        } else {
+            return _maxRate - (_maxRate * _totalSupply * _maxTotalSupply);
+        }
     }
 
     function earned(uint nonce) public view returns (uint) {
