@@ -27,19 +27,19 @@ contract Farming is FarmingStorage {
         }
     }
 
-    function earned(uint nonce) public view returns (uint) {
-        FarmingInfo memory info = farmingInfo[msg.sender][nonce];
+    function earned(address user, uint nonce) public view returns (uint) {
+        FarmingInfo memory info = farmingInfo[user][nonce];
         require(info.Amount != 0, "Farming: Stake amount is equal to 0");
         require(info.WithdrawTimestamp == 0, "Farming: Stake already withdrawn");
         
         return _earned(info);
     }
 
-    function totalEarned() public view returns (uint) {
+    function totalEarned(address user) public view returns (uint) {
         uint total;
 
-        for (uint256 i = 0; i < nonces[msg.sender]; i++) {
-            FarmingInfo memory info = farmingInfo[msg.sender][i];
+        for (uint256 i = 0; i < nonces[user]; i++) {
+            FarmingInfo memory info = farmingInfo[user][i];
 
             if(info.WithdrawTimestamp == 0) {
                 total += _earned(info);
@@ -119,7 +119,7 @@ contract Farming is FarmingStorage {
         require(info.Amount != 0, "Farming: Stake amount is equal to 0");
         require(info.WithdrawTimestamp == 0, "Farming: Stake already withdrawn");
 
-        uint reward = earned(nonce);
+        uint reward = earned(msg.sender, nonce);
         farmingInfo[msg.sender][nonce].LastClaimRewardTimestamp = block.timestamp;
 
         TransferHelper.safeTransfer(pools[info.Pool].StakingToken, msg.sender, reward);

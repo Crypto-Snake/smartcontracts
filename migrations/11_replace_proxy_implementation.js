@@ -4,7 +4,7 @@ const fs = require('fs');
 let addresses = getAddresses();
 
 function getAddresses() {
-    return JSON.parse(fs.readFileSync('../addresses_mainnet.json', 'utf-8'))
+    return JSON.parse(fs.readFileSync('../addresses_testnet.json', 'utf-8'))
 }
 
 let snakesNFT;
@@ -25,6 +25,8 @@ let snakeArtifactsNFT;
 let snakeArtifactsNFTProxy;
 let snakeEggsShop;
 let snakeEggsShopProxy;
+let farming;
+let farmingProxy;
 
 let SnakeArtifactsNFT = artifacts.require("SnakeArtifactsNFT");
 let SnakeArtifactsNFTProxy = artifacts.require("SnakeArtifactsNFTProxy");
@@ -44,6 +46,8 @@ let LockStakingRewardsPool = artifacts.require("LockStakingRewardsPool");
 let LockStakingRewardsPoolProxy = artifacts.require("LockStakingRewardsPoolProxy");
 let SnakeP2P = artifacts.require("SnakeP2P");
 let SnakeP2PProxy = artifacts.require("SnakeP2PProxy")
+let Farming = artifacts.require("Farming");
+let FarmingProxy = artifacts.require("FarmingProxy");
 
 module.exports = async function(deployer) {
     const deployParams = {
@@ -53,7 +57,8 @@ module.exports = async function(deployer) {
         replaceLockStakingRewardsPool: false,
         replaceNFTManager: false,
         replaceP2P: false,
-        replaceShop: false
+        replaceShop: false,
+        replaceFarming: false
     }
 
     deployer.then(async( err, res ) => {
@@ -215,6 +220,24 @@ module.exports = async function(deployer) {
         } else {
             snakeEggsShop = { address: addresses.snakeEggsShop };
             snakeEggsShopProxy = { address: addresses.snakeEggsShopProxy };
+        }
+        //#endregion
+
+        //#region REPLACE SNAKEEggsSHOP 8/8
+        if (deployParams.replaceFarming) {
+            console.log("===== Start replacing Farming contract on proxy (7/7) =====");
+            await deployer.deploy(Farming);
+            farming = await Farming.deployed();
+            console.log(`farming contract address: ${farming.address}`)
+            addresses.farming = farming.address;
+
+            farmingProxy = await FarmingProxy.at(addresses.farmingProxy);
+            await farmingProxy.replaceImplementation(addresses.farming);
+
+            fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
+        } else {
+            farming = { address: addresses.farming };
+            farmingProxy = { address: addresses.farmingProxy };
         }
         //#endregion
     })
