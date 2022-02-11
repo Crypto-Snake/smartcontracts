@@ -12,8 +12,6 @@ contract FarmingStorage is Initializable, ReentrancyGuard, RescueManager, Farmin
     address internal _implementationAddress;
     uint public version;
 
-    IBEP20 internal _stakingToken;
-
     mapping(uint => FarmingPool) public pools;
 
     mapping(address => uint) public nonces;

@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 
 abstract contract FarmingInfoStruct {
     struct FarmingInfo {
+        address StakingToken;
         uint Amount;
         uint Pool;
         uint Rate;

@@ -11,17 +11,7 @@ contract Farming is FarmingStorage {
     event Stake(address indexed user, uint nonce, uint indexed stakeAmount, uint indexed rate, uint stakeTimestamp);
     event Withdraw(address indexed user, uint nonce, uint indexed withdrawAmount, uint withdrawTimestamp);
     event ClaimReward(address indexed user, uint nonce, uint indexed reward, uint claimRewardTimestamp);
-    event UpdatePoolProperties(uint indexed poolId, uint minRate, uint maxRate, uint maxPoolSize, uint lockPeriod);
-
-    function initialize(address stakingToken_) external initializer {
-        require(Address.isContract(stakingToken_), "stakingToken is not a contract");
-        
-        _stakingToken = IBEP20(stakingToken_);
-    }
-
-    function stakingToken() external view returns (address) {
-        return address(_stakingToken);
-    }
+    event UpdatePoolProperties(address indexed stakingToken, uint indexed poolId, uint minRate, uint maxRate, uint maxPoolSize, uint lockPeriod);
 
     function famingPool(uint id) external view returns (FarmingPool memory) {
         return pools[id];
@@ -82,12 +72,15 @@ contract Farming is FarmingStorage {
         }
     }
 
-    function updatePoolProperties(uint poolId, uint minRate, uint maxRate, uint maxPoolSize, uint lockPeriod) external onlyOwner {
+    function updatePoolProperties(address stakingToken, uint poolId, uint minRate, uint maxRate, uint maxPoolSize, uint lockPeriod) external onlyOwner {
+        require(Address.isContract(stakingToken), "stakingToken is not a contract");
+
+        pools[poolId].StakingToken = stakingToken;
         pools[poolId].MinRate = minRate;
         pools[poolId].MaxRate = maxRate;
         pools[poolId].MaxPoolSize = maxPoolSize;
         pools[poolId].LockPeriod = lockPeriod;
-        emit UpdatePoolProperties(poolId, minRate, maxRate, maxPoolSize, lockPeriod);
+        emit UpdatePoolProperties(stakingToken, poolId, minRate, maxRate, maxPoolSize, lockPeriod);
     }
 
     function _stake(uint amount, uint poolId) internal {
@@ -99,10 +92,10 @@ contract Farming is FarmingStorage {
         uint stakeNonce = nonces[msg.sender]++;
         uint rate = getCurrentPoolRate(poolId);
 
-        FarmingInfo memory info = FarmingInfo(amount, poolId, rate, farmingPool.CurrentPoolSize, farmingPool.LockPeriod, block.timestamp, 0, 0);
+        FarmingInfo memory info = FarmingInfo(farmingPool.StakingToken, amount, poolId, rate, farmingPool.CurrentPoolSize, farmingPool.LockPeriod, block.timestamp, 0, 0);
         farmingInfo[msg.sender][stakeNonce] = info;
 
-        TransferHelper.safeTransferFrom(address(_stakingToken), msg.sender, address(this), amount);
+        TransferHelper.safeTransferFrom(farmingPool.StakingToken, msg.sender, address(this), amount);
         pools[poolId].CurrentPoolSize += amount;
 
         emit Stake(msg.sender, stakeNonce, amount, rate, block.timestamp);
@@ -117,7 +110,7 @@ contract Farming is FarmingStorage {
         farmingInfo[msg.sender][nonce].WithdrawTimestamp = block.timestamp;
         pools[info.Pool].CurrentPoolSize -= info.Amount;
 
-        TransferHelper.safeTransfer(address(_stakingToken), msg.sender, info.Amount);
+        TransferHelper.safeTransfer(pools[info.Pool].StakingToken, msg.sender, info.Amount);
         emit Withdraw(msg.sender, nonce, info.Amount, block.timestamp);
     }
 
@@ -129,7 +122,7 @@ contract Farming is FarmingStorage {
         uint reward = earned(nonce);
         farmingInfo[msg.sender][nonce].LastClaimRewardTimestamp = block.timestamp;
 
-        TransferHelper.safeTransfer(address(_stakingToken), msg.sender, reward);
+        TransferHelper.safeTransfer(pools[info.Pool].StakingToken, msg.sender, reward);
         emit ClaimReward(msg.sender, nonce, reward, block.timestamp);
     }
 
