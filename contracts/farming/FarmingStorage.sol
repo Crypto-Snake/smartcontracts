@@ -14,15 +14,7 @@ contract FarmingStorage is Initializable, ReentrancyGuard, RescueManager, Farmin
 
     IBEP20 internal _stakingToken;
 
-    uint internal _maxRate;
-    uint internal _minRate;
-
-    uint internal _totalSupply;
-    uint internal _maxTotalSupply;
-
-    uint internal _lockPeriod;
-    
-    uint internal _totalStaked;
+    mapping(uint => FarmingPool) public pools;
 
     mapping(address => uint) public nonces;
     mapping(address => mapping(uint => FarmingInfo)) public farmingInfo;

@@ -11,47 +11,29 @@ contract Farming is FarmingStorage {
     event Stake(address indexed user, uint nonce, uint indexed stakeAmount, uint indexed rate, uint stakeTimestamp);
     event Withdraw(address indexed user, uint nonce, uint indexed withdrawAmount, uint withdrawTimestamp);
     event ClaimReward(address indexed user, uint nonce, uint indexed reward, uint claimRewardTimestamp);
-    event UpdateLockPeriod(uint indexed lockPeriod);
+    event UpdatePoolProperties(uint indexed poolId, uint minRate, uint maxRate, uint maxPoolSize, uint lockPeriod);
 
-    function initialize(address stakingToken_, uint minRate_, uint maxRate_, uint maxTotalSupply_, uint lockPeriod_) external initializer {
+    function initialize(address stakingToken_) external initializer {
         require(Address.isContract(stakingToken_), "stakingToken is not a contract");
         
         _stakingToken = IBEP20(stakingToken_);
-        _minRate = minRate_;
-        _maxRate = maxRate_;
-        _maxTotalSupply = maxTotalSupply_;
-        _lockPeriod = lockPeriod_;
     }
 
     function stakingToken() external view returns (address) {
         return address(_stakingToken);
     }
 
-    function minRate() external view returns (uint) {
-        return _minRate;
+    function famingPool(uint id) external view returns (FarmingPool memory) {
+        return pools[id];
     }
 
-    function maxRate() external view returns (uint) {
-        return _maxRate;
-    }
+    function getCurrentPoolRate(uint id) public view returns (uint) {
+        FarmingPool memory farmingPool = pools[id];
 
-    function maxTotalSupply() external view returns (uint) {
-        return _maxTotalSupply;
-    }
-
-    function totalSupply() external view returns (uint) {
-        return _totalSupply;
-    }
-
-    function lockPeriod() external view returns (uint) {
-        return _lockPeriod;
-    }
-
-    function getCurrentRate() public view returns (uint) {
-        if(_totalSupply > _maxTotalSupply) {
-            return _maxRate;
+        if(farmingPool.CurrentPoolSize > farmingPool.MaxPoolSize) {
+            return farmingPool.MaxRate;
         } else {
-            return _maxRate - (_maxRate * _totalSupply * _maxTotalSupply);
+            return farmingPool.MaxRate - (farmingPool.MaxRate * farmingPool.CurrentPoolSize / farmingPool.MaxPoolSize);
         }
     }
 
@@ -77,18 +59,8 @@ contract Farming is FarmingStorage {
         return total;
     }
 
-    function stake(uint amount) external nonReentrant {
-        require(amount > 0, "Farming: Stake amount is equal to 0");
-        uint stakeNonce = nonces[msg.sender]++;
-        uint rate = getCurrentRate();
-
-        FarmingInfo memory info = FarmingInfo(amount, rate, _totalSupply, _lockPeriod, block.timestamp, 0, 0);
-        farmingInfo[msg.sender][stakeNonce] = info;
-
-        TransferHelper.safeTransferFrom(address(_stakingToken), msg.sender, address(this), amount);
-        _totalSupply += amount;
-
-        emit Stake(msg.sender, stakeNonce, amount, rate, block.timestamp);
+    function stake(uint amount, uint pool) external nonReentrant {
+        _stake(amount, pool);
     }
 
     function withdrawAndClaimReward(uint nonce) external nonReentrant {
@@ -110,10 +82,31 @@ contract Farming is FarmingStorage {
         }
     }
 
-    function updateLockPeriod(uint lockPeriod_) external onlyOwner {
-        _lockPeriod = lockPeriod_;
-        emit UpdateLockPeriod(lockPeriod_);
+    function updatePoolProperties(uint poolId, uint minRate, uint maxRate, uint maxPoolSize, uint lockPeriod) external onlyOwner {
+        pools[poolId].MinRate = minRate;
+        pools[poolId].MaxRate = maxRate;
+        pools[poolId].MaxPoolSize = maxPoolSize;
+        pools[poolId].LockPeriod = lockPeriod;
+        emit UpdatePoolProperties(poolId, minRate, maxRate, maxPoolSize, lockPeriod);
     }
+
+    function _stake(uint amount, uint poolId) internal {
+        require(amount > 0, "Farming: Stake amount is equal to 0");
+        FarmingPool memory farmingPool = pools[poolId];
+        require(farmingPool.MinRate != 0, "Farming: pool does not exists");
+
+
+        uint stakeNonce = nonces[msg.sender]++;
+        uint rate = getCurrentPoolRate(poolId);
+
+        FarmingInfo memory info = FarmingInfo(amount, poolId, rate, farmingPool.CurrentPoolSize, farmingPool.LockPeriod, block.timestamp, 0, 0);
+        farmingInfo[msg.sender][stakeNonce] = info;
+
+        TransferHelper.safeTransferFrom(address(_stakingToken), msg.sender, address(this), amount);
+        pools[poolId].CurrentPoolSize += amount;
+
+        emit Stake(msg.sender, stakeNonce, amount, rate, block.timestamp);
+    } 
 
     function _withdraw(uint nonce) internal {
         FarmingInfo memory info = farmingInfo[msg.sender][nonce];
@@ -122,7 +115,7 @@ contract Farming is FarmingStorage {
         require(info.StartTimestamp + info.LockPeriod < block.timestamp, "Farming: Stake is locked");
 
         farmingInfo[msg.sender][nonce].WithdrawTimestamp = block.timestamp;
-        _totalSupply -= info.Amount;
+        pools[info.Pool].CurrentPoolSize -= info.Amount;
 
         TransferHelper.safeTransfer(address(_stakingToken), msg.sender, info.Amount);
         emit Withdraw(msg.sender, nonce, info.Amount, block.timestamp);

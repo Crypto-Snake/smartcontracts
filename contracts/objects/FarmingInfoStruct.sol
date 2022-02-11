@@ -5,6 +5,7 @@ pragma solidity ^0.8.9;
 abstract contract FarmingInfoStruct {
     struct FarmingInfo {
         uint Amount;
+        uint Pool;
         uint Rate;
         uint CurrentPoolSize;
         uint LockPeriod;
