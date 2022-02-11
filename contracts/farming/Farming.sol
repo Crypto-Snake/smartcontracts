@@ -58,7 +58,7 @@ contract Farming is FarmingStorage {
     function earned(uint nonce) public view returns (uint) {
         FarmingInfo memory info = farmingInfo[msg.sender][nonce];
         require(info.Amount != 0, "Farming: Stake amount is equal to 0");
-        require(info.EndTimestamp == 0, "Farming: Stake already withdrawn");
+        require(info.WithdrawTimestamp == 0, "Farming: Stake already withdrawn");
         
         return _earned(info);
     }
@@ -69,7 +69,7 @@ contract Farming is FarmingStorage {
         for (uint256 i = 0; i < nonces[msg.sender]; i++) {
             FarmingInfo memory info = farmingInfo[msg.sender][i];
 
-            if(info.EndTimestamp == 0) {
+            if(info.WithdrawTimestamp == 0) {
                 total += _earned(info);
             }
         }
@@ -104,7 +104,7 @@ contract Farming is FarmingStorage {
         for (uint256 i = 0; i < nonces[msg.sender]; i++) {
             FarmingInfo memory info = farmingInfo[msg.sender][i];
 
-            if(info.EndTimestamp == 0) {
+            if(info.WithdrawTimestamp == 0) {
                 _claimReward(i);
             }
         }
@@ -118,10 +118,10 @@ contract Farming is FarmingStorage {
     function _withdraw(uint nonce) internal {
         FarmingInfo memory info = farmingInfo[msg.sender][nonce];
         require(info.Amount != 0, "Farming: Stake amount is equal to 0");
-        require(info.EndTimestamp == 0, "Farming: Stake already withdrawn");
+        require(info.WithdrawTimestamp == 0, "Farming: Stake already withdrawn");
         require(info.StartTimestamp + info.LockPeriod < block.timestamp, "Farming: Stake is locked");
 
-        farmingInfo[msg.sender][nonce].EndTimestamp = block.timestamp;
+        farmingInfo[msg.sender][nonce].WithdrawTimestamp = block.timestamp;
         _totalSupply -= info.Amount;
 
         TransferHelper.safeTransfer(address(_stakingToken), msg.sender, info.Amount);
@@ -131,7 +131,7 @@ contract Farming is FarmingStorage {
     function _claimReward(uint nonce) internal {
         FarmingInfo memory info = farmingInfo[msg.sender][nonce];
         require(info.Amount != 0, "Farming: Stake amount is equal to 0");
-        require(info.EndTimestamp == 0, "Farming: Stake already withdrawn");
+        require(info.WithdrawTimestamp == 0, "Farming: Stake already withdrawn");
 
         uint reward = earned(nonce);
         farmingInfo[msg.sender][nonce].LastClaimRewardTimestamp = block.timestamp;
@@ -141,10 +141,7 @@ contract Farming is FarmingStorage {
     }
 
     function _earned(FarmingInfo memory info) internal view returns (uint) {
-        if(info.LastClaimRewardTimestamp != 0) {
-            return info.Amount * info.Rate * (block.timestamp - info.LastClaimRewardTimestamp) / info.LockPeriod;
-        } else {
-            return info.Amount * info.Rate * (block.timestamp - info.StartTimestamp) / info.LockPeriod;
-        }
+        uint endPeriod = info.LastClaimRewardTimestamp != 0 ? info.LastClaimRewardTimestamp : info.StartTimestamp;
+        return info.Amount * info.Rate * (block.timestamp - endPeriod) / info.LockPeriod;
     }
 }

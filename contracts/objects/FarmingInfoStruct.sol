@@ -10,6 +10,6 @@ abstract contract FarmingInfoStruct {
         uint LockPeriod;
         uint StartTimestamp;
         uint LastClaimRewardTimestamp;
-        uint EndTimestamp;
+        uint WithdrawTimestamp;
     }
 }
