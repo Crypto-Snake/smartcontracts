@@ -6,6 +6,7 @@ import "./storages/SnakeEggsShopStorage.sol";
 
 contract SnakeEggsShop is SnakeEggsShopStorage {
     event BuyEgg(address indexed buyer, address receiver, uint eggId, uint typeId, address indexed token, uint indexed purchaseAmount, uint purchaseTime);
+    event AirdropEgg(address receiver, uint eggId, uint typeId, uint airdropTime);
 
     function initialize(address _router, address _snakeEggsNFT, address _nftManager, address _snakeToken, address _custodian) external initializer { 
         require(Address.isContract(_snakeEggsNFT), "_snakeEggsNFT is not a contract");
@@ -28,6 +29,16 @@ contract SnakeEggsShop is SnakeEggsShopStorage {
         _buyEgg(typeId, purchaseToken, purchaseTokenAmount, receiver);
     }
 
+    function buyEggsFor(uint typeId, address[] memory receivers) external {
+        _buyEggsOrAirdrop(typeId, receivers, true);
+    }
+
+    function airdropEggsFor(uint typeId, address[] memory receivers) external onlyOwner {
+        _buyEggsOrAirdrop(typeId, receivers, false);
+    }         
+
+        
+
     function updateSnakeEggsNFT(address _snakeEggsNFT) external onlyOwner {
         require(Address.isContract(_snakeEggsNFT), "BaseTokenStorage: _snakeEggsNFT is not a contract");
         snakeEggsNFT = IBEP721Enumerable(_snakeEggsNFT);
@@ -48,5 +59,33 @@ contract SnakeEggsShop is SnakeEggsShopStorage {
         snakeEggsNFT.safeMint(receiver, tokenId);
 
         emit BuyEgg(msg.sender, receiver, tokenId ,typeId, purchaseToken, purchaseTokenAmount, block.timestamp); 
+    }
+
+    function _buyEggsOrAirdrop(uint typeId, address[] memory receivers, bool isPurchase) internal {
+        address snakeTokenCache;
+        if (isPurchase) {
+            snakeTokenCache = snakeToken;
+            require(allowedTokens[snakeTokenCache], "SnakeEggsShop: Token not allowed");
+        }
+        
+        uint price = nftManager.getCurrentPriceBySnakeType(typeId); 
+        require(price > 0, "SnakeEggsShop: Egg type not found");
+
+        if (isPurchase) 
+            TransferHelper.safeTransferFrom(snakeTokenCache, msg.sender, custodian, receivers.length * price);
+        
+        for (uint256 i; i < receivers.length; i++) {
+            Counters.increment(counter);
+            uint tokenId = Counters.current(counter);
+            
+            nftManager.updateEggStats(tokenId, EggStats(tokenId, price, block.timestamp, typeId));
+            snakeEggsNFT.safeMint(receivers[i], tokenId);
+
+            if (isPurchase) {
+                emit BuyEgg(msg.sender, receivers[i], tokenId, typeId, snakeTokenCache, price, block.timestamp); 
+            } else {
+                emit AirdropEgg(receivers[i], tokenId, typeId, block.timestamp);
+            }
+        }
     }
 }

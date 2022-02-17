@@ -10,6 +10,7 @@ import "./storages/StakingPoolStorage.sol";
 contract LockStakingRewardsPool is ILockStakingRewardsPool, StakingPoolStorage {
 
     event Staked(uint256 indexed tokenId, uint256 amount);
+    event UpdateTotalSupply(uint256 totalSupply);
     event Withdrawn(uint256 indexed tokenId, uint256 amount, address indexed to);
     event RewardPaid(uint256 indexed tokenId, uint256 reward, address indexed rewardToken, address indexed to, uint artifactId);
 
@@ -26,7 +27,7 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, StakingPoolStorage {
         stableCoin = IBEP20(_stableCoin);
     }
 
-    function totalSupply() external override view returns (uint256) {
+    function totalSupply() external override view returns (uint256) { //TODO: consider removing this property or use stakingToken.balanceOf(address(this))
         return _totalSupply;
     }
 
@@ -81,12 +82,20 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, StakingPoolStorage {
         uint stakeBalance = tokenStakeInfo[tokenId].balance;
         uint256 amount = stakeBalance + stats.GameBalance;
 
-        _totalSupply -= stakeBalance;
+        uint actualTotalSupply = stakingToken.balanceOf(address(this));
+        if (_totalSupply != actualTotalSupply) { //_totalSupply may hold not actual data because of direct transfers to staking contract
+            _totalSupply = actualTotalSupply;
+            emit UpdateTotalSupply(actualTotalSupply);
+        }
+
+        require(actualTotalSupply >= amount, "LockStakingRewardsPool: Not enough liquidity on the contract");
+        unchecked {
+            _totalSupply = actualTotalSupply - stakeBalance; //using local variable for gas saving except for -=
+        }
         tokenStakeInfo[tokenId].balance = 0;
         tokenStakeInfo[tokenId].accumulatedBalance = 0;
         stats.GameBalance = 0;
 
-        require(stakingToken.balanceOf(address(this)) > amount, "StakingRewardsPool: Not enough staking token on staking contract");
         TransferHelper.safeTransfer(address(stakingToken), receiver, amount);
 
         uint currentNonce = stakeNonces[tokenId];
