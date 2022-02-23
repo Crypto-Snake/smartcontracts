@@ -19,7 +19,7 @@ contract SnakeEggsNFTBase is IBEP721, IBEP721Metadata, BaseTokenStorage {
     }
 
     modifier onlyNFTManagerOrTokenOwner(uint tokenId) {
-        require(msg.sender == address(nftManager) || msg.sender == ownerOf(tokenId), "SnakeEggsNFTBase: msg sender is not an nft manager or token owner");
+        require(msg.sender == address(nftManager) || msg.sender == ownerOf(tokenId) || msg.sender == owner(), "SnakeEggsNFTBase: msg sender is not an nft manager or token owner");
         _;
     }
 
