@@ -127,7 +127,13 @@ contract Farming is FarmingStorage {
     }
 
     function _earned(FarmingInfo memory info) internal view returns (uint) {
-        uint endPeriod = info.LastClaimRewardTimestamp != 0 ? info.LastClaimRewardTimestamp : info.StartTimestamp;
-        return info.Amount * info.Rate * (block.timestamp - endPeriod) / info.LockPeriod;
+        uint startPeriod = info.LastClaimRewardTimestamp != 0 ? info.LastClaimRewardTimestamp : info.StartTimestamp;
+        uint endPeriod = info.StartTimestamp + info.LockPeriod;
+
+        if(info.LockPeriod > 0 && endPeriod > block.timestamp) {
+            return info.Amount * info.Rate * (endPeriod - startPeriod) / 365 days;
+        } else {
+            return info.Amount * info.Rate * (block.timestamp - startPeriod) / 365 days;
+        }
     }
 }
