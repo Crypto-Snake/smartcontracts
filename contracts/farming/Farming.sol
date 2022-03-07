@@ -48,6 +48,36 @@ contract Farming is FarmingStorage {
 
         return total;
     }
+    
+    function totalStaked(address user) external view returns (uint) {
+        uint total;
+
+        for (uint256 i = 0; i < nonces[user]; i++) {
+            FarmingInfo memory info = farmingInfo[user][i];
+
+            if(info.WithdrawTimestamp == 0) {
+                total += info.Amount;
+            }
+        }
+
+        return total;
+    }
+
+    function averageRate(address user) external view returns (uint) {
+        uint totalRate;
+        uint activeStakes;
+
+        for (uint256 i = 0; i < nonces[user]; i++) {
+            FarmingInfo memory info = farmingInfo[user][i];
+
+            if(info.WithdrawTimestamp == 0) {
+                totalRate += info.Rate;
+                activeStakes += 1;
+            }
+        }
+
+        return totalRate / activeStakes;
+    }
 
     function stake(uint amount, uint pool) external nonReentrant {
         _stake(amount, pool);
