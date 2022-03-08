@@ -16,6 +16,8 @@ contract NFTArtifactsManager is NFTManagerBase {
     event ApplySnakeCharmerArtifact(uint indexed snakeId, uint applyingTime, address indexed user);
     event ApplySnakeTimeArtifact(uint indexed snakeId, uint applyingTime, address indexed user);
     event ApplyShadowSnakeArtifact(uint indexed snakeId, uint stakeAmountBonus, uint applyingTime, address indexed user);
+    event ApplyGameArtifact(uint indexed artifactId, uint indexed snakeId, uint timestamp);
+    event ApplyDiggerArtifact(uint indexed amount, uint indexed snakeId, uint timestamp);
 
     function initialize(address _target) external onlyOwner {
         _setTarget(this.applyArtifact.selector, _target);
@@ -65,6 +67,12 @@ contract NFTArtifactsManager is NFTManagerBase {
             emit ApplySnakeCharmerArtifact(snakeId, block.timestamp, msg.sender);
         } else if(artifactId == 10) {
             _applySnakeTimeArtifact(snakeId);
+        } else if(artifactId >= 11 && artifactId <= 20) {
+            emit ApplyGameArtifact(artifactId, snakeId, block.timestamp);
+        } else if(artifactId == 21) {
+            _applyDiggerArtifact(snakeId);
+        } else if(artifactId >= 22 && artifactId <= 23) {
+            emit ApplyGameArtifact(artifactId, snakeId, block.timestamp);
         }
 
         if(artifactId != 6) {
@@ -143,5 +151,13 @@ contract NFTArtifactsManager is NFTManagerBase {
         _updateStakeAmount(snakeId, updateAmount, true, 5);
         snakeAppliedArtifacts[snakeId].TimesShadowSnakeApplied += 1;
         emit ApplyShadowSnakeArtifact(snakeId, updateAmount, block.timestamp, msg.sender);
+    }
+
+    function _applyDiggerArtifact(uint snakeId) internal {
+        uint gameBalance = snakes[snakeId].GameBalance;
+        snakes[snakeId].GameBalance = 0;
+        snakes[snakeId].StakeAmount += gameBalance;
+        stakingPool.updateAmountForStake(snakeId, gameBalance, true);
+        emit ApplyDiggerArtifact(gameBalance, snakeId, block.timestamp);
     }
 }

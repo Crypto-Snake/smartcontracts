@@ -2,7 +2,7 @@ const openZeppelinHelper = require('@openzeppelin/test-helpers');
 
 const PROVIDERS = {
     BSC_MAINNET: `https://bsc-dataseed.binance.org/`,
-    BSC_TESTNET: `https://data-seed-prebsc-1-s2.binance.org:8545/`
+    BSC_TESTNET: `https://data-seed-prebsc-1-s1.binance.org:8545/`
 }
 
 const ARTIFACTS_METADATA = {
@@ -85,7 +85,127 @@ const ARTIFACTS_METADATA = {
         uri: "https://bafybeie7ea3im5khbwurcllwocd6enz3io27i3jjsslponebbsbdoumeke.ipfs.infura-ipfs.io/",
         price: "5000000000000000000000",
         amount: 1000
-    } 
+    },
+    snakeTime: {
+        id: 10,
+        name: "Snake Time",
+        description: "Transfers APR percentage to the owner's wallet in Snake tokens without destroying the snake. The artifact can be applied any number of times.",
+        uri: "https://bafybeie7ea3im5khbwurcllwocd6enz3io27i3jjsslponebbsbdoumeke.ipfs.infura-ipfs.io/",
+        price: "5000000000000000000000",
+        amount: 1000
+    },
+    pixelFreeze: {
+        id: 11,
+        name: "Pixel Freeze",
+        description: "",
+        uri: "",
+        price: "5000000000000000000000",
+        amount: 1000
+    },
+    bombardo: {
+        id: 12,
+        name: "Bombardo",
+        description: "",
+        uri: "",
+        price: "5000000000000000000000",
+        amount: 1000
+    },
+    scaleArmor: {
+        id: 13,
+        name: "Scale Armor",
+        description: "",
+        uri: "",
+        price: "5000000000000000000000",
+        amount: 1000
+    },
+    speedBuff: {
+        id: 14,
+        name: "Speed Buff",
+        description: "",
+        uri: "",
+        price: "5000000000000000000000",
+        amount: 1000
+    },
+    speedNoober: {
+        id: 15,
+        name: "Speed Noober",
+        description: "",
+        uri: "",
+        price: "5000000000000000000000",
+        amount: 1000
+    },
+    burger: {
+        id: 16,
+        name: "Burger",
+        description: "",
+        uri: "",
+        price: "5000000000000000000000",
+        amount: 1000
+    },
+    fiveGames: {
+        id: 17,
+        name: "Five Games",
+        description: "",
+        uri: "",
+        price: "5000000000000000000000",
+        amount: 1000
+    },
+    tenGames: {
+        id: 18,
+        name: "Ten Games",
+        description: "",
+        uri: "",
+        price: "5000000000000000000000",
+        amount: 1000
+    },
+    spasm: {
+        id: 19,
+        name: "Spasm",
+        description: "",
+        uri: "",
+        price: "5000000000000000000000",
+        amount: 1000
+    },
+    mana: {
+        id: 20,
+        name: "Mana",
+        description: "",
+        uri: "",
+        price: "5000000000000000000000",
+        amount: 1000
+    },
+    digger: {
+        id: 21,
+        name: "Digger",
+        description: "",
+        uri: "",
+        price: "5000000000000000000000",
+        amount: 1000
+    },
+    joker: {
+        id: 22,
+        name: "Joker",
+        description: "",
+        uri: "",
+        price: "5000000000000000000000",
+        amount: 1000
+    },
+    sniper: {
+        id: 23,
+        name: "Sniper",
+        description: "",
+        uri: "",
+        price: "5000000000000000000000",
+        amount: 1000
+    },
+    // killer: {
+    //     id: 24,
+    //     name: "Killer",
+    //     description: "",
+    //     uri: "",
+    //     price: "5000000000000000000000",
+    //     amount: 1000
+    // },
 }
 
 const ARTIFACTS = [
@@ -98,7 +218,17 @@ const ARTIFACTS = [
     ARTIFACTS_METADATA.shadowSnake,
     ARTIFACTS_METADATA.snakeHunter,
     ARTIFACTS_METADATA.snakeCharmer,
-    ARTIFACTS_METADATA.snakeTime
+    ARTIFACTS_METADATA.snakeTime,
+    ARTIFACTS_METADATA.pixelFreeze,
+    ARTIFACTS_METADATA.bombardo,
+    ARTIFACTS_METADATA.scaleArmor,
+    ARTIFACTS_METADATA.speedBuff,
+    ARTIFACTS_METADATA.speedNoober,
+    ARTIFACTS_METADATA.burger,
+    ARTIFACTS_METADATA.spasm,
+    ARTIFACTS_METADATA.mana,
+    ARTIFACTS_METADATA.joker,
+    ARTIFACTS_METADATA.sniper
 ]
 
 const SNAKES_METADATA = {

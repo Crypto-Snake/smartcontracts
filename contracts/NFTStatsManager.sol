@@ -3,14 +3,13 @@
 pragma solidity ^0.8.0;
 
 import "./NFTManagerBase.sol";
+import "./utils/TransferHelper.sol";
 
 contract NFTStatsManager is NFTManagerBase {
 
     event ApplyGameResults(uint indexed snakeId, uint stakeAmount, uint gameBalance, uint timestamp);
 
     function initialize(address _target) external onlyOwner {
-        _setTarget(this.applyGameResultsBySign.selector, _target);
-        _setTarget(this.applyGameResults.selector, _target);
         _setTarget(this.applyMultipleGameResultsBySign.selector, _target);
         _setTarget(this.applyMultipleGameResults.selector, _target);
         _setTarget(this.updateStakeAmountBySign.selector, _target);
@@ -32,11 +31,15 @@ contract NFTStatsManager is NFTManagerBase {
         _setTarget(this.applyMultipleGameResultsNonces.selector, _target);
         _setTarget(this.APPLY_MULTIPLE_GAME_RESULTS_TYPEHASH.selector, _target);
 
-        _APPLY_MULTIPLE_GAME_RESULTS_TYPEHASH = keccak256("ApplyMultipleGameResultsBySign(uint[] snakeIds,uint[] stakeAmounts,uint[] gameBalances,address sender,uint256 nonce,uint256 deadline)");
+        _APPLY_MULTIPLE_GAME_RESULTS_TYPEHASH = keccak256("ApplyMultipleGameResultsBySign(uint[] snakeIds,uint[] stakeAmounts,uint[] gameBalances,bool[] increase,bool[] toWallet,address sender,uint256 nonce,uint256 deadline)");
     }
 
-    function applyMultipleGameResultsBySign(uint[] memory snakeIds, uint[] memory stakeAmounts, uint[] memory gameBalances, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
-        require(snakeIds.length == stakeAmounts.length && snakeIds.length == gameBalances.length, "NFTManager: Array length missmatch");
+    function applyMultipleGameResultsBySign(uint[] memory snakeIds, uint[] memory stakeAmounts, uint[] memory gameBalances, bool[] memory increase, bool[] memory toWallet, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
+        require(snakeIds.length == stakeAmounts.length 
+        && snakeIds.length == gameBalances.length 
+        && snakeIds.length == toWallet.length 
+        && snakeIds.length == increase.length, 
+        "NFTManager: Array length missmatch");
         require(deadline > block.timestamp, "NFTManager: Expired");
         uint nonce = applyMultipleGameResultsNonces(msg.sender);
         _applyMultipleGameResultsNonces[msg.sender] += 1;
@@ -48,75 +51,22 @@ contract NFTStatsManager is NFTManagerBase {
                 keccak256(abi.encode(APPLY_MULTIPLE_GAME_RESULTS_TYPEHASH(), 
                 keccak256(abi.encodePacked(snakeIds)), 
                 keccak256(abi.encodePacked(stakeAmounts)), 
-                keccak256(abi.encodePacked(gameBalances)), msg.sender, nonce, deadline))
+                keccak256(abi.encodePacked(gameBalances)),
+                keccak256(abi.encodePacked(increase)),
+                keccak256(abi.encodePacked(toWallet)), msg.sender, nonce, deadline))
             )
         );
 
         address recoveredAddress = ecrecover(digest, v, r, s);
         require(recoveredAddress != address(0) && (recoveredAddress == lowerAdmin() || recoveredAddress == owner()), 'NFTManager: INVALID_SIGNATURE');
 
-        for (uint256 i = 0; i < snakeIds.length; i++) {
-            if(stakeAmounts[i] != 0) {
-                _updateStakeAmount(snakeIds[i], stakeAmounts[i], false, 0);
-            }
-
-            if(gameBalances[i] != 0) {
-                _updateGameBalance(snakeIds[i], gameBalances[i], 0);
-            }
-
-            emit ApplyGameResults(snakeIds[i], stakeAmounts[i], gameBalances[i], block.timestamp);
-        }
+        _applyMultipleGameResults(snakeIds, stakeAmounts, gameBalances, increase, toWallet);
     }
 
-    function applyMultipleGameResults(uint[] memory snakeIds, uint[] memory stakeAmounts, uint[] memory gameBalances) external onlyOwnerOrLowerAdmin {
-        require(snakeIds.length == stakeAmounts.length && snakeIds.length == gameBalances.length, "NFTManager: Array length missmatch");
-        for (uint256 i = 0; i < snakeIds.length; i++) {
-            if(stakeAmounts[i] != 0) {
-                _updateStakeAmount(snakeIds[i], stakeAmounts[i], false, 0);
-            }
+    function applyMultipleGameResults(uint[] memory snakeIds, uint[] memory stakeAmounts, uint[] memory gameBalances, bool[] memory increase, bool[] memory toWallet) external onlyOwnerOrLowerAdmin {
+        require(snakeIds.length == stakeAmounts.length && snakeIds.length == gameBalances.length && snakeIds.length == toWallet.length, "NFTManager: Array length missmatch");
 
-            if(gameBalances[i] != 0) {
-                _updateGameBalance(snakeIds[i], gameBalances[i], 0);
-            }
-
-            emit ApplyGameResults(snakeIds[i], stakeAmounts[i], gameBalances[i], block.timestamp);
-        }
-    }
-
-    function applyGameResultsBySign(uint snakeId, uint stakeAmount, uint gameBalance, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
-        require(deadline > block.timestamp, "NFTManager: Expired");
-        uint nonce = applyGameResultsNonces[msg.sender]++;
-        bytes32 digest = keccak256(
-            abi.encodePacked(
-                '\x19\x01',
-                DOMAIN_SEPARATOR,
-                keccak256(abi.encode(APPLY_GAME_RESULTS_TYPEHASH, snakeId, stakeAmount, gameBalance, msg.sender, nonce, deadline))
-            )
-        );
-
-        address recoveredAddress = ecrecover(digest, v, r, s);
-        require(recoveredAddress != address(0) && (recoveredAddress == lowerAdmin() || recoveredAddress == owner()), 'NFTManager: INVALID_SIGNATURE');
-
-        if(stakeAmount != 0) {
-            _updateStakeAmount(snakeId, stakeAmount, false, 0);
-        }
-
-        if(gameBalance != 0) {
-            _updateGameBalance(snakeId, gameBalance, 0);
-        }
-
-        emit ApplyGameResults(snakeId, stakeAmount, gameBalance, block.timestamp);
-    }
-
-    function applyGameResults(uint snakeId, uint stakeAmount, uint gameBalance) external onlyOwnerOrLowerAdmin {
-        if(stakeAmount != 0) {
-            _updateStakeAmount(snakeId, stakeAmount, false, 0);
-        }
-
-        if(gameBalance != 0) {
-            _updateGameBalance(snakeId, gameBalance, 0);
-        }
-        emit ApplyGameResults(snakeId, stakeAmount, gameBalance, block.timestamp);
+        _applyMultipleGameResults(snakeIds, stakeAmounts, gameBalances, increase, toWallet);
     }
 
     function updateStakeAmountBySign(uint snakeId, uint stakeAmount, bool increase, uint artifactId, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
@@ -169,5 +119,24 @@ contract NFTStatsManager is NFTManagerBase {
         require(eggs[tokenId].PurchasingTime == 0, "NFTManager: Egg with provided id already exists");
         eggs[tokenId] = stats;
         emit UpdateEggStats(tokenId, eggs[tokenId], stats);
+    }
+
+    //change stakeAmounts to int
+    function _applyMultipleGameResults(uint[] memory snakeIds, uint[] memory stakeAmounts, uint[] memory gameBalances, bool[] memory increase, bool[] memory toWallet) internal {
+        for (uint256 i = 0; i < snakeIds.length; i++) {
+            if(stakeAmounts[i] != 0) {
+                _updateStakeAmount(snakeIds[i], stakeAmounts[i], increase[i], 0);
+            }
+
+            if(gameBalances[i] != 0) {
+                if(toWallet[i]) { 
+                    TransferHelper.safeTransfer(snakeToken, msg.sender, gameBalances[i]);
+                } else {
+                    _updateGameBalance(snakeIds[i], gameBalances[i], 0);
+                }
+            }
+
+            emit ApplyGameResults(snakeIds[i], stakeAmounts[i], gameBalances[i], block.timestamp);
+        }
     }
 }
