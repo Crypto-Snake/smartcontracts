@@ -1,4 +1,4 @@
-//truffle migrate --f 11 --to 11 --network bsctestnet
+//truffle migrate --f 9 --to 9 --network bsctestnet
 const fs = require('fs');
 
 let addresses = getAddresses();
@@ -25,6 +25,8 @@ let snakeArtifactsNFT;
 let snakeArtifactsNFTProxy;
 let snakeEggsShop;
 let snakeEggsShopProxy;
+let snakeArtifactsShop;
+let snakeArtifactsShopProxy;
 let farming;
 let farmingProxy;
 
@@ -42,6 +44,8 @@ let NFTPropertiesManager = artifacts.require("NFTPropertiesManager");
 let NFTManagerProxy = artifacts.require("NFTManagerProxy");
 let SnakeEggsShop = artifacts.require("SnakeEggsShop");
 let SnakeEggsShopProxy = artifacts.require("SnakeEggsShopProxy");
+let SnakeArtifactsShop = artifacts.require("SnakeArtifactsShop");
+let SnakeArtifactsShopProxy = artifacts.require("SnakeArtifactsShopProxy");
 let LockStakingRewardsPool = artifacts.require("LockStakingRewardsPool");
 let LockStakingRewardsPoolProxy = artifacts.require("LockStakingRewardsPoolProxy");
 let SnakeP2P = artifacts.require("SnakeP2P");
@@ -57,14 +61,15 @@ module.exports = async function(deployer) {
         replaceLockStakingRewardsPool: false,
         replaceNFTManager: false,
         replaceP2P: false,
-        replaceShop: false,
+        replaceEggsShop: false,
+        replaceArtifactsShop: false,
         replaceFarming: false
     }
 
     deployer.then(async( err, res ) => {
-        //#region REPLACE SNAKEARTIFACTSNFT STRUCTURE 1/7
+        //#region REPLACE SNAKEARTIFACTSNFT STRUCTURE 1/9
         if (deployParams.replaceSnakeArtifactsNFT) {
-            console.log("===== Start replacing SnakeArtifactsNFT contract on proxy (1/7) =====");
+            console.log("===== Start replacing SnakeArtifactsNFT contract on proxy (1/9) =====");
 
             await deployer.deploy(SnakeArtifactsNFT);
             snakeArtifactsNFT = await SnakeArtifactsNFT.deployed();
@@ -81,9 +86,9 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region REPLACE SNAKEEGGSNFT STRUCTURE 2/7
+        //#region REPLACE SNAKEEGGSNFT STRUCTURE 2/9
         if (deployParams.replaceSnakeEggsNFT) {
-            console.log("===== Start replacing SnakeEggsNFT contract on proxy (2/7) =====");
+            console.log("===== Start replacing SnakeEggsNFT contract on proxy (2/9) =====");
 
             await deployer.deploy(SnakeEggsNFT);
             snakeEggsNFT = await SnakeEggsNFT.deployed();
@@ -100,9 +105,9 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region REPLACE SNAKESNFT STRUCTURE 3/7
+        //#region REPLACE SNAKESNFT STRUCTURE 3/9
         if (deployParams.replaceSnakesNFT) {
-            console.log("===== Start replacing SnakesNFT contract on proxy (3/7) =====");
+            console.log("===== Start replacing SnakesNFT contract on proxy (3/9) =====");
 
             await deployer.deploy(SnakesNFT);
             snakesNFT = await SnakesNFT.deployed();
@@ -119,9 +124,9 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region REPLACE STAKINGREWARDSPOOL 4/7
+        //#region REPLACE STAKINGREWARDSPOOL 4/9
         if (deployParams.replaceLockStakingRewardsPool) {
-            console.log("===== Start replacing LockStakingRewardsPool contract on proxy (4/7) =====");
+            console.log("===== Start replacing LockStakingRewardsPool contract on proxy (4/9) =====");
 
             await deployer.deploy(LockStakingRewardsPool);
             lockStakingRewardsPool = await LockStakingRewardsPool.deployed();
@@ -138,29 +143,29 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region REPLACE NFTMANAGER 5/7
+        //#region REPLACE NFTMANAGER 5/9
         if (deployParams.replaceNFTManager) {
-            console.log("===== Start replacing NFTManager contracts on proxy (5/7) =====");
+            console.log("===== Start replacing NFTManager contracts on proxy (5/9) =====");
 
-            await deployer.deploy(NFTManager);
-            nftManager = await NFTManager.deployed();
-            console.log(`NFT manager address: ${nftManager.address}`)
-            addresses.nftManager = nftManager.address;
+            // await deployer.deploy(NFTManager);
+            // nftManager = await NFTManager.deployed();
+            // console.log(`NFT manager address: ${nftManager.address}`)
+            // addresses.nftManager = nftManager.address;
 
-            await deployer.deploy(NFTStatsManager);
-            nftStatsManager = await NFTStatsManager.deployed();
-            console.log(`NFT stats manager address: ${nftStatsManager.address}`)
-            addresses.nftStatsManager = nftStatsManager.address;
+            // await deployer.deploy(NFTStatsManager);
+            // nftStatsManager = await NFTStatsManager.deployed();
+            // console.log(`NFT stats manager address: ${nftStatsManager.address}`)
+            // addresses.nftStatsManager = nftStatsManager.address;
 
-            await deployer.deploy(NFTArtifactsManager);
-            nftArtifactsManager = await NFTArtifactsManager.deployed();
-            console.log(`NFT artifacts manager address: ${nftArtifactsManager.address}`)
-            addresses.nftArtifactsManager = nftArtifactsManager.address;
+            // await deployer.deploy(NFTArtifactsManager);
+            // nftArtifactsManager = await NFTArtifactsManager.deployed();
+            // console.log(`NFT artifacts manager address: ${nftArtifactsManager.address}`)
+            // addresses.nftArtifactsManager = nftArtifactsManager.address;
 
-            await deployer.deploy(NFTManagerRescue);
-            nftManagerRescue = await NFTManagerRescue.deployed();
-            console.log(`NFT rescue manager address: ${nftManagerRescue.address}`)
-            addresses.nftManagerRescue = nftManagerRescue.address;
+            // await deployer.deploy(NFTManagerRescue);
+            // nftManagerRescue = await NFTManagerRescue.deployed();
+            // console.log(`NFT rescue manager address: ${nftManagerRescue.address}`)
+            // addresses.nftManagerRescue = nftManagerRescue.address;
 
             await deployer.deploy(NFTPropertiesManager);
             nftPropertiesManager = await NFTPropertiesManager.deployed();
@@ -169,13 +174,13 @@ module.exports = async function(deployer) {
 
             nftManagerProxy = await NFTManagerProxy.at(addresses.nftManagerProxy);
             
-            await nftManagerProxy.addImplementationContract(addresses.nftManager);
-            await nftManagerProxy.addImplementationContract(addresses.nftStatsManager);
-            await nftManagerProxy.addImplementationContract(addresses.nftArtifactsManager);
-            await nftManagerProxy.addImplementationContract(addresses.nftManagerRescue);
+            // await nftManagerProxy.addImplementationContract(addresses.nftManager);
+            // await nftManagerProxy.addImplementationContract(addresses.nftStatsManager);
+            // await nftManagerProxy.addImplementationContract(addresses.nftArtifactsManager);
+            // await nftManagerProxy.addImplementationContract(addresses.nftManagerRescue);
             await nftManagerProxy.addImplementationContract(addresses.nftPropertiesManager);
 
-            fs.writeFileSync('addresses_mainnet.json', JSON.stringify(addresses));
+            fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
         } else {
             nftManager = { address: addresses.nftManager };
             nftStatsManager = { address: addresses.nftStatsManager };
@@ -186,9 +191,9 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region REPLACE SNAKEP2P 6/7
+        //#region REPLACE SNAKEP2P 6/9
         if (deployParams.replaceP2P) {
-            console.log("===== Start replacing SnakeP2P contract on proxy (6/7) =====");
+            console.log("===== Start replacing SnakeP2P contract on proxy (6/9) =====");
 
             await deployer.deploy(SnakeP2P);
             snakeP2P = await SnakeP2P.deployed();
@@ -205,9 +210,9 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region REPLACE SNAKEEggsSHOP 7/7
-        if (deployParams.replaceShop) {
-            console.log("===== Start replacing SnakeEggsShop contract on proxy (7/7) =====");
+        //#region REPLACE SNAKEEGGSSHOP 7/9
+        if (deployParams.replaceEggsShop) {
+            console.log("===== Start replacing SnakeEggsShop contract on proxy (7/9) =====");
             await deployer.deploy(SnakeEggsShop);
             snakeEggsShop = await SnakeEggsShop.deployed();
             console.log(`snake eggs shop address: ${snakeEggsShop.address}`)
@@ -223,9 +228,27 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region REPLACE SNAKEEggsSHOP 8/8
+        //#region REPLACE SNAKEARTIFACTSSHOP 8/9
+        if (deployParams.replaceArtifactsShop) {
+            console.log("===== Start replacing SnakeArtifactsShop contract on proxy (8/9) =====");
+            await deployer.deploy(SnakeArtifactsShop);
+            snakeArtifactsShop = await SnakeArtifactsShop.deployed();
+            console.log(`snake eggs shop address: ${snakeArtifactsShop.address}`)
+            addresses.snakeArtifactsShop = snakeArtifactsShop.address;
+
+            snakeArtifactsShop = await SnakeArtifactsShopProxy.at(addresses.snakeArtifactsShopProxy);
+            await snakeArtifactsShop.replaceImplementation(addresses.snakeArtifactsShop);
+
+            fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
+        } else {
+            snakeArtifactsShop = { address: addresses.snakeArtifactsShop };
+            snakeArtifactsShopProxy = { address: addresses.snakeArtifactsShopProxy };
+        }
+        //#endregion
+
+        //#region REPLACE FARMING 9/9
         if (deployParams.replaceFarming) {
-            console.log("===== Start replacing Farming contract on proxy (7/7) =====");
+            console.log("===== Start replacing Farming contract on proxy (9/9) =====");
             await deployer.deploy(Farming);
             farming = await Farming.deployed();
             console.log(`farming contract address: ${farming.address}`)

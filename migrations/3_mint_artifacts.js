@@ -3,13 +3,17 @@ const fs = require('fs');
 const Web3 = require('web3');
 const constants = require('../constants.js')
 
-let addresses = require('../addresses_mainnet.json');
+let addresses = require('../addresses_testnet.json');
+const { get } = require('http');
 
 let snakeArtifactsNFT;
 let artifactsShop;
+let nftManager;
 
 let SnakeArtifactsNFT = artifacts.require("SnakeArtifactsNFT");
 let ArtifactsShop = artifacts.require("ArtifactsShop");
+let NFTPropertiesManager = artifacts.require("NFTPropertiesManager");
+
 
 module.exports = function(deployer) {
     let currentProvider;
@@ -38,20 +42,21 @@ module.exports = function(deployer) {
 
     deployer.then(async() => {
         snakeArtifactsNFT = await SnakeArtifactsNFT.at(addresses.snakeArtifactsNFTProxy);
+        nftManager = await NFTPropertiesManager.at(addresses.nftManagerProxy);
         artifactsShop = await ArtifactsShop.at(addresses.artifactsShop);
-
+        
         let ids = constants.ARTIFACTS.map((a) => { return a.id });
-        let amounts = constants.ARTIFACTS.map((a) => { return a.amount });
-        console.log(amounts);
 
-        await snakeArtifactsNFT.mintBatch(constants.TOKEN_OWNER, ids, amounts, constants.OZ.ZERO_BYTES32)
+        let amounts = constants.ARTIFACTS.map((a) => { return a.amount });
+
+        await snakeArtifactsNFT.mintBatch("0xD4DC28c3B384EA9F3A41a97Cd202d63Dd339474d", ids, amounts, constants.OZ.ZERO_BYTES32)
 
         let pTotalSupplies = ids.map((id) => { return snakeArtifactsNFT.totalSupply(id) });
         let totalSupplies = await (await Promise.all(pTotalSupplies)).map((b) => (b.toString()));
 
         console.log('total supplies:', totalSupplies);
 
-        let pBalances = ids.map((id) => { return snakeArtifactsNFT.balanceOf(constants.TOKEN_OWNER, id) })
+        let pBalances = ids.map((id) => { return snakeArtifactsNFT.balanceOf("0xD4DC28c3B384EA9F3A41a97Cd202d63Dd339474d", id) })
         let balances = await (await Promise.all(pBalances)).map((b) => (b.toString()));
         console.log('owner balances:', balances)
     })

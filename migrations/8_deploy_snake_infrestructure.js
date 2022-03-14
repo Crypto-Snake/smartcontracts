@@ -1,4 +1,4 @@
-//truffle migrate --f 9 --to 9 --network bsctestnet
+//truffle migrate --f 8 --to 8 --network bsctestnet
 const fs = require('fs');
 const { EGGS, SNAKES } = require('../constants.js');
 
@@ -14,6 +14,8 @@ let snakeEggsNFT;
 let snakeEggsNFTProxy;
 let snakeEggsShop;
 let snakeEggsShopProxy;
+let snakeArtifactsShop;
+let snakeArtifactsShopProxy;
 let nftManager;
 let nftStatsManager;
 let nftArtifactsManager;
@@ -26,6 +28,8 @@ let snakeP2P;
 let snakeP2PProxy;
 let artifactsNFT;
 let artifactsNFTProxy;
+let farming;
+let farmingProxy;
 
 let SnakeArtifactsNFT = artifacts.require("SnakeArtifactsNFT");
 let SnakeArtifactsNFTProxy = artifacts.require("SnakeArtifactsNFTProxy");
@@ -35,6 +39,8 @@ let SnakeEggsNFT = artifacts.require("SnakeEggsNFT");
 let SnakeEggsNFTProxy = artifacts.require("SnakeEggsNFTProxy");
 let SnakeEggsShop = artifacts.require("SnakeEggsShop");
 let SnakeEggsShopProxy = artifacts.require("SnakeEggsShopProxy");
+let SnakeArtifactsShop = artifacts.require("SnakeArtifactsShop");
+let SnakeArtifactsShopProxy = artifacts.require("SnakeArtifactsShopProxy");
 let NFTManager = artifacts.require("NFTManager");
 let NFTStatsManager = artifacts.require("NFTStatsManager");
 let NFTArtifactsManager = artifacts.require("NFTArtifactsManager");
@@ -44,7 +50,9 @@ let NFTManagerProxy = artifacts.require("NFTManagerProxy");
 let LockStakingRewardsPool = artifacts.require("LockStakingRewardsPool");
 let LockStakingRewardsPoolProxy = artifacts.require("LockStakingRewardsPoolProxy");
 let SnakeP2P = artifacts.require("SnakeP2P");
-let SnakeP2PProxy = artifacts.require("SnakeP2PProxy")
+let SnakeP2PProxy = artifacts.require("SnakeP2PProxy");
+let Farming = artifacts.require("Farming");
+let FarmingProxy = artifacts.require("FarmingProxy");
 
 async function getSnakeStats(id) {
     nftManager = await NFTManager.at(addresses.nftManagerProxy);
@@ -80,15 +88,17 @@ module.exports = async function(deployer) {
         deploySnakesNFT: false,
         deployLockStakingRewardsPool: false,
         deployNFTManager: false,
-        deployShop: false,
+        deployEggsShop: false,
+        deploySnakeArtifactsShop: false,
         deployP2P: false,
+        deployFarming: false,
         setupAccessModifiers: false
     }
 
     deployer.then(async() => {
-        //#region DEPLOY SNAKEEGGSNFT STRUCTURE 1/7
+        //#region DEPLOY SNAKEEGGSNFT STRUCTURE 1/9
         if (deployParams.deploySnakeEggsNFT) {
-            console.log("===== Start deploying SnakeEggsNFT structure (1/7) =====");
+            console.log("===== Start deploying SnakeEggsNFT structure (1/9) =====");
 
             await deployer.deploy(SnakeEggsNFT);
             snakeEggsNFT = await SnakeEggsNFT.deployed();
@@ -110,9 +120,9 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region DEPLOY SNAKESNFT STRUCTURE 2/7
+        //#region DEPLOY SNAKESNFT STRUCTURE 2/9
         if (deployParams.deploySnakesNFT) {
-            console.log("===== Start deploying SnakesNFT structure (2/7) =====");
+            console.log("===== Start deploying SnakesNFT structure (2/9) =====");
 
             await deployer.deploy(SnakesNFT);
             snakesNFT = await SnakesNFT.deployed();
@@ -134,9 +144,9 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region DEPLOY STAKINGREWARDSPOOL 3/7
+        //#region DEPLOY STAKINGREWARDSPOOL 3/9
         if (deployParams.deployLockStakingRewardsPool) {
-            console.log("===== Start deploying LockStakingRewardsPool (3/7) =====");
+            console.log("===== Start deploying LockStakingRewardsPool (3/9) =====");
 
             await deployer.deploy(LockStakingRewardsPool);
             lockStakingRewardsPool = await LockStakingRewardsPool.deployed();
@@ -161,9 +171,9 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region DEPLOY NFTMANAGER 4/7
+        //#region DEPLOY NFTMANAGER 4/9
         if (deployParams.deployNFTManager) {
-            console.log("===== Start deploying NFTManager (4/7) =====");
+            console.log("===== Start deploying NFTManager (4/9) =====");
 
             await deployer.deploy(NFTManager);
             nftManager = await NFTManager.deployed();
@@ -234,9 +244,9 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region DEPLOY SNAKEEGGSSHOP 5/7
-        if (deployParams.deployShop) {
-            console.log("===== Start deploying SnakeEggsShop (5/7) =====");
+        //#region DEPLOY SNAKEEGGSSHOP 5/9
+        if (deployParams.deployEggsShop) {
+            console.log("===== Start deploying SnakeEggsShop (5/9) =====");
 
             await deployer.deploy(SnakeEggsShop);
             snakeEggsShop = await SnakeEggsShop.deployed();
@@ -265,9 +275,32 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region DEPLOY SNAKEP2P 6/7
+        //#region REPLACE SNAKEARTIFACTSSHOP 6/9
+        if (deployParams.deploySnakeArtifactsShop) {
+            console.log("===== Start deploying SnakeArtifactsShop contract on proxy (6/9) =====");
+            await deployer.deploy(SnakeArtifactsShop);
+            snakeArtifactsShop = await SnakeArtifactsShop.deployed();
+            console.log(`snake artifacts shop address: ${snakeArtifactsShop.address}`)
+            addresses.snakeArtifactsShop = snakeArtifactsShop.address;
+
+            await deployer.deploy(SnakeArtifactsShopProxy, addresses.snakeArtifactsShop);
+            snakeArtifactsShopProxy = await SnakeArtifactsShopProxy.deployed();
+            console.log(`snake artifacts shop proxy address: ${snakeArtifactsShopProxy.address}`)
+            addresses.snakeArtifactsShopProxy = snakeArtifactsShopProxy.address;
+
+            snakeArtifactsShop = await SnakeArtifactsShop.at(addresses.snakeArtifactsShopProxy)
+            await snakeArtifactsShop.initialize(addresses.snakeArtifactsNFTProxy, addresses.nftManagerProxy, addresses.lockStakingRewardsPoolProxy, "0xd4dc28c3b384ea9f3a41a97cd202d63dd339474d");
+
+            fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
+        } else {
+            snakeArtifactsShop = { address: addresses.snakeArtifactsShop };
+            snakeArtifactsShopProxy = { address: addresses.snakeArtifactsShopProxy };
+        }
+        //#endregion
+
+        //#region DEPLOY SNAKEP2P 7/9
         if (deployParams.deployP2P) {
-            console.log("===== Start deploying SnakeP2P (6/7) =====");
+            console.log("===== Start deploying SnakeP2P (7/9) =====");
 
             await deployer.deploy(SnakeP2P);
             snakeP2P = await SnakeP2P.deployed();
@@ -286,9 +319,27 @@ module.exports = async function(deployer) {
         }
         //#endregion
 
-        //#region SETUP ACCESS MODIFIERS 7/7
+        //#region DEPLOY FARMING 8/9
+        if (deployParams.deployFarming) {
+            console.log("===== Start deploying Farming (8/9) =====");
+            await deployer.deploy(Farming);
+            farming = await Farming.deployed();
+            console.log(`farming contract address: ${farming.address}`)
+            addresses.farming = farming.address;
+
+            farmingProxy = await FarmingProxy.at(addresses.farmingProxy);
+            await farmingProxy.replaceImplementation(addresses.farming);
+
+            fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
+        } else {
+            farming = { address: addresses.farming };
+            farmingProxy = { address: addresses.farmingProxy };
+        }
+        //#endregion
+
+        //#region SETUP ACCESS MODIFIERS 9/9
         if (deployParams.setupAccessModifiers) {
-            console.log("===== Start setuping access modifiers (7/7) =====");
+            console.log("===== Start setuping access modifiers (9/9) =====");
 
             snakeEggsShop = await SnakeEggsShop.at(addresses.snakeEggsShopProxy);
             await snakeEggsShop.updateNFTManager(addresses.nftManagerProxy);
