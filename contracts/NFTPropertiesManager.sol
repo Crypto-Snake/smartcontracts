@@ -18,6 +18,7 @@ contract NFTPropertiesManager is NFTManagerBase {
         _setTarget(this.warningLockPeriod.selector, _target);
         _setTarget(this.blackMambaBaseRate.selector, _target);
         _setTarget(this.halvingDate.selector, _target);
+        _setTarget(this.getArtifactProperties.selector, _target);
 
         _setTarget(this.deathPointPercent.selector, _target);
         _setTarget(this.blackMambaDeathPointPercent.selector, _target);
@@ -62,6 +63,10 @@ contract NFTPropertiesManager is NFTManagerBase {
     event UpdateCustodian(address indexed newCustodian);
     event UpdateHalvingDate(uint indexed halvingDate);
     event UpdateSleepingTime(uint indexed sleepingTime);
+
+    function getArtifactProperties(uint id) external view returns(Artifact memory) {
+        return artifactsProperties[id];
+    }
 
     function updateAllowedTokens(address token, bool allowance) external onlyOwner {
         allowedTokens[token] = allowance;
