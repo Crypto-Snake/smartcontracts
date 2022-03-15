@@ -22,6 +22,8 @@ contract SnakeArtifactsNFT is Allowable, IBEP1155, IBEP1155MetadataURI, Initiali
 
     mapping(uint => uint) private _totalSupply;
 
+    event UpdateNFTManager(address indexed nftManager);
+    
     function totalSupply(uint id) external view returns (uint) {
         return _totalSupply[id];
     }
@@ -252,6 +254,12 @@ contract SnakeArtifactsNFT is Allowable, IBEP1155, IBEP1155MetadataURI, Initiali
             "SnakeArtifactsNFT: transfer caller is not owner nor approved"
         );
         _safeBatchTransferFrom(from, to, ids, amounts, data);
+    }
+
+    function updateNFTManager(address _nftManager) external onlyOwner {
+        require(Address.isContract(_nftManager), "SnakeArtifactsNFT: _nftManager is not a contract");
+        nftManager = INFTManager(_nftManager);
+        emit UpdateNFTManager(_nftManager);
     }
 
     /**
