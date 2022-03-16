@@ -7,11 +7,12 @@ let addresses = require('../addresses_testnet.json');
 const { get } = require('http');
 
 let snakeArtifactsNFT;
-let artifactsShop;
+let snakeArtifactsShop;
 let nftManager;
 
 let SnakeArtifactsNFT = artifacts.require("SnakeArtifactsNFT");
-let ArtifactsShop = artifacts.require("ArtifactsShop");
+let SnakeArtifactsShop = artifacts.require("SnakeArtifactsShop");
+let SnakeArtifactsShopProxy = artifacts.require("SnakeArtifactsShopProxy");
 let NFTPropertiesManager = artifacts.require("NFTPropertiesManager");
 
 
@@ -43,8 +44,14 @@ module.exports = function(deployer) {
     deployer.then(async() => {
         snakeArtifactsNFT = await SnakeArtifactsNFT.at(addresses.snakeArtifactsNFTProxy);
         nftManager = await NFTPropertiesManager.at(addresses.nftManagerProxy);
-        artifactsShop = await ArtifactsShop.at(addresses.artifactsShop);
-        
+        snakeArtifactsShop = await SnakeArtifactsShop.at(addresses.snakeArtifactsShopProxy);
+
+        await snakeArtifactsShop.updateAllowedTokens(addresses.snk, true);
+
+        for (const artifact of constants.ARTIFACTS) {
+            await nftManager.updateArtifactProperties(artifact.id, [artifact.name, artifact.description, artifact.uri, artifact.price])
+        }
+
         let ids = constants.ARTIFACTS.map((a) => { return a.id });
 
         let amounts = constants.ARTIFACTS.map((a) => { return a.amount });
