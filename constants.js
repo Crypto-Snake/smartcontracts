@@ -86,126 +86,126 @@ const ARTIFACTS_METADATA = {
         price: "5000000000000000000000",
         amount: 1000
     },
-    snakeTime: {
-        id: 10,
-        name: "Snake Time",
-        description: "Transfers APR percentage to the owner's wallet in Snake tokens without destroying the snake. The artifact can be applied any number of times.",
-        uri: "https://bafybeie7ea3im5khbwurcllwocd6enz3io27i3jjsslponebbsbdoumeke.ipfs.infura-ipfs.io/",
-        price: "5000000000000000000000",
-        amount: 1000
-    },
     pixelFreeze: {
         id: 11,
         name: "Pixel Freeze",
-        description: "",
-        uri: "",
-        price: "5000000000000000000000",
-        amount: 1000
+        description: "When applied, the pixel stops being fading and becomes static. From the moment of activation, it is valid for all games (Daily GP) available to this character within one game day.",
+        uri: "https://bafybeiapahxniqz34rpjhntvjefrvvi3gm6345jiyyakosbkfw4tm3ovze.ipfs.infura-ipfs.io/",
+        price: "40000000000000000000",
+        amount: 70000
     },
     bombardo: {
         id: 12,
         name: "Bombardo",
-        description: "",
-        uri: "",
-        price: "5000000000000000000000",
-        amount: 1000
+        description: "After being used in the arena, all bombs disappear. From the moment of activation, it is valid for all games (Daily GP) available to this character within one game day.",
+        uri: "https://bafybeidspdwhg3j6sudjxrm32tzbat2aehzj2udgsfpkakmg7lzgjeks2q.ipfs.infura-ipfs.io/",
+        price: "45000000000000000000",
+        amount: 40000
     },
     scaleArmor: {
         id: 13,
         name: "Scale Armor",
-        description: "",
-        uri: "",
-        price: "5000000000000000000000",
-        amount: 1000
+        description: "Artifact reduces damage on impact by half. From the moment of activation, it is valid for all games (Daily GP) available to this character within one game day.",
+        uri: "https://bafybeiejijzbnf7ay54l3d7rlbpeulgrzcpalwcirjpnrknuh5tdlkpcnu.ipfs.infura-ipfs.io/",
+        price: "67000000000000000000",
+        amount: 60000
     },
     speedBuff: {
         id: 14,
-        name: "Speed Buff",
-        description: "",
-        uri: "",
-        price: "5000000000000000000000",
-        amount: 1000
+        name: "Speed Buff Prof",
+        description: "Limits the maximum speed to 10 lvl. From the moment of activation, it is valid for all games (Daily GP) available to this character within one game day.",
+        uri: "https://bafybeiauqhpqoj527hbooylra6xau6bqcfrk72mhhhb3lfqhycgky2klem.ipfs.infura-ipfs.io/",
+        price: "79000000000000000000",
+        amount: 25000
     },
     speedNoober: {
         id: 15,
         name: "Speed Noober",
-        description: "",
-        uri: "",
-        price: "5000000000000000000000",
-        amount: 1000
+        description: "Limits the maximum speed to 5 lvl. From the moment of activation, it is valid for all games (Daily GP) available to this character within one game day.",
+        uri: "https://bafybeifagt55o5vlp5y3tzlt3jfew7ubz2crgqjf3xxwkwvnhlxfg7eoaa.ipfs.infura-ipfs.io/",
+        price: "60000000000000000000",
+        amount: 30000
     },
     burger: {
         id: 16,
         name: "Burger",
-        description: "",
-        uri: "",
-        price: "5000000000000000000000",
-        amount: 1000
+        description: "Increases the eaten pixel ratio by х2. For example, if your ratio was 1 to 1, it will be 1 to 2. From the moment of activation, it is valid for all games (Daily GP) available to this character within one game day.",
+        uri: "https://bafybeigpg3d6y7ppk7cjd5tvvwsp7yvzmv57xrgcwif6vreyle6akwsfly.ipfs.infura-ipfs.io/",
+        price: "110000000000000000000",
+        amount: 25000
     },
     fiveGames: {
         id: 17,
-        name: "Five Games",
-        description: "",
-        uri: "",
-        price: "5000000000000000000000",
-        amount: 1000
+        name: "+ 5 GP",
+        description: "Gives +5 game sessions to the character until the end of the current game day. If you don’t use your games, they disappear next day.",
+        uri: "https://bafybeihxc32mw2r65llhvjbdikdm3cta44wtrawuexkwxtnup6gvyni75a.ipfs.infura-ipfs.io/",
+        price: "180000000000000000000",
+        amount: 20000
     },
     tenGames: {
         id: 18,
-        name: "Ten Games",
-        description: "",
-        uri: "",
-        price: "5000000000000000000000",
-        amount: 1000
+        name: "+ 10 GP",
+        description: "Gives +10 game sessions to the character until the end of the current game day. If you don’t use your games, they disappear next day.",
+        uri: "https://bafybeihtmyal3ejo3eh2pgqe75ewyxwb7qbenefm2naa6jn4tmmgzdxfoq.ipfs.infura-ipfs.io/",
+        price: "400000000000000000000",
+        amount: 15000
     },
     spasm: {
         id: 19,
         name: "Spasm",
-        description: "",
-        uri: "",
-        price: "5000000000000000000000",
-        amount: 1000
+        description: "The tail of a snake grows twice as slowly. It will be easier for you to control your snake. From the moment of activation, it is valid for all games (Daily GP) available to this character within one game day.",
+        uri: "https://bafybeibhb57we54db6m65a26l6nlkwkw3bfutpptehkiy442j5grrgq26m.ipfs.infura-ipfs.io/",
+        price: "30000000000000000000",
+        amount: 55000
     },
     mana: {
         id: 20,
         name: "Mana",
-        description: "",
-        uri: "",
-        price: "5000000000000000000000",
-        amount: 1000
+        description: "SNK collected in the game arena are immediately credited to the character's TVL. This means that you will be able to withdraw them.From the moment of activation, it is valid for all games (Daily GP) available to this character within one game day.",
+        uri: "https://bafybeif5reodsts6vg2kym267jlnfslnpofstvoizky4rd374sgnidljva.ipfs.infura-ipfs.io/",
+        price: "83000000000000000000",
+        amount: 33000
     },
     digger: {
         id: 21,
         name: "Digger",
-        description: "",
-        uri: "",
-        price: "5000000000000000000000",
-        amount: 1000
+        description: "Transfers the entire Game Balance to the character's TVL. This means that you will be able to withdraw it.Disposable Artifact. Can be applied multiple times.",
+        uri: "https://bafybeiheck6ngj7fof5chswfxxxvghxgefm64zophwcisrzy4q4f4ojsnu.ipfs.infura-ipfs.io/",
+        price: "1200000000000000000000",
+        amount: 33000
     },
     joker: {
         id: 22,
         name: "Joker",
-        description: "",
-        uri: "",
-        price: "5000000000000000000000",
-        amount: 1000
+        description: "SNK collected in the gaming arena are immediately credited to the connected wallet. From the moment of activation, it is valid for all games (Daily GP) available to this character within one game day.",
+        uri: "https://bafybeiabqyjwerjpj37s5vz6fikl6v4h7eptsutpm5vt44nyn5z2jru76a.ipfs.infura-ipfs.io/",
+        price: "110000000000000000000",
+        amount: 33000
     },
     sniper: {
         id: 23,
         name: "Sniper",
-        description: "",
-        uri: "",
-        price: "5000000000000000000000",
-        amount: 1000
+        description: "Three static pixels appear on the arena at once. A new pixel appears after eating the previous one. This means that you will hunt pixels faster and earn more. From the moment of activation, it is valid for all games (Daily GP) available to this character within one game day.",
+        uri: "https://bafybeidtj6e4ez42m74ylhzg4ptllztxhlupxgpapfggfi5jhrehegapwy.ipfs.infura-ipfs.io/",
+        price: "60000000000000000000",
+        amount: 15000
     },
-    // killer: {
-    //     id: 24,
-    //     name: "Killer",
-    //     description: "",
-    //     uri: "",
-    //     price: "5000000000000000000000",
-    //     amount: 1000
-    // },
+    partnerDao: {
+        id: 24,
+        name: "Partner DAO",
+        description: "",
+        uri: "https://bafybeidq7nwjhlbkcd6a6b2xckfysiyhuxf4dsyrcsy6f7lx3zqqxo2nda.ipfs.infura-ipfs.io/",
+        price: "15000000000000000000000",
+        amount: 50000
+    },
+    masterDao: {
+        id: 25,
+        name: "Master DAO",
+        description: "",
+        uri: "https://bafybeidzdistkjdkr3ecbjpobddgstrzvcsbbcz25t2xshpmza4dh4mzl4.ipfs.infura-ipfs.io/",
+        price: "150000000000000000000000",
+        amount: 5000
+    }
 }
 
 const ARTIFACTS = [
@@ -225,10 +225,15 @@ const ARTIFACTS = [
     ARTIFACTS_METADATA.speedBuff,
     ARTIFACTS_METADATA.speedNoober,
     ARTIFACTS_METADATA.burger,
+    ARTIFACTS_METADATA.fiveGames,
+    ARTIFACTS_METADATA.tenGames,
     ARTIFACTS_METADATA.spasm,
     ARTIFACTS_METADATA.mana,
+    ARTIFACTS_METADATA.digger,
     ARTIFACTS_METADATA.joker,
-    ARTIFACTS_METADATA.sniper
+    ARTIFACTS_METADATA.sniper,
+    ARTIFACTS_METADATA.partnerDao,
+    ARTIFACTS_METADATA.masterDao
 ]
 
 const SNAKES_METADATA = {
