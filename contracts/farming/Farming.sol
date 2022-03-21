@@ -19,12 +19,9 @@ contract Farming is FarmingStorage {
 
     function getCurrentPoolRate(uint id) public view returns (uint) {
         FarmingPool memory farmingPool = pools[id];
-
-        if(farmingPool.CurrentPoolSize > farmingPool.MaxPoolSize) {
-            return farmingPool.MaxRate;
-        } else {
-            return farmingPool.MaxRate - (farmingPool.MaxRate * farmingPool.CurrentPoolSize / farmingPool.MaxPoolSize);
-        }
+        uint difference = (farmingPool.MaxRate - farmingPool.MinRate) * farmingPool.CurrentPoolSize / farmingPool.MaxPoolSize;
+        
+        return farmingPool.MaxRate - difference;  
     }
 
     function earned(address user, uint nonce) public view returns (uint) {
@@ -159,11 +156,8 @@ contract Farming is FarmingStorage {
     function _earned(FarmingInfo memory info) internal view returns (uint) {
         uint startPeriod = info.LastClaimRewardTimestamp != 0 ? info.LastClaimRewardTimestamp : info.StartTimestamp;
         uint endPeriod = info.StartTimestamp + info.LockPeriod;
+        uint earningPeriod = info.LockPeriod > 0 && block.timestamp > endPeriod ? endPeriod - startPeriod : block.timestamp - startPeriod;
 
-        if(info.LockPeriod > 0 && endPeriod > block.timestamp) {
-            return info.Amount * info.Rate * (endPeriod - startPeriod) / 365 days;
-        } else {
-            return info.Amount * info.Rate * (block.timestamp - startPeriod) / 365 days;
-        }
+        return info.Amount * info.Rate / 10e20 * earningPeriod / 365 days;
     }
 }
