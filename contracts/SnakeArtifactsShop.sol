@@ -21,7 +21,8 @@ contract SnakeArtifactsShop is SnakeArtifactsShopStorage {
     function buyArtifact(uint id, address purchaseToken, uint count) external {
         require(count > 0, "ArtifactsShop: Artifacts count must be greater than 0");
         require(allowedTokens[purchaseToken], "ArtifactsShop: Buying artifacts for this token is not allowed");
-        uint price = nftManager.getArtifactProperties(id).Price;
+        uint artifactPrice = nftManager.getArtifactProperties(id).Price;
+        uint price = whitelist[msg.sender] && id > 10 && id < 26 ? artifactPrice / 2 : artifactPrice;
         require(price > 0, "ArtifactsShop: Artifact not found or no corresponding pair");
         
         uint finalPrice = price * count;

@@ -30,11 +30,14 @@ contract SnakeArtifactsShopStorage is Initializable, Allowable, Convertable, Obj
 
     mapping(address => bool) public allowedTokens;
 
+    mapping(address => bool) public whitelist;
+
     event UpdateArtifactsOwner(address indexed newArtifactsOwner);
     event UpdateArtifactConract(address indexed artifacts);
     event UpdateNFTManager(address indexed nftManager);
     event UpdateAllowedTokens(address indexed token, bool indexed isAllowed);
     event UpdateCustodian(address indexed newCustodian);
+    event UpdateWhitelist(address indexed user, bool indexed promote);
 
     function updateArtifactsOwner(address newArtifactsOwner) external onlyOwner {
         require(newArtifactsOwner != address(0), "SnakeShop: newArtifactsOwner can not be zero address");
@@ -64,5 +67,11 @@ contract SnakeArtifactsShopStorage is Initializable, Allowable, Convertable, Obj
         require(newCustodian != address(0), "SnakeEggsShop: newCustodian can't be zero address");
         custodian = newCustodian;
         emit UpdateCustodian(newCustodian);
+    }
+
+    function updateWhitelist(address user, bool promote) external onlyOwner {
+        require(user != address(0), "SnakeEggsShop: user can't be zero address");
+        whitelist[user] = promote;
+        emit UpdateWhitelist(user, promote);
     }
 }
