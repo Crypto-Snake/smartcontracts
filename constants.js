@@ -11,7 +11,7 @@ const ARTIFACTS_METADATA = {
         name: "Mystery box",
         description: "Contains a random number of Snake tokens. Mystery box can contain from 0 to 10,000 Snake tokens.",
         uri: "https://bafybeih67u2nvw2k62cg2s4exdxnnccvu2nisthgi7hpl7zfa3qjyiccke.ipfs.infura-ipfs.io/",
-        price: "1000000000000000000000",
+        price: "10000000000000000000",
         amount: 10000
     },
     diamond: {
@@ -19,7 +19,7 @@ const ARTIFACTS_METADATA = {
         name: "Diamond",
         description: "Adds 50% to the APR of the snake during the game. Can be applied up to 4 times to one character",
         uri: "https://bafybeiafzvnk6rqgwyob2cud7y7pnl2ekjnkx73m3kksr37gynntlu4d5i.ipfs.infura-ipfs.io/",
-        price: "10000000000000000000000",
+        price: "100000000000000000000",
         amount: 100
     },
     bomb: {
@@ -27,7 +27,7 @@ const ARTIFACTS_METADATA = {
         name: "Bomb",
         description: "Can increase any TVL (Total Locked Value) by two or more times, but can also destroy the snake and all parameters, including the balance and accrued Snake tokens",
         uri: "https://bafybeicfhwnykg547mu3zipfuqkaxpyulm6s362aybcfpxcicd2xibdxka.ipfs.infura-ipfs.io/",
-        price: "30000000000000000000000",
+        price: "300000000000000000000",
         amount: 500
     },
     meat: {
@@ -35,7 +35,7 @@ const ARTIFACTS_METADATA = {
         name: "Mouse",
         description: "Increases the snake's TVL by 10%. Can be applied multiple times.",
         uri: "https://bafybeifxcadktftxquoflrqwoooo5lnvixwh5u5ltqlodzklfy6k3n2is4.ipfs.infura-ipfs.io/",
-        price: "50000000000000000000000",
+        price: "500000000000000000000",
         amount: 100
     },
     trophy: {
@@ -43,7 +43,7 @@ const ARTIFACTS_METADATA = {
         name: "Trophy",
         description: "Lottery trophy. Out of 1000 artifacts, only 100 have an effect, and the rest are dummies. 10% of the income of all players will be distributed among the hundred winners. This 10% will be generated in the form of new tokens, so that the rest of the players will not receive less.",
         uri: "https://bafybeiggph5xjpyfnsicdq725zaz7uk5ieitbcywapn2thjgyma57wlykq.ipfs.infura-ipfs.io/",
-        price: "100000000000000000000000",
+        price: "1000000000000000000000",
         amount: 1000
     },
     rainbowUnicorn: {
@@ -51,7 +51,7 @@ const ARTIFACTS_METADATA = {
         name: "Rainbow unicorn",
         description: "Is a mega cool unique artifact. Those with a rainbow unicorn receive 2% of the APR% of all players every month. The reward is paid in USD to the owner's wallet.",
         uri: "https://bafybeiesjeq7qccp4u2c4vjmnquwe7zisqx74bppzf3ih3sd63gv3hken4.ipfs.infura-ipfs.io/",
-        price: "10000000000000000000000000",
+        price: "100000000000000000000000",
         amount: 5
     },
     shadowSnake: {
@@ -67,7 +67,7 @@ const ARTIFACTS_METADATA = {
         name: "Snake hunter",
         description: "After applying this artifact, the entire current APR will be transferred to the character's owner's wallet monthly in Snake tokens, so you don't need to break the snake to get tokens.",
         uri: "https://bafybeigsv6qkxjgmkk7md67eiaxj2jempetp2e3qgylcsyi4vrjv34kib4.ipfs.infura-ipfs.io/",
-        price: "20000000000000000000000",
+        price: "200000000000000000000",
         amount: 500
     },
     snakeCharmer: {
@@ -75,7 +75,7 @@ const ARTIFACTS_METADATA = {
         name: "Snake charmer",
         description: "After applying this artifact, the entire current APR will be transferred to the character's owner's wallet monthly in USDT tokens, so you don't need to break the snake to get tokens.",
         uri: "https://bafybeihyliq6yjqjnc2rj36hybatchyzt7p4ihwguvn4mnaxptvqex3h5u.ipfs.infura-ipfs.io/",
-        price: "100000000000000000000000",
+        price: "1000000000000000000000",
         amount: 100
     },
     snakeTime: {
@@ -83,7 +83,7 @@ const ARTIFACTS_METADATA = {
         name: "Snake Time",
         description: "Transfers APR percentage to the owner's wallet in Snake tokens without destroying the snake. The artifact can be applied any number of times.",
         uri: "https://bafybeie7ea3im5khbwurcllwocd6enz3io27i3jjsslponebbsbdoumeke.ipfs.infura-ipfs.io/",
-        price: "5000000000000000000000",
+        price: "50000000000000000000",
         amount: 1000
     },
     pixelFreeze: {
@@ -193,7 +193,7 @@ const ARTIFACTS_METADATA = {
     partnerDao: {
         id: 24,
         name: "Partner DAO",
-        description: "",
+        description: "The artifact provides the right to vote on the functioning and development of the P2E game Cryptosnake.game. The weight of the vote of the owner of one NFT DAO Partner is 0.001% of the total number of community votes. The artifact was created for players who want to have access to early information about the game's development. By owning this artifact, you are a full co-owner of the game with the right to discuss and vote.",
         uri: "https://bafybeidq7nwjhlbkcd6a6b2xckfysiyhuxf4dsyrcsy6f7lx3zqqxo2nda.ipfs.infura-ipfs.io/",
         price: "15000000000000000000000",
         amount: 50000
@@ -201,7 +201,7 @@ const ARTIFACTS_METADATA = {
     masterDao: {
         id: 25,
         name: "Master DAO",
-        description: "",
+        description: "The artifact provides the right to vote on the functioning and development of the P2E game Cryptosnake.game. The weight of the vote of the owner of one NFT DAO Master is 0.01% of the total number of community votes. By owning this artifact, you are a real co-owner of the game with the right to discuss and vote.",
         uri: "https://bafybeidzdistkjdkr3ecbjpobddgstrzvcsbbcz25t2xshpmza4dh4mzl4.ipfs.infura-ipfs.io/",
         price: "150000000000000000000000",
         amount: 5000
