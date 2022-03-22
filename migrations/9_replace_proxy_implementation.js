@@ -1,4 +1,6 @@
 //truffle migrate --f 9 --to 9 --network bsctestnet
+//truffle migrate --f 9 --to 9 --network bscmainnet
+
 const fs = require('fs');
 
 let addresses = getAddresses();
@@ -147,25 +149,25 @@ module.exports = async function(deployer) {
         if (deployParams.replaceNFTManager) {
             console.log("===== Start replacing NFTManager contracts on proxy (5/9) =====");
 
-            // await deployer.deploy(NFTManager);
-            // nftManager = await NFTManager.deployed();
-            // console.log(`NFT manager address: ${nftManager.address}`)
-            // addresses.nftManager = nftManager.address;
+            await deployer.deploy(NFTManager);
+            nftManager = await NFTManager.deployed();
+            console.log(`NFT manager address: ${nftManager.address}`)
+            addresses.nftManager = nftManager.address;
 
-            // await deployer.deploy(NFTStatsManager);
-            // nftStatsManager = await NFTStatsManager.deployed();
-            // console.log(`NFT stats manager address: ${nftStatsManager.address}`)
-            // addresses.nftStatsManager = nftStatsManager.address;
+            await deployer.deploy(NFTStatsManager);
+            nftStatsManager = await NFTStatsManager.deployed();
+            console.log(`NFT stats manager address: ${nftStatsManager.address}`)
+            addresses.nftStatsManager = nftStatsManager.address;
 
-            // await deployer.deploy(NFTArtifactsManager);
-            // nftArtifactsManager = await NFTArtifactsManager.deployed();
-            // console.log(`NFT artifacts manager address: ${nftArtifactsManager.address}`)
-            // addresses.nftArtifactsManager = nftArtifactsManager.address;
+            await deployer.deploy(NFTArtifactsManager);
+            nftArtifactsManager = await NFTArtifactsManager.deployed();
+            console.log(`NFT artifacts manager address: ${nftArtifactsManager.address}`)
+            addresses.nftArtifactsManager = nftArtifactsManager.address;
 
-            // await deployer.deploy(NFTManagerRescue);
-            // nftManagerRescue = await NFTManagerRescue.deployed();
-            // console.log(`NFT rescue manager address: ${nftManagerRescue.address}`)
-            // addresses.nftManagerRescue = nftManagerRescue.address;
+            await deployer.deploy(NFTManagerRescue);
+            nftManagerRescue = await NFTManagerRescue.deployed();
+            console.log(`NFT rescue manager address: ${nftManagerRescue.address}`)
+            addresses.nftManagerRescue = nftManagerRescue.address;
 
             await deployer.deploy(NFTPropertiesManager);
             nftPropertiesManager = await NFTPropertiesManager.deployed();
@@ -174,10 +176,10 @@ module.exports = async function(deployer) {
 
             nftManagerProxy = await NFTManagerProxy.at(addresses.nftManagerProxy);
             
-            // await nftManagerProxy.addImplementationContract(addresses.nftManager);
-            // await nftManagerProxy.addImplementationContract(addresses.nftStatsManager);
-            // await nftManagerProxy.addImplementationContract(addresses.nftArtifactsManager);
-            // await nftManagerProxy.addImplementationContract(addresses.nftManagerRescue);
+            await nftManagerProxy.addImplementationContract(addresses.nftManager);
+            await nftManagerProxy.addImplementationContract(addresses.nftStatsManager);
+            await nftManagerProxy.addImplementationContract(addresses.nftArtifactsManager);
+            await nftManagerProxy.addImplementationContract(addresses.nftManagerRescue);
             await nftManagerProxy.addImplementationContract(addresses.nftPropertiesManager);
 
             fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
@@ -221,7 +223,7 @@ module.exports = async function(deployer) {
             snakeEggsShopProxy = await SnakeEggsShopProxy.at(addresses.snakeEggsShopProxy);
             await snakeEggsShopProxy.replaceImplementation(addresses.snakeEggsShop);
 
-            fs.writeFileSync('addresses_mainnet.json', JSON.stringify(addresses));
+            fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
         } else {
             snakeEggsShop = { address: addresses.snakeEggsShop };
             snakeEggsShopProxy = { address: addresses.snakeEggsShopProxy };

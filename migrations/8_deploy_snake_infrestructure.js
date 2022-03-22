@@ -1,4 +1,6 @@
 //truffle migrate --f 8 --to 8 --network bsctestnet
+//truffle migrate --f 8 --to 8 --network bscmainnet
+
 const fs = require('fs');
 const { EGGS, SNAKES } = require('../constants.js');
 
@@ -289,7 +291,9 @@ module.exports = async function(deployer) {
             addresses.snakeArtifactsShopProxy = snakeArtifactsShopProxy.address;
 
             snakeArtifactsShop = await SnakeArtifactsShop.at(addresses.snakeArtifactsShopProxy)
-            await snakeArtifactsShop.initialize(addresses.snakeArtifactsNFTProxy, addresses.nftManagerProxy, addresses.lockStakingRewardsPoolProxy, "0xd4dc28c3b384ea9f3a41a97cd202d63dd339474d");
+            await snakeArtifactsShop.updateAllowedTokens(addresses.busd, true);
+            await snakeArtifactsShop.updateAllowedTokens(addresses.snk, true);
+            await snakeArtifactsShop.initialize(addresses.snakeArtifactsNFTProxy, addresses.nftManagerProxy, addresses.lockStakingRewardsPoolProxy, "0xD4DC28c3B384EA9F3A41a97Cd202d63Dd339474d");
 
             fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
         } else {

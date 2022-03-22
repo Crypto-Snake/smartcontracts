@@ -1,9 +1,12 @@
 
+//truffle migrate --f 3 --to 3 --network bsctestnet
+//truffle migrate --f 3 --to 3 --network bscmainnet
+
 const fs = require('fs');
 const Web3 = require('web3');
 const constants = require('../constants.js')
 
-let addresses = require('../addresses_testnet.json');
+let addresses = require('../addresses_mainnet.json');
 const { get } = require('http');
 
 let snakeArtifactsNFT;
@@ -46,10 +49,22 @@ module.exports = function(deployer) {
         nftManager = await NFTPropertiesManager.at(addresses.nftManagerProxy);
         snakeArtifactsShop = await SnakeArtifactsShop.at(addresses.snakeArtifactsShopProxy);
 
+        await snakeArtifactsShop.updateAllowedTokens(addresses.busd, true);
         await snakeArtifactsShop.updateAllowedTokens(addresses.snk, true);
+
+        let whitelist = [];
+
+        for (const address of whitelist) {
+            await snakeArtifactsShop.updateWhitelist(address, true);
+            console.log(address);
+        }
 
         for (const artifact of constants.ARTIFACTS) {
             await nftManager.updateArtifactProperties(artifact.id, [artifact.name, artifact.description, artifact.uri, artifact.price])
+            console.log(artifact.id);
+            await nftManager.updateAllowedArtifacts(artifact.id, true)
+            let props = await nftManager.getArtifactProperties(artifact.id);
+            console.log(props);
         }
 
         let ids = constants.ARTIFACTS.map((a) => { return a.id });
