@@ -99,7 +99,7 @@ const ARTIFACTS_METADATA = {
         name: "Bombardo",
         description: "After being used in the arena, all bombs disappear. From the moment of activation, it is valid for all games (Daily GP) available to this character within one game day.",
         uri: "https://bafybeidspdwhg3j6sudjxrm32tzbat2aehzj2udgsfpkakmg7lzgjeks2q.ipfs.infura-ipfs.io/",
-        price: "45000000000000000000",
+        price: "75000000000000000000",
         amount: 40000
     },
     scaleArmor: {
@@ -115,7 +115,7 @@ const ARTIFACTS_METADATA = {
         name: "Speed Buff Prof",
         description: "Limits the maximum speed to 10 lvl. From the moment of activation, it is valid for all games (Daily GP) available to this character within one game day.",
         uri: "https://bafybeiauqhpqoj527hbooylra6xau6bqcfrk72mhhhb3lfqhycgky2klem.ipfs.infura-ipfs.io/",
-        price: "79000000000000000000",
+        price: "110000000000000000000",
         amount: 25000
     },
     speedNoober: {
@@ -123,7 +123,7 @@ const ARTIFACTS_METADATA = {
         name: "Speed Noober",
         description: "Limits the maximum speed to 5 lvl. From the moment of activation, it is valid for all games (Daily GP) available to this character within one game day.",
         uri: "https://bafybeifagt55o5vlp5y3tzlt3jfew7ubz2crgqjf3xxwkwvnhlxfg7eoaa.ipfs.infura-ipfs.io/",
-        price: "60000000000000000000",
+        price: "99000000000000000000",
         amount: 30000
     },
     burger: {
@@ -139,7 +139,7 @@ const ARTIFACTS_METADATA = {
         name: "+ 5 GP",
         description: "Gives +5 game sessions to the character until the end of the current game day. If you don’t use your games, they disappear next day.",
         uri: "https://bafybeihxc32mw2r65llhvjbdikdm3cta44wtrawuexkwxtnup6gvyni75a.ipfs.infura-ipfs.io/",
-        price: "180000000000000000000",
+        price: "250000000000000000000",
         amount: 20000
     },
     tenGames: {
@@ -147,7 +147,7 @@ const ARTIFACTS_METADATA = {
         name: "+ 10 GP",
         description: "Gives +10 game sessions to the character until the end of the current game day. If you don’t use your games, they disappear next day.",
         uri: "https://bafybeihtmyal3ejo3eh2pgqe75ewyxwb7qbenefm2naa6jn4tmmgzdxfoq.ipfs.infura-ipfs.io/",
-        price: "400000000000000000000",
+        price: "550000000000000000000",
         amount: 15000
     },
     spasm: {
@@ -187,7 +187,7 @@ const ARTIFACTS_METADATA = {
         name: "Sniper",
         description: "Three static pixels appear on the arena at once. A new pixel appears after eating the previous one. This means that you will hunt pixels faster and earn more. From the moment of activation, it is valid for all games (Daily GP) available to this character within one game day.",
         uri: "https://bafybeidtj6e4ez42m74ylhzg4ptllztxhlupxgpapfggfi5jhrehegapwy.ipfs.infura-ipfs.io/",
-        price: "60000000000000000000",
+        price: "99000000000000000000",
         amount: 15000
     },
     partnerDao: {
