@@ -2,30 +2,49 @@
 
 pragma solidity ^0.8.9;
 
+import "../interfaces/IPair.sol";
 import "./FarmingStorage.sol";
 import "../utils/Address.sol";
 import "../utils/TransferHelper.sol";
+import "../utils/Math.sol";
+
 
 contract Farming is FarmingStorage {
     
     event Stake(address indexed user, uint nonce, uint indexed stakeAmount, uint indexed rate, uint stakeTimestamp);
     event Withdraw(address indexed user, uint nonce, uint indexed withdrawAmount, uint withdrawTimestamp);
     event ClaimReward(address indexed user, uint nonce, uint indexed reward, uint claimRewardTimestamp);
-    event UpdatePoolProperties(address indexed stakingToken, uint indexed poolId, uint minRate, uint maxRate, uint maxPoolSize, uint lockPeriod);
 
-    function famingPool(uint id) external view returns (FarmingPool memory) {
+    function initialize(address _snakeToken, address _lpToken, address _router) external initializer {
+        require(Address.isContract(_snakeToken), "_snakeToken is not a contract");
+        require(Address.isContract(_lpToken), "_lpToken is not a contract");
+        require(Address.isContract(_router), "_router is not a contract");
+
+        snakeToken = _snakeToken;
+        lpToken = IPair(_lpToken);
+        router = IRouter(_router);
+
+        uint token0Decimals = IBEP20(lpToken.token0()).decimals();
+        uint token1Decimals = IBEP20(lpToken.token1()).decimals();
+
+        require(token0Decimals == 18 && token1Decimals == 18, "Wrong token decimals.");
+    }
+
+    function farmingPool(uint id) external view returns (StakingPool memory) {
         return pools[id];
     }
 
     function getCurrentPoolRate(uint id) public view returns (uint) {
-        FarmingPool memory farmingPool = pools[id];
-        uint difference = (farmingPool.MaxRate - farmingPool.MinRate) * farmingPool.CurrentPoolSize / farmingPool.MaxPoolSize;
+        StakingPool memory pool = pools[id];
         
-        return farmingPool.MaxRate - difference;  
+        uint currentPoolSize = pool.StakingToken == address(lpToken) ? pool.CurrentPoolSize * getCurrentLPPrice() / 10 ** 18 : pool.CurrentPoolSize;
+        uint difference = (pool.MaxRate - pool.MinRate) * currentPoolSize / pool.MaxPoolSize;
+        
+        return pool.MaxRate - difference;  
     }
 
     function earned(address user, uint nonce) public view returns (uint) {
-        FarmingInfo memory info = farmingInfo[user][nonce];
+        FarmingInfo memory info = stakeInfo[user][nonce];
         require(info.Amount != 0, "Farming: Stake amount is equal to 0");
         require(info.WithdrawTimestamp == 0, "Farming: Stake already withdrawn");
         
@@ -36,7 +55,7 @@ contract Farming is FarmingStorage {
         uint total;
 
         for (uint256 i = 0; i < nonces[user]; i++) {
-            FarmingInfo memory info = farmingInfo[user][i];
+            FarmingInfo memory info = stakeInfo[user][i];
 
             if(info.WithdrawTimestamp == 0) {
                 total += _earned(info);
@@ -45,12 +64,39 @@ contract Farming is FarmingStorage {
 
         return total;
     }
+
+    function getCurrentLPPrice() public view returns (uint) {
+        // LP PRICE = 2 * SQRT(reserveA * reaserveB ) * SQRT(token1/snakeTokenPrice * token2/snakeTokenPrice) / LPTotalSupply
+        uint tokenAToRewardPrice;
+        uint tokenBToRewardPrice;
+        address[] memory path = new address[](2);
+        path[1] = address(snakeToken);
+
+        if (lpToken.token0() != snakeToken) {
+            path[0] = lpToken.token0();
+            tokenAToRewardPrice = router.getAmountsOut(10 ** 18, path)[1];
+        } else {
+            tokenAToRewardPrice = 1e18;
+        }
+        
+        if (lpToken.token1() != snakeToken) {
+            path[0] = lpToken.token1();  
+            tokenBToRewardPrice = router.getAmountsOut(10 ** 18, path)[1];
+        } else {
+            tokenBToRewardPrice = 1e18;
+        }
+
+        uint totalLpSupply = lpToken.totalSupply();
+        require(totalLpSupply > 0, "Farming: No liquidity for pair");
+        (uint reserveA, uint reaserveB,) = lpToken.getReserves();
+        return uint(2) * Math.sqrt(reserveA * reaserveB) * Math.sqrt(tokenAToRewardPrice * tokenBToRewardPrice) / totalLpSupply;
+    }
     
     function totalStaked(address user) external view returns (uint) {
         uint total;
 
         for (uint256 i = 0; i < nonces[user]; i++) {
-            FarmingInfo memory info = farmingInfo[user][i];
+            FarmingInfo memory info = stakeInfo[user][i];
 
             if(info.WithdrawTimestamp == 0) {
                 total += info.Amount;
@@ -65,7 +111,7 @@ contract Farming is FarmingStorage {
         uint activeStakes;
 
         for (uint256 i = 0; i < nonces[user]; i++) {
-            FarmingInfo memory info = farmingInfo[user][i];
+            FarmingInfo memory info = stakeInfo[user][i];
 
             if(info.WithdrawTimestamp == 0) {
                 totalRate += info.Rate;
@@ -91,7 +137,7 @@ contract Farming is FarmingStorage {
 
     function claimTotalReward() external nonReentrant {
         for (uint256 i = 0; i < nonces[msg.sender]; i++) {
-            FarmingInfo memory info = farmingInfo[msg.sender][i];
+            FarmingInfo memory info = stakeInfo[msg.sender][i];
 
             if(info.WithdrawTimestamp == 0) {
                 _claimReward(i);
@@ -99,42 +145,32 @@ contract Farming is FarmingStorage {
         }
     }
 
-    function updatePoolProperties(address stakingToken, uint poolId, uint minRate, uint maxRate, uint maxPoolSize, uint lockPeriod) external onlyOwner {
-        require(Address.isContract(stakingToken), "stakingToken is not a contract");
-
-        pools[poolId].StakingToken = stakingToken;
-        pools[poolId].MinRate = minRate;
-        pools[poolId].MaxRate = maxRate;
-        pools[poolId].MaxPoolSize = maxPoolSize;
-        pools[poolId].LockPeriod = lockPeriod;
-        emit UpdatePoolProperties(stakingToken, poolId, minRate, maxRate, maxPoolSize, lockPeriod);
-    }
-
     function _stake(uint amount, uint poolId) internal {
         require(amount > 0, "Farming: Stake amount is equal to 0");
-        FarmingPool memory farmingPool = pools[poolId];
-        require(farmingPool.MinRate != 0, "Farming: pool does not exists");
+        StakingPool memory pool = pools[poolId];
+        require(pool.MinRate != 0, "Farming: pool does not exists");
 
+        uint equivalentAmount = amount * getCurrentLPPrice() / 10 ** 18;
 
         uint stakeNonce = nonces[msg.sender]++;
         uint rate = getCurrentPoolRate(poolId);
 
-        FarmingInfo memory info = FarmingInfo(farmingPool.StakingToken, amount, poolId, rate, farmingPool.CurrentPoolSize, farmingPool.LockPeriod, block.timestamp, 0, 0);
-        farmingInfo[msg.sender][stakeNonce] = info;
+        FarmingInfo memory info = FarmingInfo(pool.StakingToken, amount, equivalentAmount, poolId, rate, pool.CurrentPoolSize, pool.LockPeriod, block.timestamp, 0, 0);
+        stakeInfo[msg.sender][stakeNonce] = info;
 
-        TransferHelper.safeTransferFrom(farmingPool.StakingToken, msg.sender, address(this), amount);
+        TransferHelper.safeTransferFrom(pool.StakingToken, msg.sender, address(this), amount);
         pools[poolId].CurrentPoolSize += amount;
 
         emit Stake(msg.sender, stakeNonce, amount, rate, block.timestamp);
     } 
 
     function _withdraw(uint nonce) internal {
-        FarmingInfo memory info = farmingInfo[msg.sender][nonce];
+        FarmingInfo memory info = stakeInfo[msg.sender][nonce];
         require(info.Amount != 0, "Farming: Stake amount is equal to 0");
         require(info.WithdrawTimestamp == 0, "Farming: Stake already withdrawn");
         require(info.StartTimestamp + info.LockPeriod < block.timestamp, "Farming: Stake is locked");
 
-        farmingInfo[msg.sender][nonce].WithdrawTimestamp = block.timestamp;
+        stakeInfo[msg.sender][nonce].WithdrawTimestamp = block.timestamp;
         pools[info.Pool].CurrentPoolSize -= info.Amount;
 
         TransferHelper.safeTransfer(pools[info.Pool].StakingToken, msg.sender, info.Amount);
@@ -142,22 +178,21 @@ contract Farming is FarmingStorage {
     }
 
     function _claimReward(uint nonce) internal {
-        FarmingInfo memory info = farmingInfo[msg.sender][nonce];
+        FarmingInfo memory info = stakeInfo[msg.sender][nonce];
         require(info.Amount != 0, "Farming: Stake amount is equal to 0");
         require(info.WithdrawTimestamp == 0, "Farming: Stake already withdrawn");
 
         uint reward = earned(msg.sender, nonce);
-        farmingInfo[msg.sender][nonce].LastClaimRewardTimestamp = block.timestamp;
+        stakeInfo[msg.sender][nonce].LastClaimRewardTimestamp = block.timestamp;
 
-        TransferHelper.safeTransfer(pools[info.Pool].StakingToken, msg.sender, reward);
+        TransferHelper.safeTransfer(pools[info.Pool].RewardToken, msg.sender, reward);
         emit ClaimReward(msg.sender, nonce, reward, block.timestamp);
     }
 
     function _earned(FarmingInfo memory info) internal view returns (uint) {
         uint startPeriod = info.LastClaimRewardTimestamp != 0 ? info.LastClaimRewardTimestamp : info.StartTimestamp;
-        uint endPeriod = info.StartTimestamp + info.LockPeriod;
-        uint earningPeriod = info.LockPeriod > 0 && block.timestamp > endPeriod ? endPeriod - startPeriod : block.timestamp - startPeriod;
+        uint earningPeriod = block.timestamp - startPeriod;
 
-        return info.Amount * info.Rate / 10e20 * earningPeriod / 365 days;
+        return info.EquivalentAmount * info.Rate / 10e20 * earningPeriod / 365 days;
     }
 }
