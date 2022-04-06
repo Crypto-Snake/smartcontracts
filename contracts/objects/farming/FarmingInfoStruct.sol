@@ -6,6 +6,7 @@ abstract contract FarmingInfoStruct {
     struct FarmingInfo {
         address StakingToken;
         uint Amount;
+        uint EquivalentAmount;
         uint Pool;
         uint Rate;
         uint CurrentPoolSize;

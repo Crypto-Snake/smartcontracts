@@ -2,9 +2,10 @@
 
 pragma solidity ^0.8.9;
 
-abstract contract FarmingPoolStruct {
-    struct FarmingPool {
+abstract contract StakingPoolStruct {
+    struct StakingPool {
         address StakingToken;
+        address RewardToken;
         uint MinRate;
         uint MaxRate;
         uint CurrentPoolSize;
