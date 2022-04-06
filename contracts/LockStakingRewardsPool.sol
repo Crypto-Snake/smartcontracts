@@ -9,6 +9,8 @@ import "./storages/StakingPoolStorage.sol";
 
 contract LockStakingRewardsPool is ILockStakingRewardsPool, StakingPoolStorage {
 
+    uint public finishDate;
+
     event Staked(uint256 indexed tokenId, uint256 amount);
     event UpdateTotalSupply(uint256 totalSupply);
     event Withdrawn(uint256 indexed tokenId, uint256 amount, address indexed to);
@@ -61,8 +63,13 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, StakingPoolStorage {
         } else {
             rate = getRate(tokenId);
         }
+
+        if(block.timestamp > finishDate) {
+            return (tokenStakeInfo[tokenId].balance * (finishDate - tokenStakeInfo[tokenId].weightedStakeDate) * rate) / (percentPrecision * rewardDuration);
+        } else {
+            return (tokenStakeInfo[tokenId].balance * (block.timestamp - tokenStakeInfo[tokenId].weightedStakeDate) * rate) / (percentPrecision * rewardDuration);
+        }
         
-        return (tokenStakeInfo[tokenId].balance * (block.timestamp - tokenStakeInfo[tokenId].weightedStakeDate) * rate) / (percentPrecision * rewardDuration);
     }
 
     function getStakeAmountByNonce(uint tokenId, uint nonce) external view returns (uint) {
@@ -181,6 +188,10 @@ contract LockStakingRewardsPool is ILockStakingRewardsPool, StakingPoolStorage {
 
     function updateStakeIsLocked(uint256 tokenId, bool isLocked) external override onlyNFTManager {
         stakeInfo[tokenId][0].isLocked = isLocked;
+    }
+
+    function updateFinishDate(uint timestamp) external onlyOwner {
+        finishDate = timestamp;
     }
 
     function _stake(uint256 amount, uint256 tokenId, uint rate, bool isLocked) private {

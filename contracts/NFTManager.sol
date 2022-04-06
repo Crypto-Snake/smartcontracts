@@ -30,15 +30,13 @@ contract NFTManager is NFTManagerBase {
         snakeEggsNFT.safeBurn(tokenId);
         snakesNFT.safeMint(msg.sender, tokenId);        
 
-        uint rate = stats.SnakeType == 5 ? blackMambaBaseRate() : baseRate;
+        uint rate = 0;
         uint stakingAmount = stats.PurchasingAmount;
 
         if(stats.PurchasingTime > halvingDate()) {
-            rate = rate / 2;
             stakingAmount = stakingAmount / 2;
         }
 
-        stakingPool.stakeFor(stakingAmount, tokenId, rate, false);
         snakes[tokenId] = SnakeStats(tokenId, stats.SnakeType, block.timestamp, rate, 0, stakingAmount, 0, 0, 0, 0, 0, 1, false, 0);
         
         snakeAppliedArtifacts[tokenId] = SnakeAppliedArtifacts(0, 0, 0, 0, 0, 0, false, false, false, 0);
@@ -65,28 +63,5 @@ contract NFTManager is NFTManagerBase {
         if(snakeEquivalentAmount > treshold) {
             snakes[snakeId].TimesFeededMoreThanTreshold += 1;
         }
-
-        if(stats.Type != 5) {
-            uint rateUpdates = snakes[snakeId].StakeAmount / (getSnakeStartPrice(snakeId) * 10) + 1;
-
-            if(rateUpdates > 11) {
-                rateUpdates = 11;
-            }
-            
-            uint updateTimes = rateUpdates - stats.TimesRateUpdated;
-
-            if(updateTimes > 0 && snakes[snakeId].APR < maxRate) {
-                if(stats.TimesRateUpdated == 1) {
-                    snakes[snakeId].APR += bonusFeedRate;
-                } 
-                
-                snakes[snakeId].APR += (updateTimes * bonusFeedRate);
-                snakes[snakeId].TimesRateUpdated = rateUpdates;
-            }
-        }
-        
-        uint totalAPR = snakes[snakeId].APR + snakes[snakeId].BonusAPR;
-
-        stakingPool.stakeFor(snakeEquivalentAmount, snakeId, totalAPR, false);
     }
 }

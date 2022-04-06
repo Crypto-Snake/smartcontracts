@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./storages/NFTManagerStorage.sol";
+import "./utils/TransferHelper.sol";
 
 contract NFTManagerBase is NFTManagerStorage {
 
@@ -322,14 +323,11 @@ contract NFTManagerBase is NFTManagerStorage {
                 snakes[snakeId].StakeAmount -= amount;
 
                 if(snakes[snakeId].StakeAmount < getSnakeDeathPoint(snakeId)) {
-                    stakingPool.updateAmountForStake(snakeId, amount, increase);
                     _destroySnake(snakeId, true);
                     snakes[snakeId].IsDead = true;
                     return;
                 }
             }
-
-            stakingPool.updateAmountForStake(snakeId, amount, increase);
         }
         
         emit UpdateStakeAmount(snakeId, stats.StakeAmount, snakes[snakeId].StakeAmount, msg.sender, artifactId);
@@ -353,8 +351,10 @@ contract NFTManagerBase is NFTManagerStorage {
         SnakeStats memory stats = snakes[tokenId];
         require(block.timestamp > stats.DestroyLock, "NFTManager: Cannot destroy snake on lock");
 
+        uint amount = stats.StakeAmount + stats.GameBalance + stakingPool.earned(tokenId);
+
         if(!hasCrashed) {
-            stakingPool.withdrawAndGetReward(tokenId, receiver);
+            TransferHelper.safeTransfer(snakeToken, receiver, amount);
             emit DestroySnake(tokenId);
         } else {
             emit UpdateStakeIsDead(tokenId, 0);
