@@ -55,6 +55,8 @@ let SnakeP2P = artifacts.require("SnakeP2P");
 let SnakeP2PProxy = artifacts.require("SnakeP2PProxy");
 let Farming = artifacts.require("Farming");
 let FarmingProxy = artifacts.require("FarmingProxy");
+let Staking = artifacts.require("Staking");
+let StakingProxy = artifacts.require("StakingProxy");
 
 async function getSnakeStats(id) {
     nftManager = await NFTManager.at(addresses.nftManagerProxy);
@@ -326,18 +328,43 @@ module.exports = async function(deployer) {
         //#region DEPLOY FARMING 8/9
         if (deployParams.deployFarming) {
             console.log("===== Start deploying Farming (8/9) =====");
+
             await deployer.deploy(Farming);
             farming = await Farming.deployed();
             console.log(`farming contract address: ${farming.address}`)
             addresses.farming = farming.address;
 
-            farmingProxy = await FarmingProxy.at(addresses.farmingProxy);
-            await farmingProxy.replaceImplementation(addresses.farming);
+            await deployer.deploy(FarmingProxy, addresses.farming);
+            farmingProxy = await FarmingProxy.deployed();
+            console.log(`farming proxy address: ${farmingProxy.address}`)
+            addresses.farmingProxy = farmingProxy.address;
 
+            farming = await Farming.at(addresses.farmingProxy);
+            await farming.initialize(addresses.snk, addresses.lp, addresses.router);
+            await farming.updatePoolProperties(1, addresses.lp, addresses.snk, "15000000000000000000", "44000000000000000000", "70000000000000000000000000", 0)
+
+            await deployer.deploy(Staking);
+            staking = await Staking.deployed();
+            console.log(`staking contract address: ${staking.address}`)
+            addresses.staking = staking.address;
+
+            await deployer.deploy(StakingProxy, addresses.staking);
+            stakingProxy = await StakingProxy.deployed();
+            console.log(`staking proxy address: ${stakingProxy.address}`)
+            addresses.stakingProxy = stakingProxy.address;
+
+            staking = await Staking.at(addresses.stakingProxy);
+            await staking.initialize(addresses.snk);
+            await staking.updatePoolProperties(1, addresses.snk, addresses.snk, "3000000000000000000", "7000000000000000000", "5000000000000000000000000", 1800)
+            await staking.updatePoolProperties(2, addresses.snk, addresses.snk, "5000000000000000000", "11000000000000000000", "10000000000000000000000000", 3600)
+            await staking.updatePoolProperties(3, addresses.snk, addresses.snk, "7000000000000000000", "15000000000000000000", "20000000000000000000000000", 7200)
+ 
             fs.writeFileSync('addresses_testnet.json', JSON.stringify(addresses));
         } else {
             farming = { address: addresses.farming };
             farmingProxy = { address: addresses.farmingProxy };
+            staking = { address: addresses.staking };
+            stakingProxy = { address: addresses.stakingProxy };
         }
         //#endregion
 

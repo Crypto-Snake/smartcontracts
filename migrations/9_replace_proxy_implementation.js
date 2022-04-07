@@ -54,6 +54,8 @@ let SnakeP2P = artifacts.require("SnakeP2P");
 let SnakeP2PProxy = artifacts.require("SnakeP2PProxy")
 let Farming = artifacts.require("Farming");
 let FarmingProxy = artifacts.require("FarmingProxy");
+let Staking = artifacts.require("Staking");
+let StakingProxy = artifacts.require("StakingProxy");
 
 module.exports = async function(deployer) {
     const deployParams = {
@@ -251,6 +253,15 @@ module.exports = async function(deployer) {
         //#region REPLACE FARMING 9/9
         if (deployParams.replaceFarming) {
             console.log("===== Start replacing Farming contract on proxy (9/9) =====");
+
+            await deployer.deploy(Staking);
+            staking = await Staking.deployed();
+            console.log(`staking contract address: ${staking.address}`)
+            addresses.staking = staking.address;
+
+            stakingProxy = await StakingProxy.at(addresses.stakingProxy);
+            await stakingProxy.replaceImplementation(addresses.staking);
+
             await deployer.deploy(Farming);
             farming = await Farming.deployed();
             console.log(`farming contract address: ${farming.address}`)
