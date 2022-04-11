@@ -193,6 +193,6 @@ contract Farming is FarmingStorage {
         uint startPeriod = info.LastClaimRewardTimestamp != 0 ? info.LastClaimRewardTimestamp : info.StartTimestamp;
         uint earningPeriod = block.timestamp - startPeriod;
 
-        return info.EquivalentAmount * info.Rate / 10e20 * earningPeriod / 365 days;
+        return info.EquivalentAmount * info.Rate / 1e20 * earningPeriod / 365 days;
     }
 }

@@ -26,7 +26,8 @@ contract Staking is StakingStorage {
         StakingPool memory pool = pools[id];
         uint difference = (pool.MaxRate - pool.MinRate) * pool.CurrentPoolSize / pool.MaxPoolSize;
         
-        return pool.MaxRate - difference;  
+        uint rate = difference > pool.MaxRate ? pool.MinRate : pool.MaxRate - difference;
+        return rate;  
     }
 
     function earned(address user, uint nonce) public view returns (uint) {
@@ -157,6 +158,6 @@ contract Staking is StakingStorage {
             earningPeriod = info.LockPeriod > 0 && block.timestamp > endPeriod ? endPeriod - startPeriod : block.timestamp - startPeriod;
         }
 
-        return info.Amount * info.Rate / 10e20 * earningPeriod / 365 days;
+        return info.Amount * info.Rate / 1e20 * earningPeriod / 365 days;
     }
 }
