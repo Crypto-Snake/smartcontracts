@@ -1,6 +1,7 @@
 {
     "busd": "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
     "snk": "0x53a38D12b84a7413eDa4B1206A7A28B59Aed9850",
+    "lp": "0xB2D1b529B4E61156798393F0e97FA9b4a1490502",
     "snakeVesting": "0xD091c84d43FaF449Cb41f88fe85c2Ae15Dab4400",
     "router": "0x10ED43C718714eb63d5aA57B78B54704E256024E",
     "snakeArtifactsNFT": "0x12cfefFc6EbDaE7d1bbe6647EE131194478553FA",
@@ -9,13 +10,13 @@
     "snakeEggsNFTProxy": "0xac531FC69C64f7fd8E5BeA674FF8c2fd38c3734f",
     "snakesNFT": "0x3e9C31B5445a76de0189299cF0E7F5528C814E8F",
     "snakesNFTProxy": "0x60eeA3b56dCb94b2FF00167e53C4714DbBeC7952",
-    "lockStakingRewardsPool": "0x74bD43e155b86c404eBE007Db162A427cefeCBd2",
+    "lockStakingRewardsPool": "0x113a3B4cAbBEb6cf7e62D34668ed6280Be4a7F85",
     "lockStakingRewardsPoolProxy": "0xbb2d680b83ee0c7E1d13cf418f7754E923775Fd6",
-    "nftManager": "0xAcfbaB16F60f90baeaa7b6f8df2E5f39Ffaca681",
-    "nftStatsManager": "0x10cccb845416344d4900d095ed1b494ad14ec88d",
-    "nftArtifactsManager": "0x1C6b832027b5F48c9F1c0b218E73985B9f86455C",
-    "nftManagerRescue": "0xCA9eb1f873FcA9105088045Bf37D5AFFC33FAcf2",
-    "nftPropertiesManager": "0xDe272f4916Ba3074e71425926F36f7fB4A58C6A6",
+    "nftManager": "0x668301Fd25cDf619fe434e6a426b47b9a6D90FF7",
+    "nftStatsManager": "0xff0A2C9DC39a901b828684C30b13654E0bb5E14E",
+    "nftArtifactsManager": "0x1f1F414697d5f988FE3b36F124CAB1404A03A3DD",
+    "nftManagerRescue": "0xfe5dea256662f16085da50a6114d31272f341fd7",
+    "nftPropertiesManager": "0x0D4D138Db37989cEB8A775Fa4A84Ce344C097Ff6",
     "nftManagerProxy": "0xb57f85cab3942b673c1aca56733bd2b311bdb994",
     "snakeEggsShop": "0x9ac8843F3F9E5CD0646a6E3FC4E316458ACA2400",
     "snakeEggsShopProxy": "0x46Fa562b41C4e9c941b7b6B01C627C9feB825a3B",
@@ -23,5 +24,9 @@
     "snakeArtifactsShopProxy": "0xE4f73Cb6645CeC6e0478C6a6aD8e7b9F7b028FD7",
     "snakeP2P": "0xf001A039C2A3e0FA8a59723FD67Dd11f3f065B91",
     "snakeP2PProxy": "0x08b131392c9424d520862450c9a6a6F5D104247a",
-    "mergedSnake": "0xD2601e1B2caEDbF6dcbdBabCa1694576D75b1C1B"
+    "mergedSnake": "0xD2601e1B2caEDbF6dcbdBabCa1694576D75b1C1B",
+    "farming": "",
+    "farmingProxy": "",
+    "staking": "",
+    "stakingProxy": ""
 }
